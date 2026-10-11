@@ -29,6 +29,19 @@ const LAND_TIME = 0.18;
 const EMOTE_FADE_IN = 0.2;
 const EMOTE_FADE_OUT = 0.25;
 
+// The pickaxe model is about 1 m long; this is its length in the hand.
+const PICKAXE_SCALE = 0.5;
+// Where the hand holds the handle, in model units from the bottom.
+const PICKAXE_GRIP = 0.18;
+// Gap between the character and a rock's edge that still counts as in reach.
+const MINE_REACH = 0.35;
+const MINE_SWINGS = 3;
+const SWING_TIME = 0.8;
+// Fraction of a swing when the pick hits the rock.
+const STRIKE_AT = 0.6;
+const BREAK_TIME = 0.35;
+const DEBRIS_TIME = 0.9;
+
 // Where copies of the ore vein are placed; the first is the original spot.
 const ORE_SPOTS = [
   { x: 1.55, z: -1.05, rot: 0, scale: 1 },
@@ -126,6 +139,21 @@ let landTimer = 0;
 let emote = null;
 const emoteButtons = new Map();
 
+// Pickaxe: the loaded model, its skins from models/pickaxe-skins.json, and
+// which skin is on. It's attached to hand_r once the character has loaded.
+let pickaxe = null;
+const restHand = { hand: new THREE.Matrix4(), grip: new THREE.Vector3() };
+let skins = [];
+let skinIndex = 0;
+const skinButtons = [];
+
+// Ore veins that can still be mined, and the one being mined right now:
+// { vein, x, z, t, strikes, fadeT } with fadeT >= 0 once the swing winds down.
+const veins = [];
+let mining = null;
+// Breaking veins and flying rock chips: { update(dt) -> false when finished }.
+const effects = [];
+
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -194,6 +222,7 @@ let lastY = 0;
 
 loadCharacter();
 loadOre();
+loadPickaxe();
 renderer.setAnimationLoop(frame);
 
 function buildPlatform() {
@@ -325,8 +354,20 @@ function loadCharacter() {
       const ankle = bones.foot_l.getWorldPosition(new THREE.Vector3());
       legLength = hip.distanceTo(knee) + knee.distanceTo(ankle);
 
+      // The right hand's rest pose and grip point in character space, for
+      // attaching the pickaxe.
+      character.updateMatrixWorld(true);
+      const toCharacter = character.matrixWorld.clone().invert();
+      restHand.hand.multiplyMatrices(toCharacter, bones.hand_r.matrixWorld);
+      restHand.grip.setFromMatrixPosition(bones.hand_r.matrixWorld);
+      if (bones.middle_metacarpal_r) {
+        restHand.grip.lerp(bones.middle_metacarpal_r.getWorldPosition(new THREE.Vector3()), 0.6);
+      }
+      restHand.grip.applyMatrix4(toCharacter);
+
       ready = true;
       status.classList.add("hidden");
+      attachPickaxe();
       frame(0);
     },
     undefined,
@@ -373,10 +414,230 @@ function loadOre() {
       vein.scale.setScalar(spot.scale);
       scene.add(vein);
       addRockColliders(vein);
+      veins.push(vein);
     }
   }, undefined, (error) => {
     console.error(error);
   });
+}
+
+function loadPickaxe() {
+  Promise.all([
+    fetch("./models/pickaxe-skins.json").then((res) => res.json()),
+    new GLTFLoader().loadAsync("./models/pickaxe.glb"),
+  ])
+    .then(([json, gltf]) => {
+      skins = Object.entries(json)
+        .filter(([key]) => !key.startsWith("_"))
+        .map(([id, skin]) => ({ id, ...skin }));
+      pickaxe = gltf.scene;
+      pickaxe.traverse((obj) => {
+        if (obj.isMesh) obj.castShadow = true;
+      });
+      buildSkinPanel();
+      setSkin(0);
+      attachPickaxe();
+    })
+    .catch((error) => console.error("Could not load the pickaxe", error));
+}
+
+// Puts the pickaxe in the right hand. In the rest pose the handle points
+// forward and up, with the head upright; mining poses swing it from there.
+// Works from the hand's rest pose in character space, so it doesn't matter
+// where the character is or what it's doing when the pickaxe finishes loading.
+function attachPickaxe() {
+  if (!ready || !pickaxe || pickaxe.parent) return;
+  const { hand: handRest, grip } = restHand;
+  const handleDir = new THREE.Vector3(0, 0.6, 0.8);
+  const headDir = new THREE.Vector3(0, 0.8, -0.6);
+  const basis = new THREE.Matrix4().makeBasis(
+    headDir,
+    handleDir,
+    new THREE.Vector3().crossVectors(headDir, handleDir)
+  );
+  const placed = new THREE.Matrix4()
+    .makeTranslation(grip.x, grip.y, grip.z)
+    .multiply(basis)
+    .multiply(new THREE.Matrix4().makeScale(PICKAXE_SCALE, PICKAXE_SCALE, PICKAXE_SCALE))
+    .multiply(new THREE.Matrix4().makeTranslation(0, -PICKAXE_GRIP, 0));
+  bones.hand_r.add(pickaxe);
+  pickaxe.matrix.copy(handRest).invert().multiply(placed);
+  pickaxe.matrix.decompose(pickaxe.position, pickaxe.quaternion, pickaxe.scale);
+}
+
+// Colours or hides each part of the pickaxe, by its Pick_<Part> material.
+function setSkin(index) {
+  if (!pickaxe || !skins.length) return;
+  skinIndex = (index + skins.length) % skins.length;
+  const skin = skins[skinIndex];
+  pickaxe.traverse((obj) => {
+    if (!obj.isMesh) return;
+    const part = obj.material.name.replace(/^Pick_/, "");
+    const spec = skin.parts[part] || {};
+    obj.visible = spec.visible !== false;
+    if (!obj.visible) return;
+    obj.material.color.set(spec.color || "#ffffff");
+    obj.material.metalness = spec.metalness ?? 0;
+    obj.material.roughness = spec.roughness ?? 0.8;
+  });
+  skinButtons.forEach((button, i) => button.classList.toggle("active", i === skinIndex));
+}
+
+function buildSkinPanel() {
+  const grid = document.querySelector("#skins .grid");
+  skins.forEach((skin, i) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.tabIndex = -1;
+    button.title = skin.label;
+    button.innerHTML = `<img src="./${skin.sprite}" alt="">${skin.label}`;
+    button.addEventListener("mousedown", (event) => event.preventDefault());
+    button.addEventListener("click", () => setSkin(i));
+    grid.appendChild(button);
+    skinButtons.push(button);
+  });
+  document.getElementById("skins").classList.remove("hidden");
+}
+
+// The closest rock edge in reach, as { vein, x, z } (the rock's centre), or null.
+function rockInReach() {
+  const p = character.position;
+  let best = null;
+  let bestGap = MINE_REACH;
+  for (const c of colliders) {
+    const gap = Math.hypot(p.x - c.x, p.z - c.z) - c.r - CHAR_RADIUS;
+    if (gap < bestGap) {
+      bestGap = gap;
+      best = c;
+    }
+  }
+  return best && { vein: best.vein, x: best.x, z: best.z };
+}
+
+function startMining() {
+  if (!ready || airborne || (mining && mining.fadeT < 0)) return;
+  const rock = rockInReach();
+  if (!rock) return;
+  stopEmote();
+  mining = { ...rock, t: 0, strikes: 0, fadeT: -1 };
+}
+
+function stopMining() {
+  if (mining && mining.fadeT < 0) mining.fadeT = 0;
+}
+
+// Turns to face the rock, counts strikes and breaks the vein on the last one.
+// Returns the mining pose's blend weight (0..1).
+function updateMining(dt) {
+  if (!mining) return 0;
+  mining.t += dt;
+  let weight = Math.min(1, mining.t / EMOTE_FADE_IN);
+  if (mining.fadeT >= 0) {
+    mining.fadeT += dt;
+    weight *= 1 - mining.fadeT / EMOTE_FADE_OUT;
+    if (mining.fadeT >= EMOTE_FADE_OUT) {
+      mining = null;
+      return 0;
+    }
+    return Math.max(0, weight);
+  }
+
+  const p = character.position;
+  const targetYaw = Math.atan2(mining.x - p.x, mining.z - p.z);
+  const turn = Math.atan2(Math.sin(targetYaw - yaw), Math.cos(targetYaw - yaw));
+  yaw += turn * (1 - Math.exp(-12 * dt));
+  character.rotation.y = yaw;
+
+  if (mining.strikes < MINE_SWINGS && mining.t >= (mining.strikes + STRIKE_AT) * SWING_TIME) {
+    mining.strikes++;
+    if (mining.strikes < MINE_SWINGS) mining.vein.userData.shake = 0.18;
+    else breakVein(mining.vein);
+  }
+  // Let the last swing finish before lowering the arm.
+  if (mining.t >= MINE_SWINGS * SWING_TIME) mining.fadeT = 0;
+  return weight;
+}
+
+// Removes the vein's colliders straight away, then shrinks it into the
+// ground and throws out a few rock chips.
+function breakVein(vein) {
+  veins.splice(veins.indexOf(vein), 1);
+  for (let i = colliders.length - 1; i >= 0; i--) {
+    if (colliders[i].vein === vein) colliders.splice(i, 1);
+  }
+
+  const start = vein.scale.x;
+  let t = 0;
+  effects.push({
+    update(dt) {
+      t += dt;
+      const k = Math.min(1, t / BREAK_TIME);
+      vein.scale.setScalar(start * (1 - k * k));
+      if (k < 1) return true;
+      vein.removeFromParent();
+      return false;
+    },
+  });
+
+  const box = new THREE.Box3().setFromObject(vein);
+  const centre = box.getCenter(new THREE.Vector3());
+  const geometry = new THREE.DodecahedronGeometry(0.05, 0);
+  const material = new THREE.MeshStandardMaterial({ color: "#6f6a64", roughness: 0.95 });
+  const chips = 10;
+  let chipsLeft = chips;
+  for (let i = 0; i < chips; i++) {
+    const chip = new THREE.Mesh(geometry, material);
+    const angle = (i / chips) * Math.PI * 2 + Math.random() * 0.5;
+    const speed = 0.9 + Math.random() * 1.1;
+    const vel = new THREE.Vector3(Math.cos(angle) * speed, 1.8 + Math.random() * 1.6, Math.sin(angle) * speed);
+    const spin = new THREE.Vector3(Math.random(), Math.random(), Math.random()).multiplyScalar(10);
+    const size = 0.6 + Math.random() * 0.9;
+    chip.position.copy(centre);
+    chip.scale.setScalar(size);
+    chip.castShadow = true;
+    scene.add(chip);
+    let life = 0;
+    effects.push({
+      update(dt) {
+        life += dt;
+        vel.y -= GRAVITY * dt;
+        chip.position.addScaledVector(vel, dt);
+        if (chip.position.y < 0.04) {
+          chip.position.y = 0.04;
+          vel.set(vel.x * 0.5, Math.abs(vel.y) * 0.3, vel.z * 0.5);
+        }
+        chip.rotation.x += spin.x * dt;
+        chip.rotation.y += spin.y * dt;
+        chip.scale.setScalar(size * THREE.MathUtils.clamp((DEBRIS_TIME - life) / 0.25, 0, 1));
+        if (life < DEBRIS_TIME) return true;
+        chip.removeFromParent();
+        if (--chipsLeft === 0) {
+          geometry.dispose();
+          material.dispose();
+        }
+        return false;
+      },
+    });
+  }
+}
+
+function updateEffects(dt) {
+  for (let i = effects.length - 1; i >= 0; i--) {
+    if (!effects[i].update(dt)) effects.splice(i, 1);
+  }
+  for (const vein of veins) {
+    const shake = vein.userData.shake || 0;
+    if (!vein.userData.home) vein.userData.home = vein.position.clone();
+    vein.position.copy(vein.userData.home);
+    if (shake <= 0) continue;
+    vein.userData.shake = Math.max(0, shake - dt);
+    vein.position.x += (Math.random() - 0.5) * shake * 0.25;
+    vein.position.z += (Math.random() - 0.5) * shake * 0.25;
+  }
+  document.getElementById("prompt").classList.toggle(
+    "hidden",
+    !ready || airborne || !!mining || !rockInReach()
+  );
 }
 
 // One circle on the ground per rock mesh, sized from its world bounding box.
@@ -397,6 +658,7 @@ function addRockColliders(vein) {
       x: center.x,
       z: center.z,
       r: (Math.max(size.x, size.z) / 2) * ROCK_TIGHTEN,
+      vein,
     });
   });
 }
@@ -439,6 +701,8 @@ function onKeyDown(event) {
   if (event.repeat) return;
   if (event.code === "Space") jump();
   if (event.code === "KeyE") toggleEmotePanel();
+  if (event.code === "KeyF") startMining();
+  if (event.code === "KeyQ") setSkin(skinIndex + 1);
   const slot = /^Digit([1-9])$/.exec(event.code);
   if (slot && EMOTES[slot[1] - 1]) playEmote(EMOTES[slot[1] - 1]);
 }
@@ -446,6 +710,7 @@ function onKeyDown(event) {
 function jump() {
   if (!ready || airborne) return;
   stopEmote();
+  stopMining();
   airborne = true;
   jumpVel = JUMP_SPEED;
 }
@@ -488,6 +753,7 @@ function toggleEmotePanel() {
 function playEmote(def) {
   if (!ready || airborne) return;
   if (emote && emote.def === def && emote.fadeT < 0) return;
+  stopMining();
   emote = { def, t: 0, fadeT: -1 };
   markActiveEmote();
 }
@@ -711,6 +977,28 @@ function shrugPose(t) {
   return p;
 }
 
+// A two-handed overhead chop: wind up slowly, strike fast at STRIKE_AT,
+// then recover. The wrist stays cocked so the pick points up over the shoulder
+// on the wind-up and down into the rock on the strike.
+function minePose(t) {
+  const p = newPose();
+  const u = (t % SWING_TIME) / SWING_TIME;
+  const raise =
+    u < STRIKE_AT
+      ? THREE.MathUtils.smoothstep(u, 0, STRIKE_AT * 0.85)
+      : 1 - THREE.MathUtils.smoothstep(u, STRIKE_AT, STRIKE_AT + 0.08);
+  const hit = 1 - raise;
+  bendKnees(p, 0.18);
+  bend(p, "spine_01", 0.3 * hit - 0.12 * raise);
+  bend(p, "upperarm_r", -0.7 - 1.7 * raise, 0, -0.25);
+  bend(p, "lowerarm_r", -0.5 * raise);
+  bend(p, "hand_r", 1.2 * hit + 1.1 * raise);
+  bend(p, "upperarm_l", -0.7 - 1.5 * raise, -0.3, 0.2);
+  bend(p, "lowerarm_l", -0.5 * raise, 0, 0.4);
+  bend(p, "head", -0.15 * raise + 0.15 * hit);
+  return p;
+}
+
 function jumpPose() {
   const p = newPose();
   bendKnees(p, 0.55 * airBlend, false);
@@ -720,21 +1008,14 @@ function jumpPose() {
   return p;
 }
 
-// Layers the jump pose and the current emote on top of the walk cycle.
-function applyPose(emoteWeight) {
+// Layers the jump pose, the current emote and mining on top of the walk cycle.
+function applyPose(emoteWeight, mineWeight) {
   for (const name of POSE_BONES) {
     if (bones[name] && !BONES.includes(name)) bones[name].quaternion.copy(restLocal.get(name));
   }
   const pose = jumpPose();
-  if (emote && emoteWeight > 0) {
-    const extra = emote.def.pose(emote.t);
-    for (const name of POSE_BONES) {
-      if (!extra[name]) continue;
-      const [x, y, z] = extra[name];
-      bend(pose, name, x * emoteWeight, y * emoteWeight, z * emoteWeight);
-    }
-    pose.drop += extra.drop * emoteWeight;
-  }
+  if (emote && emoteWeight > 0) addPose(pose, emote.def.pose(emote.t), emoteWeight);
+  if (mining && mineWeight > 0) addPose(pose, minePose(mining.t), mineWeight);
 
   qD.copy(character.quaternion).invert();
   for (const name of POSE_BONES) {
@@ -749,6 +1030,15 @@ function applyPose(emoteWeight) {
     bone.quaternion.premultiply(qC);
   }
   modelHolder.position.y -= pose.drop;
+}
+
+function addPose(pose, extra, weight) {
+  for (const name of POSE_BONES) {
+    if (!extra[name]) continue;
+    const [x, y, z] = extra[name];
+    bend(pose, name, x * weight, y * weight, z * weight);
+  }
+  pose.drop += extra.drop * weight;
 }
 
 function updateMove(dt) {
@@ -767,6 +1057,7 @@ function updateMove(dt) {
   const len = Math.hypot(ix, iz);
   if (len > 0) {
     stopEmote();
+    stopMining();
     ix /= len;
     iz /= len;
     vMove.set(vForward.x * iz + vRight.x * ix, 0, vForward.z * iz + vRight.z * ix);
@@ -807,13 +1098,15 @@ function frame() {
     updateMove(dt);
     updateJump(dt);
     const emoteWeight = updateEmote(dt);
+    const mineWeight = updateMining(dt);
     applyGait();
-    applyPose(emoteWeight);
+    applyPose(emoteWeight, mineWeight);
     blob.position.x = character.position.x;
     blob.position.z = character.position.z;
     blob.scale.setScalar(1 / (1 + jumpY * 1.5));
     blob.material.opacity = 1 - Math.min(0.6, jumpY);
   }
+  updateEffects(dt);
   updateCamera(dt, !ready);
   renderer.render(scene, camera);
 }
