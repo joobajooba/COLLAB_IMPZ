@@ -23,6 +23,12 @@ const ROCK_TIGHTEN = 0.85;
 // Positive rotation around the character's right axis swings a limb backward.
 const SWING = -1;
 
+const JUMP_SPEED = 3.6;
+const GRAVITY = 14;
+const LAND_TIME = 0.18;
+const EMOTE_FADE_IN = 0.2;
+const EMOTE_FADE_OUT = 0.25;
+
 // Where copies of the ore vein are placed; the first is the original spot.
 const ORE_SPOTS = [
   { x: 1.55, z: -1.05, rot: 0, scale: 1 },
@@ -43,6 +49,42 @@ const BONES = [
   "upperarm_r",
 ];
 
+// Bones that jump and emote poses can bend, parents before children. Angles in
+// poses are [x, y, z] in character space: +x tips a limb backward (or the
+// spine forward), +y turns toward the character's left, +z swings the
+// character's left arm out/up (the right arm uses -z). They're applied y, then
+// x, then z, so an arm swung forward with x keeps that when raised with z.
+const POSE_BONES = [
+  "spine_01",
+  "spine_03",
+  "neck_01",
+  "head",
+  "clavicle_l",
+  "upperarm_l",
+  "lowerarm_l",
+  "hand_l",
+  "clavicle_r",
+  "upperarm_r",
+  "lowerarm_r",
+  "hand_r",
+  "thigh_l",
+  "calf_l",
+  "foot_l",
+  "thigh_r",
+  "calf_r",
+  "foot_r",
+];
+
+// Emotes, in panel order. `duration: 0` loops until the character moves.
+const EMOTES = [
+  { id: "wave", label: "Wave", icon: "👋", duration: 2.4, pose: wavePose },
+  { id: "cheer", label: "Cheer", icon: "🙌", duration: 2.2, pose: cheerPose },
+  { id: "dance", label: "Dance", icon: "🕺", duration: 0, pose: dancePose },
+  { id: "taunt", label: "Taunt", icon: "😜", duration: 2.4, pose: tauntPose },
+  { id: "bow", label: "Bow", icon: "🙇", duration: 2.0, pose: bowPose },
+  { id: "shrug", label: "Shrug", icon: "🤷", duration: 1.8, pose: shrugPose },
+];
+
 const keys = new Set();
 const colliders = [];
 const restLocal = new Map();
@@ -52,6 +94,8 @@ const bones = {};
 const qA = new THREE.Quaternion();
 const qB = new THREE.Quaternion();
 const qC = new THREE.Quaternion();
+const qD = new THREE.Quaternion();
+const ePose = new THREE.Euler();
 const vForward = new THREE.Vector3();
 const vRight = new THREE.Vector3();
 const vMove = new THREE.Vector3();
@@ -72,6 +116,15 @@ let blend = 0;
 let camYaw = 0;
 let pitch = 0.46;
 let distance = 3.6;
+let legLength = 0.18;
+let jumpY = 0;
+let jumpVel = 0;
+let airborne = false;
+let airBlend = 0;
+let landTimer = 0;
+// { def, t, fadeT } while an emote plays; fadeT >= 0 once it's fading out.
+let emote = null;
+const emoteButtons = new Map();
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
@@ -120,6 +173,7 @@ scene.add(fill);
 
 buildPlatform();
 const blob = buildContactShadow();
+buildEmotePanel();
 
 const clock = new THREE.Clock();
 window.addEventListener("resize", onResize);
@@ -261,10 +315,15 @@ function loadCharacter() {
       modelHolder.position.y = footOffset;
       model.updateMatrixWorld(true);
 
-      for (const name of BONES) {
+      for (const name of new Set([...BONES, ...POSE_BONES])) {
+        if (!bones[name]) continue;
         restLocal.set(name, bones[name].quaternion.clone());
         restWorld.set(name, bones[name].getWorldQuaternion(new THREE.Quaternion()));
       }
+      const hip = bones.thigh_l.getWorldPosition(new THREE.Vector3());
+      const knee = bones.calf_l.getWorldPosition(new THREE.Vector3());
+      const ankle = bones.foot_l.getWorldPosition(new THREE.Vector3());
+      legLength = hip.distanceTo(knee) + knee.distanceTo(ankle);
 
       ready = true;
       status.classList.add("hidden");
@@ -372,10 +431,103 @@ function onKeyDown(event) {
     event.code === "KeyA" ||
     event.code === "KeyS" ||
     event.code === "KeyD" ||
+    event.code === "Space" ||
     event.code.startsWith("Arrow")
   ) {
     event.preventDefault();
   }
+  if (event.repeat) return;
+  if (event.code === "Space") jump();
+  if (event.code === "KeyE") toggleEmotePanel();
+  const slot = /^Digit([1-9])$/.exec(event.code);
+  if (slot && EMOTES[slot[1] - 1]) playEmote(EMOTES[slot[1] - 1]);
+}
+
+function jump() {
+  if (!ready || airborne) return;
+  stopEmote();
+  airborne = true;
+  jumpVel = JUMP_SPEED;
+}
+
+function updateJump(dt) {
+  if (airborne) {
+    jumpVel -= GRAVITY * dt;
+    jumpY += jumpVel * dt;
+    if (jumpY <= 0) {
+      jumpY = 0;
+      jumpVel = 0;
+      airborne = false;
+      landTimer = LAND_TIME;
+    }
+  }
+  landTimer = Math.max(0, landTimer - dt);
+  airBlend += ((airborne ? 1 : 0) - airBlend) * (1 - Math.exp(-14 * dt));
+  character.position.y = jumpY;
+}
+
+function buildEmotePanel() {
+  const grid = document.querySelector("#emotes .grid");
+  EMOTES.forEach((def, i) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.tabIndex = -1;
+    button.innerHTML = `<span class="icon">${def.icon}</span>${def.label}<kbd>${i + 1}</kbd>`;
+    // Keep focus on the page so Space jumps instead of re-clicking the button.
+    button.addEventListener("mousedown", (event) => event.preventDefault());
+    button.addEventListener("click", () => playEmote(def));
+    grid.appendChild(button);
+    emoteButtons.set(def, button);
+  });
+}
+
+function toggleEmotePanel() {
+  document.getElementById("emotes").classList.toggle("collapsed");
+}
+
+function playEmote(def) {
+  if (!ready || airborne) return;
+  if (emote && emote.def === def && emote.fadeT < 0) return;
+  emote = { def, t: 0, fadeT: -1 };
+  markActiveEmote();
+}
+
+function stopEmote() {
+  if (emote && emote.fadeT < 0) {
+    emote.fadeT = 0;
+    markActiveEmote();
+  }
+}
+
+function markActiveEmote() {
+  for (const [def, button] of emoteButtons) {
+    button.classList.toggle("active", !!emote && emote.def === def && emote.fadeT < 0);
+  }
+}
+
+// Advances the current emote and returns its blend weight (0..1).
+function updateEmote(dt) {
+  if (!emote) return 0;
+  emote.t += dt;
+  const { duration } = emote.def;
+  let weight = Math.min(1, emote.t / EMOTE_FADE_IN);
+  if (duration > 0) {
+    if (emote.t >= duration) {
+      emote = null;
+      markActiveEmote();
+      return 0;
+    }
+    weight *= Math.min(1, (duration - emote.t) / EMOTE_FADE_OUT);
+  }
+  if (emote.fadeT >= 0) {
+    emote.fadeT += dt;
+    weight *= 1 - emote.fadeT / EMOTE_FADE_OUT;
+    if (emote.fadeT >= EMOTE_FADE_OUT) {
+      emote = null;
+      return 0;
+    }
+  }
+  return Math.max(0, weight);
 }
 
 function onPointerDown(event) {
@@ -460,6 +612,145 @@ function applyGait() {
   modelHolder.position.y = footOffset - split * STRIDE_DIP * blend + idle;
 }
 
+// Adds a character-space rotation to a pose, summing with what's there.
+function bend(pose, name, x = 0, y = 0, z = 0) {
+  const a = pose[name] || (pose[name] = [0, 0, 0]);
+  a[0] += x;
+  a[1] += y;
+  a[2] += z;
+}
+
+// Bends both knees by `angle`, keeping the feet flat and under the hips.
+// `drop` lowers the body so the feet stay on the ground; leave it off in the air.
+function bendKnees(pose, angle, drop = true) {
+  for (const side of ["l", "r"]) {
+    bend(pose, "thigh_" + side, -angle);
+    bend(pose, "calf_" + side, angle * 2);
+    bend(pose, "foot_" + side, -angle);
+  }
+  if (drop) pose.drop += (1 - Math.cos(angle)) * legLength;
+}
+
+function newPose() {
+  return { drop: 0 };
+}
+
+function wavePose(t) {
+  const p = newPose();
+  const swing = Math.sin(t * 9);
+  bend(p, "upperarm_r", -0.35, 0, -0.85);
+  bend(p, "lowerarm_r", 0, 0, -1.2 + swing * 0.45);
+  bend(p, "hand_r", 0, 0, swing * 0.2);
+  bend(p, "spine_03", 0, 0, 0.06);
+  bend(p, "head", 0, -0.15, -0.12);
+  return p;
+}
+
+function cheerPose(t) {
+  const p = newPose();
+  const pump = Math.sin(t * 10);
+  for (const s of [1, -1]) {
+    const side = s > 0 ? "l" : "r";
+    // Arms up and forward: straight overhead would sink into the big head.
+    bend(p, "upperarm_" + side, -0.5, 0, s * (1.0 + pump * 0.15));
+    bend(p, "lowerarm_" + side, 0, 0, s * 0.7);
+  }
+  bend(p, "head", -0.22);
+  // Little hops on the beat.
+  p.drop -= Math.abs(Math.sin(t * 5)) * 0.06;
+  return p;
+}
+
+function dancePose(t) {
+  const p = newPose();
+  const beat = t * Math.PI * 2 * 1.8;
+  const sway = Math.sin(beat);
+  bendKnees(p, 0.22 + 0.14 * Math.sin(beat * 2));
+  bend(p, "spine_01", 0, sway * 0.22, sway * 0.14);
+  bend(p, "upperarm_l", -0.3, 0, 0.5 + Math.max(0, sway) * 1.1);
+  bend(p, "upperarm_r", -0.3, 0, -(0.5 + Math.max(0, -sway) * 1.1));
+  bend(p, "lowerarm_l", 0, 0, 0.9);
+  bend(p, "lowerarm_r", 0, 0, -0.9);
+  bend(p, "head", Math.sin(beat * 2) * 0.08, 0, -sway * 0.12);
+  return p;
+}
+
+function tauntPose(t) {
+  const p = newPose();
+  // Hands on hips, chest out, head waggling.
+  for (const s of [1, -1]) {
+    const side = s > 0 ? "l" : "r";
+    bend(p, "upperarm_" + side, 0.35, 0, s * 0.3);
+    bend(p, "lowerarm_" + side, 0, 0, -s * 1.9);
+  }
+  bend(p, "spine_03", -0.12);
+  bend(p, "head", -0.12, Math.sin(t * 7) * 0.35, Math.sin(t * 7) * 0.08);
+  return p;
+}
+
+function bowPose(t) {
+  const p = newPose();
+  const down = THREE.MathUtils.smoothstep(t, 0.1, 0.6) * (1 - THREE.MathUtils.smoothstep(t, 1.3, 1.8));
+  bend(p, "spine_01", 0.6 * down);
+  bend(p, "neck_01", 0.2 * down);
+  bend(p, "upperarm_r", -0.4 * down, 0, 0.45 * down);
+  bend(p, "lowerarm_r", -0.3 * down, 0, 1.0 * down);
+  return p;
+}
+
+function shrugPose(t) {
+  const p = newPose();
+  const up = THREE.MathUtils.smoothstep(t, 0.05, 0.35) * (1 - THREE.MathUtils.smoothstep(t, 1.2, 1.6));
+  for (const s of [1, -1]) {
+    const side = s > 0 ? "l" : "r";
+    bend(p, "clavicle_" + side, 0, 0, s * 0.28 * up);
+    bend(p, "upperarm_" + side, 0, 0, -s * 0.25 * up);
+    bend(p, "lowerarm_" + side, -1.1 * up, 0, s * 0.6 * up);
+  }
+  bend(p, "head", 0, 0, 0.25 * up);
+  return p;
+}
+
+function jumpPose() {
+  const p = newPose();
+  bendKnees(p, 0.55 * airBlend, false);
+  bend(p, "upperarm_l", 0, 0, 0.7 * airBlend);
+  bend(p, "upperarm_r", 0, 0, -0.7 * airBlend);
+  if (landTimer > 0) bendKnees(p, 0.45 * Math.sin((landTimer / LAND_TIME) * Math.PI));
+  return p;
+}
+
+// Layers the jump pose and the current emote on top of the walk cycle.
+function applyPose(emoteWeight) {
+  for (const name of POSE_BONES) {
+    if (bones[name] && !BONES.includes(name)) bones[name].quaternion.copy(restLocal.get(name));
+  }
+  const pose = jumpPose();
+  if (emote && emoteWeight > 0) {
+    const extra = emote.def.pose(emote.t);
+    for (const name of POSE_BONES) {
+      if (!extra[name]) continue;
+      const [x, y, z] = extra[name];
+      bend(pose, name, x * emoteWeight, y * emoteWeight, z * emoteWeight);
+    }
+    pose.drop += extra.drop * emoteWeight;
+  }
+
+  qD.copy(character.quaternion).invert();
+  for (const name of POSE_BONES) {
+    const bone = bones[name];
+    const angles = pose[name];
+    if (!bone || !angles) continue;
+    ePose.set(angles[0], angles[1], angles[2], "ZXY");
+    // Character space -> world, then into the bone's parent space.
+    qB.setFromEuler(ePose).premultiply(character.quaternion).multiply(qD);
+    const parentQ = bone.parent.getWorldQuaternion(qA);
+    qC.copy(parentQ).invert().multiply(qB).multiply(parentQ);
+    bone.quaternion.premultiply(qC);
+  }
+  modelHolder.position.y -= pose.drop;
+}
+
 function updateMove(dt) {
   let ix = 0;
   let iz = 0;
@@ -475,6 +766,7 @@ function updateMove(dt) {
 
   const len = Math.hypot(ix, iz);
   if (len > 0) {
+    stopEmote();
     ix /= len;
     iz /= len;
     vMove.set(vForward.x * iz + vRight.x * ix, 0, vForward.z * iz + vRight.z * ix);
@@ -489,21 +781,23 @@ function updateMove(dt) {
     phase += dt * CYCLE_HZ * Math.PI * 2;
   }
 
-  const moving = len > 0 ? 1 : 0;
+  const moving = len > 0 && !airborne ? 1 : 0;
   blend += (moving - blend) * (1 - Math.exp(-8 * dt));
   character.rotation.y = yaw;
 }
 
 function updateCamera(dt, snap) {
   const horiz = Math.cos(pitch) * distance;
+  // Follow only half of a jump so the camera doesn't bounce as much.
+  const height = lookHeight + jumpY * 0.5;
   desiredCam.set(
     character.position.x + Math.sin(camYaw) * horiz,
-    lookHeight + Math.sin(pitch) * distance,
+    height + Math.sin(pitch) * distance,
     character.position.z + Math.cos(camYaw) * horiz
   );
   if (snap) camera.position.copy(desiredCam);
   else camera.position.lerp(desiredCam, 1 - Math.exp(-8 * dt));
-  lookAt.set(character.position.x, lookHeight, character.position.z);
+  lookAt.set(character.position.x, height, character.position.z);
   camera.lookAt(lookAt);
 }
 
@@ -511,9 +805,14 @@ function frame() {
   const dt = Math.min(clock.getDelta(), 0.05);
   if (ready) {
     updateMove(dt);
+    updateJump(dt);
+    const emoteWeight = updateEmote(dt);
     applyGait();
+    applyPose(emoteWeight);
     blob.position.x = character.position.x;
     blob.position.z = character.position.z;
+    blob.scale.setScalar(1 / (1 + jumpY * 1.5));
+    blob.material.opacity = 1 - Math.min(0.6, jumpY);
   }
   updateCamera(dt, !ready);
   renderer.render(scene, camera);
