@@ -19,6 +19,15 @@ const STRIDE_DIP = 0.02;
 // Positive rotation around the character's right axis swings a limb backward.
 const SWING = -1;
 
+// Where copies of the ore vein are placed; the first is the original spot.
+const ORE_SPOTS = [
+  { x: 1.55, z: -1.05, rot: 0, scale: 1 },
+  { x: -2.6, z: -2.4, rot: 1.9, scale: 0.85 },
+  { x: -3.2, z: 1.8, rot: 4.1, scale: 1.1 },
+  { x: 3.1, z: 2.7, rot: 2.7, scale: 0.9 },
+  { x: 0.4, z: 3.4, rot: 5.3, scale: 0.75 },
+];
+
 const BONES = [
   "thigh_l",
   "calf_l",
@@ -289,9 +298,17 @@ function loadOre() {
     fbx.updateMatrixWorld(true);
     const placed = new THREE.Box3().setFromObject(fbx);
     const center = placed.getCenter(new THREE.Vector3());
-    fbx.position.x += 1.55 - center.x;
-    fbx.position.z += -1.05 - center.z;
-    scene.add(fbx);
+    fbx.position.x -= center.x;
+    fbx.position.z -= center.z;
+
+    for (const spot of ORE_SPOTS) {
+      const vein = new THREE.Group();
+      vein.add(fbx.clone());
+      vein.position.set(spot.x, 0, spot.z);
+      vein.rotation.y = spot.rot;
+      vein.scale.setScalar(spot.scale);
+      scene.add(vein);
+    }
   }, undefined, (error) => {
     console.error(error);
   });
