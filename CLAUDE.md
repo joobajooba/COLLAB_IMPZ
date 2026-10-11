@@ -30,3 +30,7 @@ Delete the merged staging branches only when the user asks, and only after confi
 - Default: open a PR that reverts the bad merge (`git revert -m 1 <merge-sha>`). History is kept and nothing is force-pushed.
 - Resetting `main` to a `backup/main-*` tag needs a force-push. Do it only after the user explicitly confirms that specific reset.
 - Never delete or move `backup/*` tags.
+
+## Game design
+
+The game design lives in `design/` and follows its own rules in `design/CLAUDE.md`: a roadmap worked in passes, no deviating from what was asked, quality first, and a report at the end of each pass. Read that file before doing any design work.
