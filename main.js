@@ -16,6 +16,10 @@ const KNEE_BACK = 0.06;
 const TOE_AMP = 0.3;
 const ARM_AMP = 0.5;
 const STRIDE_DIP = 0.02;
+const CHAR_RADIUS = 0.22;
+// Rock colliders are a little smaller than their bounding boxes so the
+// character can get close to the jagged edges.
+const ROCK_TIGHTEN = 0.85;
 // Positive rotation around the character's right axis swings a limb backward.
 const SWING = -1;
 
@@ -40,6 +44,7 @@ const BONES = [
 ];
 
 const keys = new Set();
+const colliders = [];
 const restLocal = new Map();
 const restWorld = new Map();
 const bones = {};
@@ -308,10 +313,52 @@ function loadOre() {
       vein.rotation.y = spot.rot;
       vein.scale.setScalar(spot.scale);
       scene.add(vein);
+      addRockColliders(vein);
     }
   }, undefined, (error) => {
     console.error(error);
   });
+}
+
+// One circle on the ground per rock mesh, sized from its world bounding box.
+// The crystal mesh ("metall" material) spans both rocks, so it's skipped or
+// it would wall off the gap between them.
+function addRockColliders(vein) {
+  vein.updateMatrixWorld(true);
+  const box = new THREE.Box3();
+  const center = new THREE.Vector3();
+  const size = new THREE.Vector3();
+  vein.traverse((obj) => {
+    if (!obj.isMesh) return;
+    if (![].concat(obj.material).some((m) => /rock/i.test(m.name))) return;
+    box.setFromObject(obj);
+    box.getCenter(center);
+    box.getSize(size);
+    colliders.push({
+      x: center.x,
+      z: center.z,
+      r: (Math.max(size.x, size.z) / 2) * ROCK_TIGHTEN,
+    });
+  });
+}
+
+// Push the character out of any rock it overlaps; it slides around the edge.
+function resolveCollisions() {
+  const p = character.position;
+  for (const c of colliders) {
+    const dx = p.x - c.x;
+    const dz = p.z - c.z;
+    const min = c.r + CHAR_RADIUS;
+    const distSq = dx * dx + dz * dz;
+    if (distSq >= min * min) continue;
+    const dist = Math.sqrt(distSq);
+    if (dist < 1e-6) {
+      p.x = c.x + min;
+      continue;
+    }
+    p.x = c.x + (dx / dist) * min;
+    p.z = c.z + (dz / dist) * min;
+  }
 }
 
 function down(...codes) {
@@ -432,6 +479,7 @@ function updateMove(dt) {
     iz /= len;
     vMove.set(vForward.x * iz + vRight.x * ix, 0, vForward.z * iz + vRight.z * ix);
     character.position.addScaledVector(vMove, MOVE_SPEED * dt);
+    resolveCollisions();
     const limit = HALF - EDGE;
     character.position.x = THREE.MathUtils.clamp(character.position.x, -limit, limit);
     character.position.z = THREE.MathUtils.clamp(character.position.z, -limit, limit);
