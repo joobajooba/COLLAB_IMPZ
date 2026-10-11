@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Walk</title>
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: #141820;
+      overflow: hidden;
+    }
+    canvas { display: block; }
+    #hud {
+      position: fixed;
+      left: 16px;
+      bottom: 16px;
+      color: #e7edf5;
+      font: 14px/1.45 system-ui, sans-serif;
+      background: rgba(10, 12, 18, 0.55);
+      padding: 10px 12px;
+      border-radius: 10px;
+      pointer-events: none;
+    }
+    #status {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      color: #e7edf5;
+      font: 16px system-ui, sans-serif;
+      pointer-events: none;
+    }
+    #status.hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div id="status">Loading character…</div>
+  <div id="hud">WASD to walk<br>Drag to look · scroll to zoom</div>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "./node_modules/three/build/three.module.js",
+      "three/addons/": "./node_modules/three/examples/jsm/"
+    }
+  }
+  </script>
+  <script type="module" src="./main.js"></script>
+</body>
+</html>
