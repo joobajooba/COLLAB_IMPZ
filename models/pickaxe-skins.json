@@ -1,0 +1,42 @@
+{
+  "_comment": "Pickaxe skins. Each part of models/pickaxe.glb (by material name, without the Pick_ prefix) gets a colour (sRGB hex), metalness and roughness, or visible: false to hide it. Colours are sampled from the matching sprite in sprites/pickaxes/.",
+  "stone": {
+    "label": "Stone",
+    "sprite": "sprites/pickaxes/stone_pickaxe.png",
+    "parts": {
+      "Head":    { "color": "#7f786c", "metalness": 0.0, "roughness": 0.95 },
+      "Collar":  { "color": "#8a6c3a", "metalness": 0.0, "roughness": 0.9 },
+      "Rivets":  { "visible": false },
+      "Handle":  { "color": "#76644a", "metalness": 0.0, "roughness": 0.85 },
+      "Grip":    { "color": "#5a4a35", "metalness": 0.0, "roughness": 0.95 },
+      "Bands":   { "visible": false },
+      "Pommel":  { "visible": false }
+    }
+  },
+  "bronze": {
+    "label": "Bronze",
+    "sprite": "sprites/pickaxes/bronze_pickaxe.png",
+    "parts": {
+      "Head":    { "color": "#c0703c", "metalness": 0.85, "roughness": 0.35 },
+      "Collar":  { "color": "#9a5230", "metalness": 0.8, "roughness": 0.45 },
+      "Rivets":  { "visible": false },
+      "Handle":  { "color": "#8a6640", "metalness": 0.0, "roughness": 0.8 },
+      "Grip":    { "visible": false },
+      "Bands":   { "color": "#cf8a52", "metalness": 0.85, "roughness": 0.35 },
+      "Pommel":  { "color": "#cf8a52", "metalness": 0.85, "roughness": 0.35 }
+    }
+  },
+  "iron": {
+    "label": "Iron",
+    "sprite": "sprites/pickaxes/iron_pickaxe.png",
+    "parts": {
+      "Head":    { "color": "#a7abb4", "metalness": 0.9, "roughness": 0.3 },
+      "Collar":  { "color": "#6b6f78", "metalness": 0.8, "roughness": 0.45 },
+      "Rivets":  { "color": "#c3c7cf", "metalness": 0.9, "roughness": 0.3 },
+      "Handle":  { "color": "#5e4130", "metalness": 0.0, "roughness": 0.8 },
+      "Grip":    { "visible": false },
+      "Bands":   { "visible": false },
+      "Pommel":  { "visible": false }
+    }
+  }
+}
