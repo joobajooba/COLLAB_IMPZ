@@ -2,6 +2,10 @@
 
 Three.js walking test scene, shared by two collaborators. See `README.md` for how to run it (`npm install`, then `npx serve .`).
 
+## Session start
+
+At the start of every session in this repo, before anything else, open the repo in GitHub Desktop by running GitHub Desktop's command-line tool from the repo root: `github .` (on Windows it is `%LOCALAPPDATA%\GitHubDesktop\bin\github.bat`). If GitHub Desktop is already open, this brings it to the front. If it isn't installed, skip this step.
+
 ## GitHub workflow
 
 Both collaborators review every change before it reaches `main`. Follow these rules for any work in this repo.
