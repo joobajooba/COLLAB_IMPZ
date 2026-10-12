@@ -4,6 +4,8 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 
 const PLATFORM = 10;
+// Times the soil texture repeats across the platform.
+const SOIL_REPEAT = 6;
 const HALF = PLATFORM / 2;
 const EDGE = 0.55;
 const MOVE_SPEED = 2.5;
@@ -54,12 +56,15 @@ const COPPER_SPOTS = [{ x: 3.0, z: -2.6, rot: 0.3, scale: 0.85 }];
 // Seconds before a broken vein grows back.
 const ORE_RESPAWN = 10;
 const ENERGY_MAX = 100;
-// Energy per second. A testing value; the design has not set a refill rate.
-const ENERGY_REGEN = 0.1;
-// What breaking a vein of each ore gives and costs. Ores without an entry give nothing yet.
-const ORE_REWARDS = {
-  copper: { item: "copper_nugget", energy: 5 },
+const MINE_ENERGY = 5;
+// Energy refills to full every 12 hours from midnight on the player's clock (00:00 and 12:00).
+const ENERGY_RESET_MS = 12 * 60 * 60 * 1000;
+const ENERGY_KEY = "impz.energy";
+// What breaking a vein of each ore gives. Ores without an entry give nothing yet.
+const ORE_ITEMS = {
+  copper: "copper_nugget",
 };
+const INVENTORY_SLOTS = 6 * 8;
 const ITEMS = {
   copper_nugget: { label: "Copper", icon: "./sprites/items/nugget_copper.png" },
 };
@@ -158,7 +163,6 @@ let pickaxe = null;
 const restHand = { hand: new THREE.Matrix4(), grip: new THREE.Vector3() };
 let skins = [];
 let skinIndex = 0;
-const skinButtons = [];
 
 // Ore veins that can still be mined, and the one being mined right now:
 // { vein, x, z, t, strikes, fadeT } with fadeT >= 0 once the swing winds down.
@@ -168,6 +172,7 @@ let mining = null;
 const effects = [];
 
 let energy = ENERGY_MAX;
+let energyPeriod = 0;
 // Item id -> count, in the order the items were first picked up.
 const inventory = new Map();
 
@@ -245,13 +250,20 @@ loadPickaxe();
 renderer.setAnimationLoop(frame);
 
 function buildPlatform() {
+  const soil = new THREE.TextureLoader().load("./textures/soil.png");
+  soil.colorSpace = THREE.SRGBColorSpace;
+  soil.wrapS = soil.wrapT = THREE.RepeatWrapping;
+  soil.repeat.set(SOIL_REPEAT, SOIL_REPEAT);
+  soil.anisotropy = 8;
   const top = new THREE.MeshStandardMaterial({
-    map: gridTexture(),
-    roughness: 0.92,
+    map: soil,
+    // Darkens the texture so the bright scene light doesn't wash it out.
+    color: "#a08a76",
+    roughness: 1,
     metalness: 0,
   });
   const side = new THREE.MeshStandardMaterial({
-    color: "#1b2330",
+    color: "#3b2918",
     roughness: 0.95,
     metalness: 0,
   });
@@ -268,38 +280,10 @@ function buildPlatform() {
   slab.add(
     new THREE.LineSegments(
       new THREE.EdgesGeometry(slab.geometry),
-      new THREE.LineBasicMaterial({ color: "#93a6c0" })
+      new THREE.LineBasicMaterial({ color: "#7a5636" })
     )
   );
   scene.add(slab);
-}
-
-function gridTexture() {
-  const size = 1024;
-  const cells = 10;
-  const canvas = document.createElement("canvas");
-  canvas.width = size;
-  canvas.height = size;
-  const ctx = canvas.getContext("2d");
-  ctx.fillStyle = "#2a3344";
-  ctx.fillRect(0, 0, size, size);
-  ctx.strokeStyle = "rgba(176, 196, 220, 0.55)";
-  ctx.lineWidth = 3;
-  for (let i = 0; i <= cells; i++) {
-    const p = (i / cells) * size + 1.5;
-    ctx.beginPath();
-    ctx.moveTo(p, 0);
-    ctx.lineTo(p, size);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(0, p);
-    ctx.lineTo(size, p);
-    ctx.stroke();
-  }
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.colorSpace = THREE.SRGBColorSpace;
-  texture.anisotropy = 8;
-  return texture;
 }
 
 function buildContactShadow() {
@@ -471,7 +455,6 @@ function loadPickaxe() {
       pickaxe.traverse((obj) => {
         if (obj.isMesh) obj.castShadow = true;
       });
-      buildSkinPanel();
       setSkin(0);
       attachPickaxe();
     })
@@ -517,27 +500,11 @@ function setSkin(index) {
     obj.material.metalness = spec.metalness ?? 0;
     obj.material.roughness = spec.roughness ?? 0.8;
   });
-  skinButtons.forEach((button, i) => button.classList.toggle("active", i === skinIndex));
-  document.querySelectorAll(".pick-icon").forEach((slotImg) => {
-    slotImg.src = `./${skin.sprite}`;
-    slotImg.alt = skin.label;
-    slotImg.hidden = false;
-  });
-}
-
-function buildSkinPanel() {
-  const grid = document.querySelector("#skins .grid");
-  skins.forEach((skin, i) => {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.tabIndex = -1;
-    button.title = skin.label;
-    button.innerHTML = `<img src="./${skin.sprite}" alt="">${skin.label}`;
-    button.addEventListener("mousedown", (event) => event.preventDefault());
-    button.addEventListener("click", () => setSkin(i));
-    grid.appendChild(button);
-    skinButtons.push(button);
-  });
+  const slotImg = document.querySelector(".pick-icon");
+  slotImg.src = `./${skin.sprite}`;
+  slotImg.alt = skin.label;
+  slotImg.hidden = false;
+  renderInventory();
 }
 
 // The closest rock edge in reach, as { vein, x, z } (the rock's centre), or null.
@@ -558,7 +525,7 @@ function rockInReach() {
 function startMining() {
   if (!ready || airborne || (mining && mining.fadeT < 0)) return;
   const rock = rockInReach();
-  if (!rock || !enoughEnergy(rock.vein)) return;
+  if (!rock || energy < MINE_ENERGY) return;
   stopEmote();
   mining = { ...rock, t: 0, strikes: 0, fadeT: -1 };
 }
@@ -599,19 +566,12 @@ function updateMining(dt) {
   return weight;
 }
 
-function enoughEnergy(vein) {
-  const reward = ORE_REWARDS[vein.userData.ore];
-  return !reward || energy >= reward.energy;
-}
-
-// Pays the ore's reward, removes the vein's colliders straight away, shrinks it
-// into the ground, throws out a few rock chips and grows it back later.
+// Takes the energy and gives the ore's item, removes the vein's colliders straight
+// away, shrinks it into the ground, throws out a few rock chips and grows it back later.
 function breakVein(vein) {
-  const reward = ORE_REWARDS[vein.userData.ore];
-  if (reward) {
-    setEnergy(energy - reward.energy);
-    addItem(reward.item);
-  }
+  setEnergy(energy - MINE_ENERGY);
+  const item = ORE_ITEMS[vein.userData.ore];
+  if (item) addItem(item);
 
   veins.splice(veins.indexOf(vein), 1);
   for (let i = colliders.length - 1; i >= 0; i--) {
@@ -700,12 +660,45 @@ function respawnVein(vein, scale) {
   });
 }
 
+// Counts 12-hour blocks on the local clock, so blocks change at local midnight and noon.
+function resetPeriod(now) {
+  const local = now - new Date(now).getTimezoneOffset() * 60000;
+  return Math.floor(local / ENERGY_RESET_MS);
+}
+
+// Saved in this browser only, so a reload doesn't refill it before the next reset.
+function loadEnergy() {
+  energyPeriod = resetPeriod(Date.now());
+  let saved = null;
+  try {
+    saved = JSON.parse(localStorage.getItem(ENERGY_KEY));
+  } catch {}
+  setEnergy(saved && saved.period === energyPeriod ? saved.value : ENERGY_MAX);
+}
+
+function updateEnergy() {
+  const now = Date.now();
+  const period = resetPeriod(now);
+  if (period !== energyPeriod) {
+    energyPeriod = period;
+    setEnergy(ENERGY_MAX);
+  }
+  const next = new Date(now);
+  next.setHours(next.getHours() < 12 ? 12 : 24, 0, 0, 0);
+  const minutes = Math.ceil((next - now) / 60000);
+  const title = `Energy refills to ${ENERGY_MAX} in ${Math.floor(minutes / 60)}h ${minutes % 60}m`;
+  const stat = document.getElementById("energy-stat");
+  if (stat.title !== title) stat.title = title;
+}
+
 function setEnergy(value) {
   energy = THREE.MathUtils.clamp(value, 0, ENERGY_MAX);
-  const shown = Math.floor(energy);
   document.querySelector("#energy-meter span").style.width = `${(energy / ENERGY_MAX) * 100}%`;
-  document.getElementById("energy-meter").setAttribute("aria-label", `Energy ${shown} of ${ENERGY_MAX}`);
-  document.getElementById("energy-value").textContent = `${shown} / ${ENERGY_MAX}`;
+  document.getElementById("energy-meter").setAttribute("aria-label", `Energy ${energy} of ${ENERGY_MAX}`);
+  document.getElementById("energy-value").textContent = `${energy} / ${ENERGY_MAX}`;
+  try {
+    localStorage.setItem(ENERGY_KEY, JSON.stringify({ value: energy, period: energyPeriod }));
+  } catch {}
 }
 
 function addItem(id) {
@@ -713,29 +706,55 @@ function addItem(id) {
   renderInventory();
 }
 
-// Fills the item slots of the hotbar and the inventory popup, in pickup order.
-function renderInventory() {
-  const entries = [...inventory];
-  for (const group of document.querySelectorAll(".slots")) {
-    group.querySelectorAll(".item-slot").forEach((slot, i) => {
-      slot.replaceChildren();
-      slot.title = "";
-      if (!entries[i]) return;
-      const [id, count] = entries[i];
-      const img = document.createElement("img");
-      img.src = ITEMS[id].icon;
-      img.alt = ITEMS[id].label;
-      const badge = document.createElement("span");
-      badge.className = "count";
-      badge.textContent = count;
-      slot.append(img, badge);
-      slot.title = `${ITEMS[id].label} × ${count}`;
-    });
+function buildInventoryGrid() {
+  const grid = document.getElementById("inv-grid");
+  for (let i = 0; i < INVENTORY_SLOTS; i++) {
+    const slot = document.createElement("button");
+    slot.className = "slot";
+    slot.type = "button";
+    slot.tabIndex = -1;
+    slot.addEventListener("mousedown", (event) => event.preventDefault());
+    grid.appendChild(slot);
   }
 }
 
+// Pickaxes first (click one to hold it), then mined items in pickup order.
+function renderInventory() {
+  const entries = [
+    ...skins.map((skin, i) => ({
+      icon: `./${skin.sprite}`,
+      title: skin.label,
+      active: i === skinIndex,
+      pick: () => setSkin(i),
+    })),
+    ...[...inventory].map(([id, count]) => ({
+      icon: ITEMS[id].icon,
+      title: `${ITEMS[id].label} × ${count}`,
+      count,
+    })),
+  ];
+  document.querySelectorAll("#inv-grid .slot").forEach((slot, i) => {
+    const entry = entries[i];
+    slot.replaceChildren();
+    slot.title = entry ? entry.title : "";
+    slot.classList.toggle("active", !!entry?.active);
+    slot.onclick = entry?.pick || null;
+    if (!entry) return;
+    const img = document.createElement("img");
+    img.src = entry.icon;
+    img.alt = entry.title;
+    slot.append(img);
+    if (entry.count) {
+      const badge = document.createElement("span");
+      badge.className = "count";
+      badge.textContent = entry.count;
+      slot.append(badge);
+    }
+  });
+}
+
 function updateEffects(dt) {
-  if (energy < ENERGY_MAX) setEnergy(energy + ENERGY_REGEN * dt);
+  updateEnergy();
   for (let i = effects.length - 1; i >= 0; i--) {
     if (!effects[i].update(dt)) effects.splice(i, 1);
   }
@@ -751,7 +770,7 @@ function updateEffects(dt) {
   const rock = ready && !airborne && !mining && rockInReach();
   const prompt = document.getElementById("prompt");
   prompt.classList.toggle("hidden", !rock);
-  const state = rock && !enoughEnergy(rock.vein) ? "tired" : "mine";
+  const state = rock && energy < MINE_ENERGY ? "tired" : "mine";
   if (rock && prompt.dataset.state !== state) {
     prompt.dataset.state = state;
     prompt.innerHTML = state === "tired" ? "Not enough energy" : "<kbd>F</kbd>Mine rock";
@@ -834,6 +853,9 @@ function isTyping() {
 }
 
 function setupShell() {
+  buildInventoryGrid();
+  renderInventory();
+  loadEnergy();
   document.getElementById("settings-btn").addEventListener("click", () => openModal("settings"));
   document.getElementById("support-btn").addEventListener("click", () => toggleCard("support-card"));
   document.getElementById("slot-pick").addEventListener("click", () => openModal("inventory"));

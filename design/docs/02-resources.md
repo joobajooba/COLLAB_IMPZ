@@ -120,7 +120,8 @@ These six files were in the same folder. They are **not** ores, ingots or gems, 
 |---|---|---|
 | Mining one ore tier | That tier's ore item (`nugget_` icon) | **Decided** for the item. Which 3D vein is which tier is not decided, except that a tin vein already exists in the scene. |
 | Mining one ore tier | That tier's gem, sometimes | **Decided** that the gem is paired. **Open question:** the chance. The table's chance column was blank. |
-| Breaking one copper vein, and 5 energy | 1 Copper ore (`nugget_copper.png`) in the inventory | **Decided** (D-007), as a first test. Energy starts at 100. Below 5 energy the copper vein can't be mined. **Open question:** the energy refill rate. The build uses 1 energy every 10 seconds as a test value. **Open question:** energy costs for the other ores. Tin gives nothing yet. |
+| Breaking one copper vein, and 5 energy | 1 Copper ore (`nugget_copper.png`) in the inventory menu | **Decided** (D-007, D-008), as a first test. Tin gives nothing yet. |
+| Mining any vein | Costs 5 energy | **Decided** (D-008). Energy max is 100. Below 5 energy nothing can be mined. Energy resets to 100 every 12 hours from midnight (00:00 and 12:00), with no slow refill (D-009). The build uses the player's own clock and saves energy in the browser. **Open question:** whether midnight should be one shared time zone for every player. |
 | Time | A broken vein grows back after 10 seconds | **Decided** (D-007), for now. Applies to every vein. |
 | The pickaxe named for that ore | The right to mine that ore | **Decided** (D-006). One pickaxe is named per ore. Whether a stronger pickaxe also works is an **open question**. |
 | Ingots and one hilt, in the amounts in the pickaxe table | That crafted pickaxe | **Decided** (D-006). Stone has no craft cost. How the player gets a hilt is an **open question**. |
@@ -156,3 +157,4 @@ These six files were in the same folder. They are **not** ores, ingots or gems, 
 | User addition, 2026-10-12 | Mining tier table and `sprites/items/` catalog recorded (D-005). Status set to Draft. Smelt, blacksmith, craft and sell left unset on purpose. |
 | User addition, 2026-10-12 | Pickaxe mine list and pickaxe craft costs recorded (D-006). Smelter recipes for ingots still unset. |
 | User addition, 2026-10-12 | Copper mining reward, energy cost and 10-second respawn recorded (D-007). Built into the game as a test. |
+| User addition, 2026-10-12 | 5 energy per mine for every ore, 12-hour energy reset, 6×8 inventory menu (D-008). |
