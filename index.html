@@ -29,7 +29,6 @@
     #shell button,
     #shell input,
     #emotes,
-    #skins,
     .card,
     .stat,
     .profile,
@@ -50,8 +49,7 @@
     .slot,
     #chat,
     .card,
-    #emotes,
-    #skins {
+    #emotes {
       border-radius: 8px;
     }
     .top-left {
@@ -68,7 +66,7 @@
       top: 14px;
       right: 14px;
       bottom: 16px;
-      width: 280px;
+      width: 311px;
       display: flex;
       flex-direction: column;
       gap: 8px;
@@ -124,6 +122,8 @@
     #energy-value { float: right; letter-spacing: 0; }
     .stats { flex: 1; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
     .stat {
+      box-sizing: border-box;
+      height: 48px;
       min-width: 148px;
       padding: 8px 12px;
       border-radius: 8px;
@@ -159,15 +159,16 @@
       height: 100%;
       background: #8fd18a;
     }
+    /* Two 48px stats and their 8px gap: the profile is a square of the same height. */
     .profile {
       box-sizing: border-box;
-      width: 74px;
-      flex: 0 0 74px;
+      width: 104px;
+      flex: 0 0 104px;
       border-radius: 8px;
       display: grid;
       place-items: center;
     }
-    .profile svg { width: 46px; height: 46px; }
+    .profile svg { width: 64px; height: 64px; }
     #chat {
       flex: 1;
       min-height: 0;
@@ -294,7 +295,6 @@
       user-select: none;
     }
     #emotes.hidden { display: none; }
-    #skins { background: none; border: 0; box-shadow: none; padding: 0; }
     .modal {
       position: fixed;
       inset: 0;
@@ -334,31 +334,36 @@
     }
     .modal-pane { display: none; min-height: 160px; }
     .modal-pane.open { display: block; }
-    .inv-label {
-      margin: 14px 2px 8px;
-      font-weight: 600;
+    #inv-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 44px);
+      gap: 6px;
+      justify-content: center;
     }
-    #emotes .title,
-    #skins .title {
+    #inv-grid .slot {
+      width: 44px;
+      height: 44px;
+      flex: none;
+      padding: 6px;
+    }
+    #inv-grid .slot img { width: 30px; height: 30px; }
+    #inv-grid .slot.active {
+      background: rgba(143, 209, 138, 0.28);
+      border-color: rgba(143, 209, 138, 0.9);
+    }
+    #emotes .title {
       display: flex;
       justify-content: space-between;
       margin: 0 2px 8px;
       font-weight: 600;
     }
-    #emotes kbd,
-    #skins kbd { font: 11px system-ui, sans-serif; opacity: 0.65; }
+    #emotes kbd { font: 11px system-ui, sans-serif; opacity: 0.65; }
     #emotes .grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 6px;
     }
-    #skins .grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 6px;
-    }
-    #emotes button,
-    #skins button {
+    #emotes button {
       display: flex;
       align-items: center;
       gap: 6px;
@@ -371,25 +376,13 @@
       border-radius: 8px;
       cursor: pointer;
     }
-    #skins button {
-      flex-direction: column;
-      gap: 2px;
-      padding: 6px 4px;
-    }
-    #emotes button:hover,
-    #skins button:hover { background: rgba(255, 255, 255, 0.16); }
-    #emotes button.active,
-    #skins button.active {
+    #emotes button:hover { background: rgba(255, 255, 255, 0.16); }
+    #emotes button.active {
       background: rgba(143, 209, 138, 0.28);
       border-color: rgba(143, 209, 138, 0.8);
     }
     #emotes .icon { font-size: 16px; }
     #emotes kbd { margin-left: auto; }
-    #skins img {
-      width: 48px;
-      height: 48px;
-      image-rendering: pixelated;
-    }
     #prompt {
       position: fixed;
       left: 50%;
@@ -425,10 +418,10 @@
         <button class="slot" id="slot-pick" type="button" title="Inventory (I)">
           <img class="pick-icon" alt="" hidden>
         </button>
-        <button class="slot item-slot" type="button" tabindex="-1"></button>
-        <button class="slot item-slot" type="button" tabindex="-1"></button>
-        <button class="slot item-slot" type="button" tabindex="-1"></button>
-        <button class="slot item-slot" type="button" tabindex="-1"></button>
+        <button class="slot" type="button" tabindex="-1"></button>
+        <button class="slot" type="button" tabindex="-1"></button>
+        <button class="slot" type="button" tabindex="-1"></button>
+        <button class="slot" type="button" tabindex="-1"></button>
       </div>
     </div>
     <div class="right-col">
@@ -438,7 +431,7 @@
           <span class="label">Coins</span>
           <div class="coins"><i></i>0</div>
         </div>
-        <div class="stat">
+        <div class="stat" id="energy-stat">
           <span class="label">Energy <span id="energy-value">100 / 100</span></span>
           <div class="meter" id="energy-meter" aria-label="Energy 100 of 100"><span></span></div>
         </div>
@@ -488,15 +481,7 @@
       <div class="modal-pane" data-pane="settings"></div>
       <div class="modal-pane" data-pane="chat"></div>
       <div class="modal-pane" data-pane="inventory">
-        <div class="slots" aria-label="Inventory">
-          <div class="slot"><img class="pick-icon" alt="" hidden></div>
-          <div class="slot item-slot"></div>
-          <div class="slot item-slot"></div>
-          <div class="slot item-slot"></div>
-          <div class="slot item-slot"></div>
-        </div>
-        <div class="inv-label">Pickaxe</div>
-        <div id="skins"><div class="grid"></div></div>
+        <div id="inv-grid" aria-label="Inventory"></div>
       </div>
     </div>
   </div>

@@ -14,8 +14,8 @@ Opening `index.html` directly from disk won't work — ES modules need to be ser
 Controls: WASD to walk, Space to jump, drag to look, scroll to zoom.
 Emotes: press E to open the panel, or press 1–6 (Wave, Cheer, Dance, Taunt, Bow, Shrug). Moving or jumping cancels an emote.
 Mining: walk up to a rock until the "F Mine rock" prompt shows, then press F. The character swings three times and the rock breaks. A broken vein grows back after 10 seconds. Moving or jumping stops the swing.
-Copper: the copper vein gives one copper ore into the inventory and costs 5 energy. It can't be mined below 5 energy, and energy slowly refills. Tin gives nothing yet.
-Pickaxe: press I to open the inventory, or Q to cycle Stone, Bronze and Iron.
+Energy: every mine costs 5 of 100 energy, and nothing can be mined below 5. Energy refills to 100 at 00:00 and 12:00 UTC and is saved in the browser between reloads.
+Inventory: press I. The 6×8 grid holds the pickaxes (click one to hold it) and mined items. The copper vein gives one copper ore; tin gives nothing yet. The top-left slots only show the held tool. Q also cycles the pickaxes.
 
 ## Pickaxe model
 
