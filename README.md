@@ -19,3 +19,7 @@ Pickaxe: click a skin in the Pickaxe panel or press Q to cycle Stone, Bronze and
 ## Pickaxe model
 
 `models/pickaxe.glb` is built in Blender by `models/build_pickaxe.py` (see the comment at its top for the command). Its skins live in `models/pickaxe-skins.json`, one per sprite in `sprites/pickaxes/`, and the game reads that file directly, so a new skin needs only a sprite and a JSON entry.
+
+## Copper ore vein
+
+`models/copper_vein.glb` is a stylised, low-poly copper vein (about 1,000 triangles, 0.85 m tall, origin at the bottom centre) built in Blender by `models/build_copper_vein.py`. It has no textures: three flat materials colour the rock sides, the upward faces and the copper. It is not placed in the scene yet. `models/copper_vein_preview.png` and `models/copper_vein_preview_wire.png` show it lit and as a wireframe.
