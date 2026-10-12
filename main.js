@@ -50,6 +50,7 @@ const ORE_SPOTS = [
   { x: 3.1, z: 2.7, rot: 2.7, scale: 0.9 },
   { x: 0.4, z: 3.4, rot: 5.3, scale: 0.75 },
 ];
+const COPPER_SPOTS = [{ x: 3.0, z: -2.6, rot: 0.3, scale: 0.85 }];
 
 const BONES = [
   "thigh_l",
@@ -222,6 +223,7 @@ let lastY = 0;
 
 loadCharacter();
 loadOre();
+loadCopper();
 loadPickaxe();
 renderer.setAnimationLoop(frame);
 
@@ -406,19 +408,36 @@ function loadOre() {
     fbx.position.x -= center.x;
     fbx.position.z -= center.z;
 
-    for (const spot of ORE_SPOTS) {
-      const vein = new THREE.Group();
-      vein.add(fbx.clone());
-      vein.position.set(spot.x, 0, spot.z);
-      vein.rotation.y = spot.rot;
-      vein.scale.setScalar(spot.scale);
-      scene.add(vein);
-      addRockColliders(vein);
-      veins.push(vein);
-    }
+    placeVeins(fbx, ORE_SPOTS);
   }, undefined, (error) => {
     console.error(error);
   });
+}
+
+// The copper vein's origin is already at its bottom centre.
+function loadCopper() {
+  new GLTFLoader().load("./models/copper_vein.glb", (gltf) => {
+    gltf.scene.traverse((obj) => {
+      if (obj.isMesh) {
+        obj.castShadow = true;
+        obj.receiveShadow = true;
+      }
+    });
+    placeVeins(gltf.scene, COPPER_SPOTS);
+  }, undefined, (error) => console.error("Could not load the copper vein", error));
+}
+
+function placeVeins(model, spots) {
+  for (const spot of spots) {
+    const vein = new THREE.Group();
+    vein.add(model.clone());
+    vein.position.set(spot.x, 0, spot.z);
+    vein.rotation.y = spot.rot;
+    vein.scale.setScalar(spot.scale);
+    scene.add(vein);
+    addRockColliders(vein);
+    veins.push(vein);
+  }
 }
 
 function loadPickaxe() {
