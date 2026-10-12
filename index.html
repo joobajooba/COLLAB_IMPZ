@@ -112,6 +112,16 @@
       image-rendering: pixelated;
       pointer-events: none;
     }
+    .slot { position: relative; }
+    .slot .count {
+      position: absolute;
+      right: 4px;
+      bottom: 4px;
+      font: 700 11px/1 system-ui, sans-serif;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+      pointer-events: none;
+    }
+    #energy-value { float: right; letter-spacing: 0; }
     .stats { flex: 1; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
     .stat {
       min-width: 148px;
@@ -415,10 +425,10 @@
         <button class="slot" id="slot-pick" type="button" title="Inventory (I)">
           <img class="pick-icon" alt="" hidden>
         </button>
-        <button class="slot" type="button" tabindex="-1"></button>
-        <button class="slot" type="button" tabindex="-1"></button>
-        <button class="slot" type="button" tabindex="-1"></button>
-        <button class="slot" type="button" tabindex="-1"></button>
+        <button class="slot item-slot" type="button" tabindex="-1"></button>
+        <button class="slot item-slot" type="button" tabindex="-1"></button>
+        <button class="slot item-slot" type="button" tabindex="-1"></button>
+        <button class="slot item-slot" type="button" tabindex="-1"></button>
       </div>
     </div>
     <div class="right-col">
@@ -429,8 +439,8 @@
           <div class="coins"><i></i>0</div>
         </div>
         <div class="stat">
-          <span class="label">Energy</span>
-          <div class="meter" aria-label="Energy full"><span></span></div>
+          <span class="label">Energy <span id="energy-value">100 / 100</span></span>
+          <div class="meter" id="energy-meter" aria-label="Energy 100 of 100"><span></span></div>
         </div>
       </div>
       <div class="profile" title="Profile">
@@ -480,10 +490,10 @@
       <div class="modal-pane" data-pane="inventory">
         <div class="slots" aria-label="Inventory">
           <div class="slot"><img class="pick-icon" alt="" hidden></div>
-          <div class="slot"></div>
-          <div class="slot"></div>
-          <div class="slot"></div>
-          <div class="slot"></div>
+          <div class="slot item-slot"></div>
+          <div class="slot item-slot"></div>
+          <div class="slot item-slot"></div>
+          <div class="slot item-slot"></div>
         </div>
         <div class="inv-label">Pickaxe</div>
         <div id="skins"><div class="grid"></div></div>

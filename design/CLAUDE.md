@@ -13,6 +13,19 @@ The game design for **IMPLINGZ**, an NFT web game. The design is built as a **ro
 | `docs/00-overview.md` | The game's intent, core loop and the role of the NFT. Every other doc must agree with it. |
 | `docs/01`–`05` | One doc per system: activities, resources, games, trade, skirmish. |
 | `reports/` | One report per pass, plus any report the user asks for. |
+| `sprites/items/` | 48×48 inventory PNGs. Not inside `design/`, but part of the resources design. The catalog is in `docs/02-resources.md`. |
+
+## Item pictures
+
+Before writing or changing anything about ores, gems, ingots, mining rewards or inventory icons, open every PNG in `sprites/items/` and read the catalog in `docs/02-resources.md`. Match each file to that table. The picture is the source of truth for how an item looks. Do not describe an item from its filename alone.
+
+`nugget_` is the ore rock you mine. `ingot_` is the bar picture. `gemstone_` is the gem that can come with that ore. Coal has no ingot file. `prestige_0.png` through `prestige_5.png` are in the same folder and are not mining rewards. Their use is not decided. Do not add them to a tier.
+
+The gem chance is not decided. Do not invent it.
+
+Pickaxes are decided (D-006): which pickaxe mines which ore, and the ingots and hilt each crafted pickaxe takes. Record those exactly. Stone has no craft row. Do not invent a Stone recipe, a drop chance, or a rule that a stronger pickaxe can mine a weaker ore.
+
+How ingots are made in the smelter is not decided. The user is still working on that. Other blacksmithing, other crafting, and selling are not decided. Do not invent them.
 
 ## 2. Do not deviate
 

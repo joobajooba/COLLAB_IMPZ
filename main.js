@@ -51,6 +51,18 @@ const ORE_SPOTS = [
   { x: 0.4, z: 3.4, rot: 5.3, scale: 0.75 },
 ];
 const COPPER_SPOTS = [{ x: 3.0, z: -2.6, rot: 0.3, scale: 0.85 }];
+// Seconds before a broken vein grows back.
+const ORE_RESPAWN = 10;
+const ENERGY_MAX = 100;
+// Energy per second. A testing value; the design has not set a refill rate.
+const ENERGY_REGEN = 0.1;
+// What breaking a vein of each ore gives and costs. Ores without an entry give nothing yet.
+const ORE_REWARDS = {
+  copper: { item: "copper_nugget", energy: 5 },
+};
+const ITEMS = {
+  copper_nugget: { label: "Copper", icon: "./sprites/items/nugget_copper.png" },
+};
 
 const BONES = [
   "thigh_l",
@@ -154,6 +166,10 @@ const veins = [];
 let mining = null;
 // Breaking veins and flying rock chips: { update(dt) -> false when finished }.
 const effects = [];
+
+let energy = ENERGY_MAX;
+// Item id -> count, in the order the items were first picked up.
+const inventory = new Map();
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
@@ -409,7 +425,7 @@ function loadOre() {
     fbx.position.x -= center.x;
     fbx.position.z -= center.z;
 
-    placeVeins(fbx, ORE_SPOTS);
+    placeVeins(fbx, ORE_SPOTS, "tin");
   }, undefined, (error) => {
     console.error(error);
   });
@@ -424,13 +440,14 @@ function loadCopper() {
         obj.receiveShadow = true;
       }
     });
-    placeVeins(gltf.scene, COPPER_SPOTS);
+    placeVeins(gltf.scene, COPPER_SPOTS, "copper");
   }, undefined, (error) => console.error("Could not load the copper vein", error));
 }
 
-function placeVeins(model, spots) {
+function placeVeins(model, spots, ore) {
   for (const spot of spots) {
     const vein = new THREE.Group();
+    vein.userData.ore = ore;
     vein.add(model.clone());
     vein.position.set(spot.x, 0, spot.z);
     vein.rotation.y = spot.rot;
@@ -541,7 +558,7 @@ function rockInReach() {
 function startMining() {
   if (!ready || airborne || (mining && mining.fadeT < 0)) return;
   const rock = rockInReach();
-  if (!rock) return;
+  if (!rock || !enoughEnergy(rock.vein)) return;
   stopEmote();
   mining = { ...rock, t: 0, strikes: 0, fadeT: -1 };
 }
@@ -582,9 +599,20 @@ function updateMining(dt) {
   return weight;
 }
 
-// Removes the vein's colliders straight away, then shrinks it into the
-// ground and throws out a few rock chips.
+function enoughEnergy(vein) {
+  const reward = ORE_REWARDS[vein.userData.ore];
+  return !reward || energy >= reward.energy;
+}
+
+// Pays the ore's reward, removes the vein's colliders straight away, shrinks it
+// into the ground, throws out a few rock chips and grows it back later.
 function breakVein(vein) {
+  const reward = ORE_REWARDS[vein.userData.ore];
+  if (reward) {
+    setEnergy(energy - reward.energy);
+    addItem(reward.item);
+  }
+
   veins.splice(veins.indexOf(vein), 1);
   for (let i = colliders.length - 1; i >= 0; i--) {
     if (colliders[i].vein === vein) colliders.splice(i, 1);
@@ -599,6 +627,15 @@ function breakVein(vein) {
       vein.scale.setScalar(start * (1 - k * k));
       if (k < 1) return true;
       vein.removeFromParent();
+      return false;
+    },
+  });
+  let wait = ORE_RESPAWN;
+  effects.push({
+    update(dt) {
+      wait -= dt;
+      if (wait > 0) return true;
+      respawnVein(vein, start);
       return false;
     },
   });
@@ -645,7 +682,60 @@ function breakVein(vein) {
   }
 }
 
+// Colliders are measured at full size, then the vein grows up out of the ground.
+function respawnVein(vein, scale) {
+  vein.scale.setScalar(scale);
+  scene.add(vein);
+  addRockColliders(vein);
+  veins.push(vein);
+  let t = 0;
+  vein.scale.setScalar(0.001);
+  effects.push({
+    update(dt) {
+      t += dt;
+      const k = Math.min(1, t / BREAK_TIME);
+      vein.scale.setScalar(scale * (1 - (1 - k) * (1 - k)));
+      return k < 1;
+    },
+  });
+}
+
+function setEnergy(value) {
+  energy = THREE.MathUtils.clamp(value, 0, ENERGY_MAX);
+  const shown = Math.floor(energy);
+  document.querySelector("#energy-meter span").style.width = `${(energy / ENERGY_MAX) * 100}%`;
+  document.getElementById("energy-meter").setAttribute("aria-label", `Energy ${shown} of ${ENERGY_MAX}`);
+  document.getElementById("energy-value").textContent = `${shown} / ${ENERGY_MAX}`;
+}
+
+function addItem(id) {
+  inventory.set(id, (inventory.get(id) || 0) + 1);
+  renderInventory();
+}
+
+// Fills the item slots of the hotbar and the inventory popup, in pickup order.
+function renderInventory() {
+  const entries = [...inventory];
+  for (const group of document.querySelectorAll(".slots")) {
+    group.querySelectorAll(".item-slot").forEach((slot, i) => {
+      slot.replaceChildren();
+      slot.title = "";
+      if (!entries[i]) return;
+      const [id, count] = entries[i];
+      const img = document.createElement("img");
+      img.src = ITEMS[id].icon;
+      img.alt = ITEMS[id].label;
+      const badge = document.createElement("span");
+      badge.className = "count";
+      badge.textContent = count;
+      slot.append(img, badge);
+      slot.title = `${ITEMS[id].label} × ${count}`;
+    });
+  }
+}
+
 function updateEffects(dt) {
+  if (energy < ENERGY_MAX) setEnergy(energy + ENERGY_REGEN * dt);
   for (let i = effects.length - 1; i >= 0; i--) {
     if (!effects[i].update(dt)) effects.splice(i, 1);
   }
@@ -658,10 +748,14 @@ function updateEffects(dt) {
     vein.position.x += (Math.random() - 0.5) * shake * 0.25;
     vein.position.z += (Math.random() - 0.5) * shake * 0.25;
   }
-  document.getElementById("prompt").classList.toggle(
-    "hidden",
-    !ready || airborne || !!mining || !rockInReach()
-  );
+  const rock = ready && !airborne && !mining && rockInReach();
+  const prompt = document.getElementById("prompt");
+  prompt.classList.toggle("hidden", !rock);
+  const state = rock && !enoughEnergy(rock.vein) ? "tired" : "mine";
+  if (rock && prompt.dataset.state !== state) {
+    prompt.dataset.state = state;
+    prompt.innerHTML = state === "tired" ? "Not enough energy" : "<kbd>F</kbd>Mine rock";
+  }
 }
 
 // One circle on the ground per rock mesh, sized from its world bounding box.

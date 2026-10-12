@@ -22,7 +22,7 @@ Passes keep going until **you** mark every doc `Signed off`. Nothing is finished
 |---|---|---|---|---|
 | 00 | [Overview](docs/00-overview.md) | Draft | n/a | 0 |
 | 01 | [Activities](docs/01-activities.md) | Not started | 00, 02 | 0 |
-| 02 | [Resources & economy](docs/02-resources.md) | Not started | 00 | 0 |
+| 02 | [Resources & economy](docs/02-resources.md) | Draft | 00 | 0 |
 | 03 | [Games](docs/03-games.md) | Not started | 00, 02 | 0 |
 | 04 | [Trade system](docs/04-trade.md) | Not started | 00, 02 | 0 |
 | 05 | [Skirmish system](docs/05-skirmish.md) | Not started | 00, 02 | 0 |
