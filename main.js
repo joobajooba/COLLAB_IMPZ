@@ -203,6 +203,7 @@ scene.add(fill);
 buildPlatform();
 const blob = buildContactShadow();
 buildEmotePanel();
+setupShell();
 
 const clock = new THREE.Clock();
 window.addEventListener("resize", onResize);
@@ -500,6 +501,11 @@ function setSkin(index) {
     obj.material.roughness = spec.roughness ?? 0.8;
   });
   skinButtons.forEach((button, i) => button.classList.toggle("active", i === skinIndex));
+  document.querySelectorAll(".pick-icon").forEach((slotImg) => {
+    slotImg.src = `./${skin.sprite}`;
+    slotImg.alt = skin.label;
+    slotImg.hidden = false;
+  });
 }
 
 function buildSkinPanel() {
@@ -515,7 +521,6 @@ function buildSkinPanel() {
     grid.appendChild(button);
     skinButtons.push(button);
   });
-  document.getElementById("skins").classList.remove("hidden");
 }
 
 // The closest rock edge in reach, as { vein, x, z } (the rock's centre), or null.
@@ -706,6 +711,7 @@ function down(...codes) {
 }
 
 function onKeyDown(event) {
+  if (isTyping()) return;
   keys.add(event.code);
   if (
     event.code === "KeyW" ||
@@ -719,11 +725,81 @@ function onKeyDown(event) {
   }
   if (event.repeat) return;
   if (event.code === "Space") jump();
-  if (event.code === "KeyE") toggleEmotePanel();
+  if (event.code === "KeyE") togglePanel("emotes");
+  if (event.code === "KeyI") openModal("inventory");
+  if (event.code === "Escape") closeModal();
   if (event.code === "KeyF") startMining();
   if (event.code === "KeyQ") setSkin(skinIndex + 1);
   const slot = /^Digit([1-9])$/.exec(event.code);
   if (slot && EMOTES[slot[1] - 1]) playEmote(EMOTES[slot[1] - 1]);
+}
+
+function isTyping() {
+  const el = document.activeElement;
+  return !!el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA");
+}
+
+function setupShell() {
+  document.getElementById("settings-btn").addEventListener("click", () => openModal("settings"));
+  document.getElementById("support-btn").addEventListener("click", () => toggleCard("support-card"));
+  document.getElementById("slot-pick").addEventListener("click", () => openModal("inventory"));
+  document.getElementById("chat-collapse").addEventListener("click", () => {
+    document.getElementById("chat").classList.toggle("collapsed");
+  });
+  document.getElementById("chat-settings").addEventListener("click", () => openModal("chat"));
+  document.getElementById("modal").addEventListener("click", (event) => {
+    if (event.target.id === "modal") closeModal();
+  });
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document.getElementById("chat-form").addEventListener("submit", (event) => {
+    event.preventDefault();
+    const input = document.getElementById("chat-input");
+    const text = input.value.trim();
+    if (!text) return;
+    appendChat("You", text);
+    input.value = "";
+  });
+}
+
+function toggleCard(id) {
+  document.getElementById(id).classList.toggle("hidden");
+}
+
+let modalName = null;
+
+function openModal(name) {
+  const modal = document.getElementById("modal");
+  if (modalName === name) {
+    closeModal();
+    return;
+  }
+  modalName = name;
+  const titles = { settings: "Settings", chat: "Chat settings", inventory: "Inventory" };
+  document.getElementById("modal-title").textContent = titles[name];
+  for (const pane of modal.querySelectorAll(".modal-pane")) {
+    pane.classList.toggle("open", pane.dataset.pane === name);
+  }
+  modal.classList.remove("hidden");
+}
+
+function closeModal() {
+  modalName = null;
+  document.getElementById("modal").classList.add("hidden");
+}
+
+function togglePanel(id) {
+  document.getElementById(id).classList.toggle("hidden");
+}
+
+function appendChat(name, text) {
+  const log = document.getElementById("chat-log");
+  log.querySelector(".empty")?.remove();
+  const line = document.createElement("p");
+  const who = document.createElement("b");
+  who.textContent = name + ": ";
+  line.append(who, document.createTextNode(text));
+  log.appendChild(line);
+  log.scrollTop = log.scrollHeight;
 }
 
 function jump() {
@@ -763,10 +839,6 @@ function buildEmotePanel() {
     grid.appendChild(button);
     emoteButtons.set(def, button);
   });
-}
-
-function toggleEmotePanel() {
-  document.getElementById("emotes").classList.toggle("collapsed");
 }
 
 function playEmote(def) {
