@@ -57,7 +57,7 @@ const COPPER_SPOTS = [{ x: 3.0, z: -2.6, rot: 0.3, scale: 0.85 }];
 const ORE_RESPAWN = 10;
 const ENERGY_MAX = 100;
 const MINE_ENERGY = 5;
-// Energy refills to full at every 12-hour mark (00:00 and 12:00 UTC).
+// Energy refills to full every 12 hours from midnight on the player's clock (00:00 and 12:00).
 const ENERGY_RESET_MS = 12 * 60 * 60 * 1000;
 const ENERGY_KEY = "impz.energy";
 // What breaking a vein of each ore gives. Ores without an entry give nothing yet.
@@ -660,9 +660,15 @@ function respawnVein(vein, scale) {
   });
 }
 
+// Counts 12-hour blocks on the local clock, so blocks change at local midnight and noon.
+function resetPeriod(now) {
+  const local = now - new Date(now).getTimezoneOffset() * 60000;
+  return Math.floor(local / ENERGY_RESET_MS);
+}
+
 // Saved in this browser only, so a reload doesn't refill it before the next reset.
 function loadEnergy() {
-  energyPeriod = Math.floor(Date.now() / ENERGY_RESET_MS);
+  energyPeriod = resetPeriod(Date.now());
   let saved = null;
   try {
     saved = JSON.parse(localStorage.getItem(ENERGY_KEY));
@@ -672,12 +678,14 @@ function loadEnergy() {
 
 function updateEnergy() {
   const now = Date.now();
-  const period = Math.floor(now / ENERGY_RESET_MS);
+  const period = resetPeriod(now);
   if (period !== energyPeriod) {
     energyPeriod = period;
     setEnergy(ENERGY_MAX);
   }
-  const minutes = Math.ceil(((period + 1) * ENERGY_RESET_MS - now) / 60000);
+  const next = new Date(now);
+  next.setHours(next.getHours() < 12 ? 12 : 24, 0, 0, 0);
+  const minutes = Math.ceil((next - now) / 60000);
   const title = `Energy refills to ${ENERGY_MAX} in ${Math.floor(minutes / 60)}h ${minutes % 60}m`;
   const stat = document.getElementById("energy-stat");
   if (stat.title !== title) stat.title = title;
