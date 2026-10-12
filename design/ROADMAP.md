@@ -20,6 +20,33 @@ Decisions can also arrive between passes, as **user additions** (for example a t
 
 ---
 
+## All documents, by importance
+
+Every Markdown file in the repo, most important first. The order is **Proposed**. You can change it. When a `.md` file is added or removed, update this list in the same PR.
+
+| # | Document | What it is | Status |
+|---|---|---|---|
+| 1 | [DECISIONS.md](DECISIONS.md) | Every decision you have made. The source of truth: anything else that disagrees with it is wrong. | Living log |
+| 2 | [docs/00-overview.md](docs/00-overview.md) | The game's intent, core loop and the role of the NFT. Every other doc must agree with it. | Draft |
+| 3 | [ROADMAP.md](ROADMAP.md) (this file) | The design passes and the status of every design doc. | Living |
+| 4 | [BUILD-ROADMAP.md](BUILD-ROADMAP.md) | The playable game: what is built, what is in review, and the next milestones. | Living |
+| 5 | [docs/02-resources.md](docs/02-resources.md) | Resources and economy: ore tiers, pickaxes, energy, item pictures. The most filled-in design doc. | Draft |
+| 6 | [docs/01-activities.md](docs/01-activities.md) | What players do in the world, and what each activity produces. | Not started |
+| 7 | [docs/05-skirmish.md](docs/05-skirmish.md) | The Pokémon-style battle system. | Not started |
+| 8 | [docs/03-games.md](docs/03-games.md) | Minigames and their rewards. | Not started |
+| 9 | [docs/04-trade.md](docs/04-trade.md) | How value moves between players. | Not started |
+| 10 | [../CLAUDE.md](../CLAUDE.md) | Repo rules for Claude: staging branches, draft PRs, "commit to main", backups and rollback. | Rules |
+| 11 | [CLAUDE.md](CLAUDE.md) | Design rules for Claude: don't deviate, quality first, statuses, how to run a pass, reports. | Rules |
+| 12 | [../README.md](../README.md) | How to run the game, and its controls. | Reference |
+| 13 | [reports/2026-10-11-pass-0.md](reports/2026-10-11-pass-0.md) | Report for Pass 0 (setup). | Done |
+| 14 | [reports/_TEMPLATE.md](reports/_TEMPLATE.md) | The template every report follows. | Template |
+
+**Why this order:** decisions and the overview come first because every other doc must agree with them. The two roadmaps come next because they say what to work on. Then come the system docs, in the order they will be worked on. Resources is first because every other system makes or spends resources. The two `CLAUDE.md` files and the README tell people and Claude how to work in the repo, but they don't define the game. Reports are history.
+
+**Local only, not on GitHub:** `docs/gathering/01-mining.md` and `reports/2026-10-11-pass-1.md`. They exist only in one collaborator's folder and aren't in this list until they are reconciled and merged (see [To reconcile](#to-reconcile-not-on-github)).
+
+---
+
 ## Doc status
 
 | # | Doc | Status | Depends on | Last pass |
@@ -114,4 +141,4 @@ One collaborator has local, uncommitted Pass 1 work that was never pushed. It wa
 |---|---|---|---|---|
 | 0 | 2026-10-11 | Setup | Structure, rules and overview draft created | [report](reports/2026-10-11-pass-0.md) |
 | User additions | 2026-10-12 | Mining resources | Ore tiers (D-005), pickaxes (D-006) and the first copper reward (D-007) recorded in 02. 02 moved to `Draft`. | No report |
-| Roadmap update | 2026-10-12 | Bring this file up to date | Doc status and Pass 2 progress updated to match `main`. Build roadmap started. Unpushed local work listed under "To reconcile". | No report |
+| Roadmap update | 2026-10-12 | Bring this file up to date | Doc status and Pass 2 progress updated to match `main`. Build roadmap started. Unpushed local work listed under "To reconcile". All 14 `.md` files listed by importance. | No report |
