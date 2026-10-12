@@ -21,7 +21,11 @@ Before writing or changing anything about ores, gems, ingots, mining rewards or 
 
 `nugget_` is the ore rock you mine. `ingot_` is the bar picture. `gemstone_` is the gem that can come with that ore. Coal has no ingot file. `prestige_0.png` through `prestige_5.png` are in the same folder and are not mining rewards. Their use is not decided. Do not add them to a tier.
 
-The gem chance, and anything smelted, blacksmithed, crafted or sold from these items, is not decided. Do not invent it.
+The gem chance is not decided. Do not invent it.
+
+Pickaxes are decided (D-006): which pickaxe mines which ore, and the ingots and hilt each crafted pickaxe takes. Record those exactly. Stone has no craft row. Do not invent a Stone recipe, a drop chance, or a rule that a stronger pickaxe can mine a weaker ore.
+
+How ingots are made in the smelter is not decided. The user is still working on that. Other blacksmithing, other crafting, and selling are not decided. Do not invent them.
 
 ## 2. Do not deviate
 

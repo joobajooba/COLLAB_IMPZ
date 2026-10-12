@@ -28,7 +28,7 @@ The user set this table on 2026-10-12. It is the list of ores that can be mined,
 
 The **Chance for Gem** column was on the table and every cell was empty. No drop rate is decided. Do not invent one.
 
-Smelting, blacksmithing, crafting and selling are **not decided**. The user is still working on those. Do not fill them in. The ingot pictures exist so they can be used later. They are not a rule that mining gives an ingot.
+Which pickaxe mines which ore, and what a crafted pickaxe costs, is decided in D-006 below. How an ingot is made in the smelter is **not decided**. The user is still working on that. Other blacksmithing, other crafting, and selling are **not decided**. Do not fill those in. The ingot pictures exist so they can be used later. They are not a rule that mining gives an ingot.
 
 What mining gives for now: the ore item for that tier (the `nugget_` picture). The paired gem can come with it. Nothing else on this table is a mining reward yet.
 
@@ -58,6 +58,50 @@ What the pictures actually show (open the file if you need the exact pixels):
 
 These pictures are inventory icons. They are not the 3D ore vein in the walk scene (`tin_orevein.fbx`).
 
+### Pickaxes (Decided, D-006)
+
+The user set these two tables on 2026-10-12. The first says which pickaxe mines which ore. The second says what a crafted pickaxe takes. There is no Steel ore and no Steel ingot. The Steel pickaxe is made from iron ingots.
+
+The mine table names **one** pickaxe per ore. It does not say that a stronger pickaxe can also mine a weaker ore. Do not add that rule.
+
+Stellarite is mined with the Void pickaxe. The Stellarite pickaxe is crafted, and the table does not say it mines any ore.
+
+The Stone pickaxe mines Tin and Copper. It has **no row** on the craft table. Do not invent a Stone recipe.
+
+Hilts are ingredients only. The table does not say how a player gets an Ash Wood Hilt, an Oak Wood Hilt, a Void Hilt, or a Cosmic Hilt. There is no picture for a hilt in `sprites/items/`.
+
+| Ore | Gem | Mined with |
+|---|---|---|
+| Tin | Topaz | Stone Pickaxe |
+| Copper | Sapphire | Stone Pickaxe |
+| Iron | Amethyst | Bronze Pickaxe |
+| Coal | Ruby | Iron Pickaxe |
+| Gold | Emerald | Steel Pickaxe |
+| Obsidian | Jade | Gold Pickaxe |
+| Mithril | Diamond | Obsidian Pickaxe |
+| Adamantite | Painite | Mithril Pickaxe |
+| Void Stone | Arcanium | Adamantite Pickaxe |
+| Stellarite | Eclipsium | Void Pickaxe |
+
+| Pickaxe | Crafted using |
+|---|---|
+| Stone Pickaxe | No craft row |
+| Bronze Pickaxe | 5 Tin Ingot, 5 Copper Ingot, 1 Ash Wood Hilt |
+| Iron Pickaxe | 5 Iron Ingot, 1 Ash Wood Hilt |
+| Steel Pickaxe | 10 Iron Ingot, 1 Ash Wood Hilt |
+| Gold Pickaxe | 10 Gold Ingot, 1 Ash Wood Hilt |
+| Obsidian Pickaxe | 10 Obsidian Ingot, 1 Oak Wood Hilt |
+| Mithril Pickaxe | 10 Obsidian Ingot, 1 Oak Wood Hilt |
+| Adamantite Pickaxe | 10 Adamantite Ingot, 1 Oak Wood Hilt |
+| Void Pickaxe | 10 Void Ingot, 1 Void Hilt |
+| Stellarite Pickaxe | 10 Stellarite Ingot, 1 Cosmic Hilt |
+
+The Mithril row is written the same as the Obsidian row: 10 Obsidian Ingot and 1 Oak Wood Hilt. It does not use a Mithril ingot. That is what the table says. Do not change it.
+
+Coal is not an ingredient in any pickaxe. Coal still has no ingot file.
+
+The walk scene today only has Stone, Bronze and Iron as pickaxe skins (`models/pickaxe-skins.json`). That is the prototype. It is not this table. This table is the design.
+
 ### Prestige icons (not part of the mining table)
 
 These six files were in the same folder. They are **not** ores, ingots or gems, and the user has not said what they are for. Do not attach them to a tier.
@@ -76,7 +120,10 @@ These six files were in the same folder. They are **not** ores, ingots or gems, 
 |---|---|---|
 | Mining one ore tier | That tier's ore item (`nugget_` icon) | **Decided** for the item. Which 3D vein is which tier is not decided, except that a tin vein already exists in the scene. |
 | Mining one ore tier | That tier's gem, sometimes | **Decided** that the gem is paired. **Open question:** the chance. The table's chance column was blank. |
-| Smelting, blacksmithing, crafting, selling | Not decided | The user is still designing these. Ingot icons are art only until then. |
+| The pickaxe named for that ore | The right to mine that ore | **Decided** (D-006). One pickaxe is named per ore. Whether a stronger pickaxe also works is an **open question**. |
+| Ingots and one hilt, in the amounts in the pickaxe table | That crafted pickaxe | **Decided** (D-006). Stone has no craft cost. How the player gets a hilt is an **open question**. |
+| Smelter | Ingots | **Not decided.** The user will add how ingots are crafted. Do not invent a smelt recipe. |
+| Other blacksmithing, other crafting, selling | Not decided | Still unset. |
 
 ## 5. NFT touchpoints
 *Where the NFT or the blockchain is involved, and where it deliberately isn't.*
@@ -105,3 +152,4 @@ These six files were in the same folder. They are **not** ores, ingots or gems, 
 |---|---|
 | 0 | Template created with the questions to answer. |
 | User addition, 2026-10-12 | Mining tier table and `sprites/items/` catalog recorded (D-005). Status set to Draft. Smelt, blacksmith, craft and sell left unset on purpose. |
+| User addition, 2026-10-12 | Pickaxe mine list and pickaxe craft costs recorded (D-006). Smelter recipes for ingots still unset. |
