@@ -9,6 +9,7 @@ The game design for **IMPLINGZ**, an NFT web game. The design is built as a **ro
 | File | What it holds |
 |---|---|
 | `ROADMAP.md` | The passes, the status of every doc, and what the current pass is working on. **Read this first, every time.** |
+| `BUILD-ROADMAP.md` | The playable game: what is built, what is in review, and the next milestones. Only decided rules get built. Read it before any code change. |
 | `DECISIONS.md` | Every decision the user has made, with its date. These decisions are the source of truth. |
 | `docs/00-overview.md` | The game's intent, core loop and the role of the NFT. Every other doc must agree with it. |
 | `docs/01`–`05` | One doc per system: activities, resources, games, trade, skirmish. |
