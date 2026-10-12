@@ -482,12 +482,11 @@ function setSkin(index) {
     obj.material.roughness = spec.roughness ?? 0.8;
   });
   skinButtons.forEach((button, i) => button.classList.toggle("active", i === skinIndex));
-  const slotImg = document.querySelector("#slot-pick img");
-  if (slotImg) {
+  document.querySelectorAll(".pick-icon").forEach((slotImg) => {
     slotImg.src = `./${skin.sprite}`;
     slotImg.alt = skin.label;
     slotImg.hidden = false;
-  }
+  });
 }
 
 function buildSkinPanel() {
@@ -708,7 +707,8 @@ function onKeyDown(event) {
   if (event.repeat) return;
   if (event.code === "Space") jump();
   if (event.code === "KeyE") togglePanel("emotes");
-  if (event.code === "KeyI") togglePanel("skins");
+  if (event.code === "KeyI") openModal("inventory");
+  if (event.code === "Escape") closeModal();
   if (event.code === "KeyF") startMining();
   if (event.code === "KeyQ") setSkin(skinIndex + 1);
   const slot = /^Digit([1-9])$/.exec(event.code);
@@ -721,23 +721,17 @@ function isTyping() {
 }
 
 function setupShell() {
-  document.getElementById("settings-btn").addEventListener("click", () => toggleCard("settings-card"));
+  document.getElementById("settings-btn").addEventListener("click", () => openModal("settings"));
   document.getElementById("support-btn").addEventListener("click", () => toggleCard("support-card"));
-  document.getElementById("slot-pick").addEventListener("click", () => togglePanel("skins"));
+  document.getElementById("slot-pick").addEventListener("click", () => openModal("inventory"));
   document.getElementById("chat-collapse").addEventListener("click", () => {
     document.getElementById("chat").classList.toggle("collapsed");
   });
-  document.getElementById("chat-settings").addEventListener("click", () => {
-    document.getElementById("chat-menu").classList.toggle("hidden");
+  document.getElementById("chat-settings").addEventListener("click", () => openModal("chat"));
+  document.getElementById("modal").addEventListener("click", (event) => {
+    if (event.target.id === "modal") closeModal();
   });
-  document.getElementById("chat-clear").addEventListener("click", () => {
-    const log = document.getElementById("chat-log");
-    log.replaceChildren();
-    const empty = document.createElement("p");
-    empty.className = "empty";
-    empty.textContent = "No messages yet.";
-    log.appendChild(empty);
-  });
+  document.getElementById("modal-close").addEventListener("click", closeModal);
   document.getElementById("chat-form").addEventListener("submit", (event) => {
     event.preventDefault();
     const input = document.getElementById("chat-input");
@@ -749,10 +743,29 @@ function setupShell() {
 }
 
 function toggleCard(id) {
-  for (const cardId of ["settings-card", "support-card"]) {
-    const card = document.getElementById(cardId);
-    card.classList.toggle("hidden", cardId !== id || !card.classList.contains("hidden"));
+  document.getElementById(id).classList.toggle("hidden");
+}
+
+let modalName = null;
+
+function openModal(name) {
+  const modal = document.getElementById("modal");
+  if (modalName === name) {
+    closeModal();
+    return;
   }
+  modalName = name;
+  const titles = { settings: "Settings", chat: "Chat settings", inventory: "Inventory" };
+  document.getElementById("modal-title").textContent = titles[name];
+  for (const pane of modal.querySelectorAll(".modal-pane")) {
+    pane.classList.toggle("open", pane.dataset.pane === name);
+  }
+  modal.classList.remove("hidden");
+}
+
+function closeModal() {
+  modalName = null;
+  document.getElementById("modal").classList.add("hidden");
 }
 
 function togglePanel(id) {

@@ -54,15 +54,30 @@
     #skins {
       border-radius: 8px;
     }
-    .top-left,
-    .top-right {
+    .top-left {
       position: absolute;
       top: 14px;
+      left: 14px;
       display: flex;
+      flex-direction: column;
+      align-items: flex-start;
       gap: 8px;
     }
-    .top-left { left: 14px; flex-direction: column; align-items: flex-start; }
-    .top-right { right: 14px; align-items: flex-start; }
+    .right-col {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      bottom: 16px;
+      width: 280px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .top-right {
+      display: flex;
+      align-items: stretch;
+      gap: 8px;
+    }
     .row { display: flex; gap: 8px; }
     .chip,
     .icon-btn {
@@ -78,18 +93,26 @@
     .slot:hover { background: #2180ad; }
     .slots { display: flex; gap: 8px; }
     .slot {
+      box-sizing: border-box;
       width: 52px;
-      height: 44px;
-      padding: 4px;
+      height: 52px;
+      flex: 0 0 52px;
+      margin: 0;
+      padding: 8px;
+      appearance: none;
+      line-height: 0;
+      display: grid;
+      place-items: center;
       cursor: pointer;
     }
     .slot img {
-      width: 100%;
-      height: 100%;
+      width: 36px;
+      height: 36px;
       object-fit: contain;
       image-rendering: pixelated;
+      pointer-events: none;
     }
-    .stats { display: flex; flex-direction: column; gap: 8px; }
+    .stats { flex: 1; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
     .stat {
       min-width: 148px;
       padding: 8px 12px;
@@ -127,25 +150,23 @@
       background: #8fd18a;
     }
     .profile {
+      box-sizing: border-box;
       width: 74px;
-      height: 78px;
+      flex: 0 0 74px;
       border-radius: 8px;
       display: grid;
       place-items: center;
     }
     .profile svg { width: 46px; height: 46px; }
     #chat {
-      position: absolute;
-      top: 118px;
-      right: 14px;
-      bottom: 16px;
-      width: 268px;
+      flex: 1;
+      min-height: 0;
       display: flex;
       flex-direction: column;
       padding: 10px;
       pointer-events: auto;
     }
-    #chat.collapsed { bottom: auto; }
+    #chat.collapsed { flex: 0 0 auto; }
     #chat.collapsed .chat-body,
     #chat.collapsed #chat-menu { display: none; }
     #chat.collapsed #chat-collapse svg { transform: rotate(180deg); }
@@ -248,21 +269,65 @@
       pointer-events: none;
     }
     #status.hidden { display: none; }
-    #emotes,
-    #skins {
+    #emotes {
       position: fixed;
+      left: 14px;
+      bottom: 16px;
+      width: 250px;
       color: var(--ink);
       font: 13px/1.3 system-ui, sans-serif;
       background: rgba(16, 40, 56, 0.94);
       border: 1px solid var(--line);
       box-shadow: 0 8px 22px rgba(0, 0, 0, 0.28);
       padding: 10px;
+      border-radius: 8px;
       user-select: none;
     }
-    #emotes { left: 14px; bottom: 16px; width: 250px; }
-    #skins { left: 14px; top: 118px; width: 240px; }
-    #emotes.hidden,
-    #skins.hidden { display: none; }
+    #emotes.hidden { display: none; }
+    #skins { background: none; border: 0; box-shadow: none; padding: 0; }
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 5;
+      display: grid;
+      place-items: center;
+      background: rgba(6, 12, 18, 0.45);
+      pointer-events: auto;
+    }
+    .modal.hidden { display: none; }
+    .modal-card {
+      width: min(440px, calc(100vw - 48px));
+      min-height: 240px;
+      padding: 16px;
+      color: var(--ink);
+      background: rgba(16, 40, 56, 0.96);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+    }
+    .modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .modal-head h2 { margin: 0; font: 600 16px/1 system-ui, sans-serif; }
+    #modal-close {
+      width: 28px;
+      height: 28px;
+      color: #16384c;
+      font: 600 18px/1 system-ui, sans-serif;
+      background: #d7e3ea;
+      border: 0;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .modal-pane { display: none; min-height: 160px; }
+    .modal-pane.open { display: block; }
+    .inv-label {
+      margin: 14px 2px 8px;
+      font-weight: 600;
+    }
     #emotes .title,
     #skins .title {
       display: flex;
@@ -347,15 +412,16 @@
         <button class="chip" id="support-btn" type="button">Support</button>
       </div>
       <div class="slots" aria-label="Inventory">
-        <button class="slot" id="slot-pick" type="button" title="Pickaxe (I)">
-          <img alt="" hidden>
+        <button class="slot" id="slot-pick" type="button" title="Inventory (I)">
+          <img class="pick-icon" alt="" hidden>
         </button>
-        <div class="slot"></div>
-        <div class="slot"></div>
-        <div class="slot"></div>
-        <div class="slot"></div>
+        <button class="slot" type="button" tabindex="-1"></button>
+        <button class="slot" type="button" tabindex="-1"></button>
+        <button class="slot" type="button" tabindex="-1"></button>
+        <button class="slot" type="button" tabindex="-1"></button>
       </div>
     </div>
+    <div class="right-col">
     <div class="top-right">
       <div class="stats">
         <div class="stat">
@@ -391,9 +457,6 @@
           </svg>
         </button>
       </div>
-      <div id="chat-menu" class="hidden">
-        <button id="chat-clear" type="button">Clear</button>
-      </div>
       <div class="chat-body">
         <div id="chat-log">
           <p class="empty">No messages yet.</p>
@@ -404,26 +467,34 @@
         </form>
       </div>
     </section>
+    </div>
   </div>
-  <div id="settings-card" class="card hidden">
-    <h3>Settings</h3>
-    <ul>
-      <li>WASD walk, Space jump</li>
-      <li>Drag to look, scroll to zoom</li>
-      <li>E emotes, 1–6 to play one</li>
-      <li>I pickaxe, Q to cycle</li>
-      <li>F mine a rock</li>
-    </ul>
+  <div id="modal" class="modal hidden">
+    <div class="modal-card" role="dialog" aria-modal="true">
+      <div class="modal-head">
+        <h2 id="modal-title">Settings</h2>
+        <button id="modal-close" type="button" aria-label="Close">×</button>
+      </div>
+      <div class="modal-pane" data-pane="settings"></div>
+      <div class="modal-pane" data-pane="chat"></div>
+      <div class="modal-pane" data-pane="inventory">
+        <div class="slots" aria-label="Inventory">
+          <div class="slot"><img class="pick-icon" alt="" hidden></div>
+          <div class="slot"></div>
+          <div class="slot"></div>
+          <div class="slot"></div>
+          <div class="slot"></div>
+        </div>
+        <div class="inv-label">Pickaxe</div>
+        <div id="skins"><div class="grid"></div></div>
+      </div>
+    </div>
   </div>
   <div id="support-card" class="card hidden">
     <h3>Support</h3>
     <p>This is a local test build. Questions stay with the people sharing this project.</p>
   </div>
   <div id="prompt" class="hidden"><kbd>F</kbd>Mine rock</div>
-  <div id="skins" class="hidden">
-    <div class="title"><span>Pickaxe</span><kbd>I to close</kbd></div>
-    <div class="grid"></div>
-  </div>
   <div id="emotes" class="hidden">
     <div class="title"><span>Emotes</span><kbd>E to close</kbd></div>
     <div class="grid"></div>
