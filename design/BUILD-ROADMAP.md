@@ -23,7 +23,7 @@ The milestone order below is **Proposed**. You can reorder it.
 |---|---|---|---|
 | M0 | Walk scene | Done | n/a |
 | M1 | First mining loop | Done | n/a |
-| M2 | Inventory and energy | In review (PR #13) | Your review of #13 |
+| M2 | Inventory and energy | Done | n/a |
 | M3 | All ten ores in the scene | Next (partly blocked) | 3D vein models; the pickaxe question |
 | M4 | Gems | Blocked | Gem chance (D-005) |
 | M5 | Smelting and pickaxe crafting | Blocked | Smelter recipes; hilt sources |
@@ -46,11 +46,11 @@ The milestone order below is **Proposed**. You can reorder it.
 - [x] Copper ore vein placed in the scene (PR #11)
 - [x] Copper vein gives 1 copper ore and costs 5 energy. Veins grow back after 10 seconds (PR #12, D-007)
 
-### M2: Inventory and energy: In review (PR #13)
-- [ ] Inventory menu: a 6×8 grid. Pickaxes first (click one to hold it), then mined items with counts. The top-left slots show only the held tool.
-- [ ] Every mine costs 5 energy. Energy resets to 100 every 12 hours, with no slow refill. Saved in the browser. (D-008 and D-009 in the PR)
-- [ ] Soil floor texture, square profile picture, chat width lined up with the HUD
-- [ ] **Check before merging:** the PR description says the reset is at 00:00 and 12:00 **UTC**, but the code uses the **player's own clock**, and the doc lists the time zone as an open question. Decide which one is meant.
+### M2: Inventory and energy: Done
+- [x] Inventory menu: a 6×8 grid. Pickaxes first (click one to hold it), then mined items with counts. The top-left slots show only the held tool. (PR #13, D-008)
+- [x] Every mine costs 5 energy. Energy resets to 100 at 00:00 and 12:00, with no slow refill. Saved in the browser. (PR #13, D-008, D-009)
+- [x] Soil floor texture, square profile picture, chat width lined up with the HUD (PR #13)
+- **Open question:** the reset uses each player's own clock. Whether it should be one shared time zone for every player is not decided (02, section 4).
 
 ### M3: All ten ores in the scene: Next (partly blocked)
 Decided: the ten tiers and the ore each gives (D-005), and the one pickaxe named for each ore (D-006).
@@ -90,11 +90,9 @@ These are known differences. They don't need a fix until their milestone comes u
 
 | Game today | Design | Milestone |
 |---|---|---|
-| Three pickaxe skins (Stone, Bronze, Iron), cycled with Q | Ten pickaxes. Each ore has one named pickaxe (D-006). | M3 |
+| Three pickaxes (Stone, Bronze, Iron), all owned from the start, picked in the inventory or cycled with Q | Ten pickaxes. Each ore has one named pickaxe (D-006). | M3 |
 | Any pickaxe mines any rock | One named pickaxe per ore (D-006) | M3 |
 | Tin veins give nothing | Tin is tier 1 and gives tin ore (D-005), but "Tin gives nothing yet" (D-007) | M3 |
-| Energy refills slowly (test value: 1 every 10 seconds) | Fixed 12-hour reset (D-008, in PR #13) | M2 |
-| `README.md` says energy slowly refills | Will be wrong once PR #13 merges | M2 |
 | Overview section 2 says jump and emotes are "work in progress" | They are built (PR #5) | Design Pass 1 |
 
 ---
@@ -104,3 +102,4 @@ These are known differences. They don't need a fix until their milestone comes u
 | Date | Change |
 |---|---|
 | 2026-10-12 | Build roadmap created from `main` at `da2a51a` and open PR #13. |
+| 2026-10-12 | PR #13 merged: M2 marked Done. Energy gap rows removed. |
