@@ -12,17 +12,232 @@
       overflow: hidden;
     }
     canvas { display: block; }
-    #hud {
-      position: fixed;
-      left: 16px;
-      bottom: 16px;
-      color: #e7edf5;
-      font: 14px/1.45 system-ui, sans-serif;
-      background: rgba(10, 12, 18, 0.55);
-      padding: 10px 12px;
-      border-radius: 10px;
-      pointer-events: none;
+    :root {
+      --panel: #1b6d94;
+      --panel-deep: #14567a;
+      --ink: #f4f8fb;
+      --line: rgba(8, 32, 48, 0.55);
     }
+    #shell {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      color: var(--ink);
+      font: 13px/1.3 system-ui, sans-serif;
+      user-select: none;
+    }
+    #shell button,
+    #shell input,
+    #emotes,
+    #skins,
+    .card,
+    .stat,
+    .profile,
+    .slot {
+      pointer-events: auto;
+    }
+    .chip,
+    .slot,
+    .profile,
+    .stat,
+    #chat {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      box-shadow: 0 8px 22px rgba(0, 0, 0, 0.22);
+    }
+    .chip,
+    .icon-btn,
+    .slot,
+    #chat,
+    .card,
+    #emotes,
+    #skins {
+      border-radius: 8px;
+    }
+    .top-left,
+    .top-right {
+      position: absolute;
+      top: 14px;
+      display: flex;
+      gap: 8px;
+    }
+    .top-left { left: 14px; flex-direction: column; align-items: flex-start; }
+    .top-right { right: 14px; align-items: flex-start; }
+    .row { display: flex; gap: 8px; }
+    .chip,
+    .icon-btn {
+      color: inherit;
+      font: 600 13px/1 system-ui, sans-serif;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      cursor: pointer;
+    }
+    .chip { padding: 8px 12px; }
+    .chip:hover,
+    .icon-btn:hover,
+    .slot:hover { background: #2180ad; }
+    .slots { display: flex; gap: 8px; }
+    .slot {
+      width: 52px;
+      height: 44px;
+      padding: 4px;
+      cursor: pointer;
+    }
+    .slot img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      image-rendering: pixelated;
+    }
+    .stats { display: flex; flex-direction: column; gap: 8px; }
+    .stat {
+      min-width: 148px;
+      padding: 8px 12px;
+      border-radius: 8px;
+    }
+    .stat .label {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 11px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      opacity: 0.8;
+    }
+    .coins { font: 700 16px/1 system-ui, sans-serif; }
+    .coins i {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      margin-right: 6px;
+      border-radius: 50%;
+      background: #f0c14a;
+      box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.2);
+      vertical-align: -1px;
+    }
+    .meter {
+      height: 8px;
+      border-radius: 99px;
+      background: rgba(0, 0, 0, 0.28);
+      overflow: hidden;
+    }
+    .meter span {
+      display: block;
+      width: 100%;
+      height: 100%;
+      background: #8fd18a;
+    }
+    .profile {
+      width: 74px;
+      height: 78px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+    }
+    .profile svg { width: 46px; height: 46px; }
+    #chat {
+      position: absolute;
+      top: 118px;
+      right: 14px;
+      bottom: 16px;
+      width: 268px;
+      display: flex;
+      flex-direction: column;
+      padding: 10px;
+      pointer-events: auto;
+    }
+    #chat.collapsed { bottom: auto; }
+    #chat.collapsed .chat-body,
+    #chat.collapsed #chat-menu { display: none; }
+    #chat.collapsed #chat-collapse svg { transform: rotate(180deg); }
+    .chat-head {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .chat-head h2 {
+      margin: 0;
+      flex: 1;
+      font: 600 15px/1 system-ui, sans-serif;
+    }
+    .icon-btn {
+      width: 28px;
+      height: 26px;
+      padding: 0;
+      display: grid;
+      place-items: center;
+      background: #d7e3ea;
+      color: #16384c;
+    }
+    .icon-btn svg { width: 15px; height: 15px; }
+    .chat-body {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-height: 0;
+      flex: 1;
+      margin-top: 10px;
+    }
+    #chat-menu {
+      display: flex;
+      justify-content: flex-end;
+    }
+    #chat-menu.hidden { display: none; }
+    #chat-clear {
+      padding: 4px 8px;
+      color: #16384c;
+      font: 600 12px system-ui, sans-serif;
+      background: #d7e3ea;
+      border: 0;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    #chat-log {
+      flex: 1;
+      margin: 0;
+      padding: 10px;
+      overflow: auto;
+      border-radius: 12px;
+      background: rgba(10, 28, 40, 0.28);
+    }
+    #chat-log p { margin: 0 0 8px; }
+    #chat-log b { font-weight: 700; }
+    #chat-log .empty { opacity: 0.7; }
+    #chat-form { display: flex; gap: 6px; }
+    #chat-input {
+      flex: 1;
+      min-width: 0;
+      padding: 8px 10px;
+      color: var(--ink);
+      font: inherit;
+      background: rgba(10, 28, 40, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 8px;
+    }
+    #chat-form button {
+      padding: 8px 10px;
+      color: #16384c;
+      font: 600 12px system-ui, sans-serif;
+      background: #d7e3ea;
+      border: 0;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .card {
+      position: absolute;
+      top: 52px;
+      left: 14px;
+      width: 230px;
+      padding: 12px;
+      color: var(--ink);
+      background: rgba(16, 40, 56, 0.94);
+      border: 1px solid var(--line);
+      box-shadow: 0 8px 22px rgba(0, 0, 0, 0.28);
+    }
+    .card.hidden { display: none; }
+    .card h3 { margin: 0 0 8px; font-size: 14px; }
+    .card p,
+    .card li { margin: 0; font-size: 13px; line-height: 1.45; }
+    .card ul { margin: 0; padding-left: 16px; }
     #status {
       position: fixed;
       inset: 0;
@@ -33,33 +248,42 @@
       pointer-events: none;
     }
     #status.hidden { display: none; }
-    #emotes {
+    #emotes,
+    #skins {
       position: fixed;
-      right: 16px;
-      bottom: 16px;
-      width: 220px;
-      color: #e7edf5;
+      color: var(--ink);
       font: 13px/1.3 system-ui, sans-serif;
-      background: rgba(10, 12, 18, 0.55);
+      background: rgba(16, 40, 56, 0.94);
+      border: 1px solid var(--line);
+      box-shadow: 0 8px 22px rgba(0, 0, 0, 0.28);
       padding: 10px;
-      border-radius: 10px;
       user-select: none;
     }
-    #emotes .title {
+    #emotes { left: 14px; bottom: 16px; width: 250px; }
+    #skins { left: 14px; top: 118px; width: 240px; }
+    #emotes.hidden,
+    #skins.hidden { display: none; }
+    #emotes .title,
+    #skins .title {
       display: flex;
       justify-content: space-between;
       margin: 0 2px 8px;
       font-weight: 600;
     }
-    #emotes.collapsed .grid { display: none; }
-    #emotes.collapsed .title { margin-bottom: 0; }
+    #emotes kbd,
+    #skins kbd { font: 11px system-ui, sans-serif; opacity: 0.65; }
     #emotes .grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 6px;
     }
-    #emotes button {
-      position: relative;
+    #skins .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+    #emotes button,
+    #skins button {
       display: flex;
       align-items: center;
       gap: 6px;
@@ -67,65 +291,25 @@
       color: inherit;
       font: inherit;
       text-align: left;
-      background: rgba(147, 166, 192, 0.14);
-      border: 1px solid rgba(147, 166, 192, 0.22);
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
       border-radius: 8px;
       cursor: pointer;
-    }
-    #emotes button:hover { background: rgba(147, 166, 192, 0.26); }
-    #emotes button.active {
-      background: rgba(122, 200, 120, 0.3);
-      border-color: rgba(150, 225, 140, 0.7);
-    }
-    #emotes .icon { font-size: 16px; }
-    #emotes kbd {
-      margin-left: auto;
-      font: 11px system-ui, sans-serif;
-      opacity: 0.6;
-    }
-    #skins {
-      position: fixed;
-      right: 16px;
-      top: 16px;
-      width: 220px;
-      color: #e7edf5;
-      font: 13px/1.3 system-ui, sans-serif;
-      background: rgba(10, 12, 18, 0.55);
-      padding: 10px;
-      border-radius: 10px;
-      user-select: none;
-    }
-    #skins.hidden { display: none; }
-    #skins .title {
-      display: flex;
-      justify-content: space-between;
-      margin: 0 2px 8px;
-      font-weight: 600;
-    }
-    #skins kbd { font: 11px system-ui, sans-serif; opacity: 0.6; }
-    #skins .grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 6px;
     }
     #skins button {
-      display: flex;
       flex-direction: column;
-      align-items: center;
       gap: 2px;
       padding: 6px 4px;
-      color: inherit;
-      font: inherit;
-      background: rgba(147, 166, 192, 0.14);
-      border: 1px solid rgba(147, 166, 192, 0.22);
-      border-radius: 8px;
-      cursor: pointer;
     }
-    #skins button:hover { background: rgba(147, 166, 192, 0.26); }
+    #emotes button:hover,
+    #skins button:hover { background: rgba(255, 255, 255, 0.16); }
+    #emotes button.active,
     #skins button.active {
-      background: rgba(122, 200, 120, 0.3);
-      border-color: rgba(150, 225, 140, 0.7);
+      background: rgba(143, 209, 138, 0.28);
+      border-color: rgba(143, 209, 138, 0.8);
     }
+    #emotes .icon { font-size: 16px; }
+    #emotes kbd { margin-left: auto; }
     #skins img {
       width: 48px;
       height: 48px;
@@ -156,14 +340,92 @@
 </head>
 <body>
   <div id="status">Loading character…</div>
-  <div id="hud">WASD to walk · Space to jump<br>Drag to look · scroll to zoom<br>F to mine a rock · Q to change pickaxe</div>
+  <div id="shell">
+    <div class="top-left">
+      <div class="row">
+        <button class="chip" id="settings-btn" type="button">Settings</button>
+        <button class="chip" id="support-btn" type="button">Support</button>
+      </div>
+      <div class="slots" aria-label="Inventory">
+        <button class="slot" id="slot-pick" type="button" title="Pickaxe (I)">
+          <img alt="" hidden>
+        </button>
+        <div class="slot"></div>
+        <div class="slot"></div>
+        <div class="slot"></div>
+        <div class="slot"></div>
+      </div>
+    </div>
+    <div class="top-right">
+      <div class="stats">
+        <div class="stat">
+          <span class="label">Coins</span>
+          <div class="coins"><i></i>0</div>
+        </div>
+        <div class="stat">
+          <span class="label">Energy</span>
+          <div class="meter" aria-label="Energy full"><span></span></div>
+        </div>
+      </div>
+      <div class="profile" title="Profile">
+        <svg viewBox="0 0 64 64" aria-hidden="true">
+          <circle cx="32" cy="32" r="30" fill="#d7e3ea"/>
+          <circle cx="32" cy="28" r="12" fill="#7d8b86"/>
+          <path d="M14 54c4-10 12-14 18-14s14 4 18 14" fill="#7d8b86"/>
+          <path d="M20 16l6 10M44 16l-6 10" stroke="#f4f1ea" stroke-width="4" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+    <section id="chat">
+      <div class="chat-head">
+        <h2>Global Chat</h2>
+        <button class="icon-btn" id="chat-settings" type="button" title="Chat settings" aria-label="Chat settings">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6">
+            <circle cx="8" cy="8" r="2.2"/>
+            <path d="M8 1.6v1.8M8 12.6v1.8M1.6 8h1.8M12.6 8h1.8M3.4 3.4l1.3 1.3M11.3 11.3l1.3 1.3M12.6 3.4l-1.3 1.3M4.7 11.3l-1.3 1.3"/>
+          </svg>
+        </button>
+        <button class="icon-btn" id="chat-collapse" type="button" title="Collapse chat" aria-label="Collapse chat">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M3 6l5 5 5-5"/>
+          </svg>
+        </button>
+      </div>
+      <div id="chat-menu" class="hidden">
+        <button id="chat-clear" type="button">Clear</button>
+      </div>
+      <div class="chat-body">
+        <div id="chat-log">
+          <p class="empty">No messages yet.</p>
+        </div>
+        <form id="chat-form">
+          <input id="chat-input" type="text" maxlength="160" placeholder="Message" autocomplete="off">
+          <button type="submit">Send</button>
+        </form>
+      </div>
+    </section>
+  </div>
+  <div id="settings-card" class="card hidden">
+    <h3>Settings</h3>
+    <ul>
+      <li>WASD walk, Space jump</li>
+      <li>Drag to look, scroll to zoom</li>
+      <li>E emotes, 1–6 to play one</li>
+      <li>I pickaxe, Q to cycle</li>
+      <li>F mine a rock</li>
+    </ul>
+  </div>
+  <div id="support-card" class="card hidden">
+    <h3>Support</h3>
+    <p>This is a local test build. Questions stay with the people sharing this project.</p>
+  </div>
   <div id="prompt" class="hidden"><kbd>F</kbd>Mine rock</div>
   <div id="skins" class="hidden">
-    <div class="title"><span>Pickaxe</span><kbd>Q to change</kbd></div>
+    <div class="title"><span>Pickaxe</span><kbd>I to close</kbd></div>
     <div class="grid"></div>
   </div>
-  <div id="emotes">
-    <div class="title"><span>Emotes</span><kbd>E to hide</kbd></div>
+  <div id="emotes" class="hidden">
+    <div class="title"><span>Emotes</span><kbd>E to close</kbd></div>
     <div class="grid"></div>
   </div>
   <script type="importmap">

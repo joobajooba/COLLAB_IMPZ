@@ -12,9 +12,9 @@ npx serve .          # or any static server, then open the printed URL
 Opening `index.html` directly from disk won't work — ES modules need to be served over HTTP.
 
 Controls: WASD to walk, Space to jump, drag to look, scroll to zoom.
-Emotes: click one in the Emotes panel or press 1–6 (Wave, Cheer, Dance, Taunt, Bow, Shrug). Moving or jumping cancels an emote; E hides the panel.
+Emotes: press E to open the panel, or press 1–6 (Wave, Cheer, Dance, Taunt, Bow, Shrug). Moving or jumping cancels an emote.
 Mining: walk up to a rock until the "F Mine rock" prompt shows, then press F. The character swings three times and the rock breaks and is removed. Moving or jumping stops the swing.
-Pickaxe: click a skin in the Pickaxe panel or press Q to cycle Stone, Bronze and Iron.
+Pickaxe: press I to open the panel, or Q to cycle Stone, Bronze and Iron.
 
 ## Pickaxe model
 
