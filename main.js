@@ -3,11 +3,23 @@ import { FBXLoader } from "three/addons/loaders/FBXLoader.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 
-const PLATFORM = 10;
-// Times the soil texture repeats across the platform.
-const SOIL_REPEAT = 6;
-const HALF = PLATFORM / 2;
-const EDGE = 0.55;
+// The cave: an uneven soil floor ringed by stone walls, open to the sky.
+// caveRadius() gives the distance from the centre to the foot of the wall.
+const CAVE_RADIUS = 6.3;
+const CAVE_SAMPLES = 72;
+const WALL_THICK = 1.4;
+const WALL_LEAN = 0.35;
+const WALL_MIN = 1.5;
+const WALL_MAX = 2.5;
+// Wall meshes that fade on their own when they block the view of the character.
+const WALL_PIECES = 24;
+const WALL_FADE = 0.15;
+const CAVE_BOULDERS = 14;
+// Metres covered by one repeat of each texture.
+const SOIL_TILE = 10 / 6;
+const STONE_TILE = 1.6;
+// Whole number of stone tiles around the ring, so the texture has no seam where it closes.
+const STONE_REPEATS = Math.round((Math.PI * 2 * CAVE_RADIUS) / STONE_TILE);
 const MOVE_SPEED = 2.5;
 const CYCLE_HZ = 3.1;
 
@@ -170,6 +182,9 @@ const veins = [];
 let mining = null;
 // Breaking veins and flying rock chips: { update(dt) -> false when finished }.
 const effects = [];
+const caveWalls = [];
+// Boulders at the wall foot block the character but can't be mined: { x, z, r }.
+const caveRocks = [];
 
 let energy = ENERGY_MAX;
 let energyPeriod = 0;
@@ -209,10 +224,10 @@ sun.castShadow = true;
 sun.shadow.mapSize.set(2048, 2048);
 sun.shadow.camera.near = 0.5;
 sun.shadow.camera.far = 24;
-sun.shadow.camera.left = -8;
-sun.shadow.camera.right = 8;
-sun.shadow.camera.top = 8;
-sun.shadow.camera.bottom = -8;
+sun.shadow.camera.left = -10;
+sun.shadow.camera.right = 10;
+sun.shadow.camera.top = 10;
+sun.shadow.camera.bottom = -10;
 sun.shadow.bias = -0.0004;
 scene.add(sun);
 scene.add(sun.target);
@@ -221,7 +236,7 @@ const fill = new THREE.DirectionalLight("#9eb6ff", 0.55);
 fill.position.set(-4, 3, -2);
 scene.add(fill);
 
-buildPlatform();
+buildCave();
 const blob = buildContactShadow();
 buildEmotePanel();
 setupShell();
@@ -249,41 +264,200 @@ loadCopper();
 loadPickaxe();
 renderer.setAnimationLoop(frame);
 
-function buildPlatform() {
-  const soil = new THREE.TextureLoader().load("./textures/soil.png");
-  soil.colorSpace = THREE.SRGBColorSpace;
-  soil.wrapS = soil.wrapT = THREE.RepeatWrapping;
-  soil.repeat.set(SOIL_REPEAT, SOIL_REPEAT);
-  soil.anisotropy = 8;
-  const top = new THREE.MeshStandardMaterial({
+// Distance from the centre to the wall foot at angle a (around Y, from +X towards +Z).
+function caveRadius(a) {
+  return (
+    CAVE_RADIUS +
+    0.45 * Math.sin(2 * a + 0.6) +
+    0.3 * Math.sin(3 * a + 2.1) +
+    0.18 * Math.sin(5 * a + 4) +
+    0.1 * Math.sin(9 * a + 1)
+  );
+}
+
+function wallHeight(a) {
+  const h = 2 + 0.35 * Math.sin(3 * a + 1) + 0.25 * Math.sin(7 * a + 3) + 0.12 * Math.sin(13 * a);
+  return THREE.MathUtils.clamp(h, WALL_MIN, WALL_MAX);
+}
+
+// Repeatable 0..1 noise for the wall's bumps.
+function hash(i, k) {
+  const s = Math.sin(i * 12.9898 + k * 78.233) * 43758.5453;
+  return s - Math.floor(s);
+}
+
+function caveTexture(path) {
+  const texture = new THREE.TextureLoader().load(path);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+  texture.anisotropy = 8;
+  return texture;
+}
+
+function buildCave() {
+  const soil = caveTexture("./textures/soil.png");
+  soil.repeat.set(1 / SOIL_TILE, 1 / SOIL_TILE);
+  const floorMat = new THREE.MeshStandardMaterial({
     map: soil,
     // Darkens the texture so the bright scene light doesn't wash it out.
     color: "#a08a76",
     roughness: 1,
     metalness: 0,
   });
-  const side = new THREE.MeshStandardMaterial({
-    color: "#3b2918",
+
+  // The floor runs under the walls so no gap shows at their foot.
+  const outline = new THREE.Shape();
+  for (let i = 0; i < CAVE_SAMPLES; i++) {
+    const a = (i / CAVE_SAMPLES) * Math.PI * 2;
+    const r = caveRadius(a) + WALL_THICK;
+    // Shape Y becomes world -Z once the floor is laid flat below.
+    if (i === 0) outline.moveTo(Math.cos(a) * r, -Math.sin(a) * r);
+    else outline.lineTo(Math.cos(a) * r, -Math.sin(a) * r);
+  }
+  const floorGeo = new THREE.ShapeGeometry(outline, 1);
+  floorGeo.rotateX(-Math.PI / 2);
+  const floor = new THREE.Mesh(floorGeo, floorMat);
+  floor.receiveShadow = true;
+  scene.add(floor);
+
+  const stone = caveTexture("./textures/stone.png");
+  const stoneMat = new THREE.MeshStandardMaterial({
+    map: stone,
+    color: "#948d85",
     roughness: 0.95,
     metalness: 0,
+    side: THREE.DoubleSide,
   });
-  const slab = new THREE.Mesh(new THREE.BoxGeometry(PLATFORM, 0.28, PLATFORM), [
-    side,
-    side,
-    top,
-    side,
-    side,
-    side,
-  ]);
-  slab.position.y = -0.14;
-  slab.receiveShadow = true;
-  slab.add(
-    new THREE.LineSegments(
-      new THREE.EdgesGeometry(slab.geometry),
-      new THREE.LineBasicMaterial({ color: "#7a5636" })
-    )
-  );
-  scene.add(slab);
+  const perPiece = CAVE_SAMPLES / WALL_PIECES;
+  for (let p = 0; p < WALL_PIECES; p++) {
+    const material = stoneMat.clone();
+    material.transparent = true;
+    const wall = new THREE.Mesh(wallGeometry(p * perPiece, (p + 1) * perPiece), material);
+    wall.castShadow = true;
+    wall.receiveShadow = true;
+    wall.userData.opacity = 1;
+    scene.add(wall);
+    caveWalls.push(wall);
+  }
+
+  // Fallen boulders along the foot of the wall break up its line.
+  for (let i = 0; i < CAVE_BOULDERS; i++) {
+    const a = ((i + hash(i, 20) * 0.6) / CAVE_BOULDERS) * Math.PI * 2;
+    const size = 0.28 + hash(i, 21) * 0.38;
+    const geometry = new THREE.IcosahedronGeometry(size, 0);
+    const pos = geometry.attributes.position;
+    for (let v = 0; v < pos.count; v++) {
+      const k = 0.75 + hash(i * 31 + v, 22) * 0.5;
+      pos.setXYZ(v, pos.getX(v) * k, pos.getY(v) * k * 0.75, pos.getZ(v) * k);
+    }
+    geometry.computeVertexNormals();
+    const boulder = new THREE.Mesh(geometry, stoneMat);
+    const r = caveRadius(a) + 0.1;
+    boulder.position.set(Math.cos(a) * r, size * 0.35, Math.sin(a) * r);
+    boulder.rotation.set(hash(i, 23) * 3, hash(i, 24) * 6, hash(i, 25) * 3);
+    boulder.castShadow = true;
+    boulder.receiveShadow = true;
+    scene.add(boulder);
+    caveRocks.push({ x: boulder.position.x, z: boulder.position.z, r: size * 0.9 });
+  }
+}
+
+// One stretch of wall from sample i0 to i1. Each sample is a cross-section from
+// the foot, up a bumpy leaning face, over the top and down the back. Flat-shaded
+// triangles give the faceted cartoon-rock look.
+function wallGeometry(i0, i1) {
+  const section = (i) => {
+    const a = (i / CAVE_SAMPLES) * Math.PI * 2;
+    const r = caveRadius(a);
+    const j = (k, amount) => (hash(i % CAVE_SAMPLES, k) - 0.5) * amount;
+    const h = wallHeight(a) + j(8, 0.5);
+    // Outcrops: the middle of the face bulges in and out along the wall.
+    const bulge = 0.14 * Math.sin(11 * a + 0.5) + 0.08 * Math.sin(17 * a + 2);
+    const profile = [
+      [r - 0.02, -0.02],
+      [r - bulge * 0.5 + j(1, 0.2), h * 0.28 + j(2, 0.25)],
+      [r + 0.1 - bulge + j(3, 0.2), h * 0.6 + j(4, 0.3)],
+      [r + WALL_LEAN + j(5, 0.3), h],
+      [r + WALL_LEAN + 0.55 + j(6, 0.3), h + j(7, 0.3)],
+      [r + WALL_THICK - 0.25, h * 0.55],
+      [r + WALL_THICK, -0.02],
+    ];
+    const cos = Math.cos(a);
+    const sin = Math.sin(a);
+    let along = 0;
+    return profile.map(([pr, y], k) => {
+      if (k > 0) along += Math.hypot(pr - profile[k - 1][0], y - profile[k - 1][1]);
+      return { pos: [cos * pr, y, sin * pr], v: along / STONE_TILE, arc: (a / (Math.PI * 2)) * STONE_REPEATS };
+    });
+  };
+  const positions = [];
+  const uvs = [];
+  const push = (pt) => {
+    positions.push(...pt.pos);
+    uvs.push(pt.arc, pt.v);
+  };
+  for (let i = i0; i < i1; i++) {
+    const s0 = section(i);
+    const s1 = section(i + 1);
+    for (let k = 0; k < s0.length - 1; k++) {
+      const a = s0[k];
+      const b = s0[k + 1];
+      const c = s1[k + 1];
+      const d = s1[k];
+      push(a), push(b), push(c);
+      push(a), push(c), push(d);
+    }
+  }
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  geometry.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
+  geometry.computeVertexNormals();
+  return geometry;
+}
+
+// Walls between the camera and the character fade out, with the piece on each
+// side so the see-through patch is wider than the character; the rest fade back in.
+const wallRay = new THREE.Raycaster();
+const wallTarget = new THREE.Vector3();
+function updateWallFade(dt) {
+  const blocking = new Set();
+  for (const height of [0.3, 0.9]) {
+    wallTarget.set(character.position.x, character.position.y + height, character.position.z);
+    const toTarget = wallTarget.clone().sub(camera.position);
+    wallRay.set(camera.position, toTarget.normalize());
+    wallRay.far = camera.position.distanceTo(wallTarget);
+    for (const hit of wallRay.intersectObjects(caveWalls, false)) {
+      const i = caveWalls.indexOf(hit.object);
+      for (const n of [i - 1, i, i + 1]) blocking.add(caveWalls[(n + WALL_PIECES) % WALL_PIECES]);
+    }
+  }
+  const k = 1 - Math.exp(-10 * dt);
+  for (const wall of caveWalls) {
+    const target = blocking.has(wall) ? WALL_FADE : 1;
+    wall.userData.opacity += (target - wall.userData.opacity) * k;
+    wall.material.opacity = wall.userData.opacity;
+    wall.material.depthWrite = wall.userData.opacity > 0.98;
+  }
+}
+
+// Keeps the character off the wall-foot boulders and inside the wall, leaving
+// room for the face bulging inwards above the foot.
+function keepInCave() {
+  const p = character.position;
+  for (const c of caveRocks) {
+    const dx = p.x - c.x;
+    const dz = p.z - c.z;
+    const min = c.r + CHAR_RADIUS;
+    const dist = Math.hypot(dx, dz);
+    if (dist >= min || dist < 1e-6) continue;
+    p.x = c.x + (dx / dist) * min;
+    p.z = c.z + (dz / dist) * min;
+  }
+  const r = Math.hypot(p.x, p.z);
+  const limit = caveRadius(Math.atan2(p.z, p.x)) - CHAR_RADIUS - 0.15;
+  if (r <= limit) return;
+  p.x *= limit / r;
+  p.z *= limit / r;
 }
 
 function buildContactShadow() {
@@ -1270,9 +1444,7 @@ function updateMove(dt) {
     vMove.set(vForward.x * iz + vRight.x * ix, 0, vForward.z * iz + vRight.z * ix);
     character.position.addScaledVector(vMove, MOVE_SPEED * dt);
     resolveCollisions();
-    const limit = HALF - EDGE;
-    character.position.x = THREE.MathUtils.clamp(character.position.x, -limit, limit);
-    character.position.z = THREE.MathUtils.clamp(character.position.z, -limit, limit);
+    keepInCave();
     const targetYaw = Math.atan2(vMove.x, vMove.z);
     const turn = Math.atan2(Math.sin(targetYaw - yaw), Math.cos(targetYaw - yaw));
     yaw += turn * (1 - Math.exp(-12 * dt));
@@ -1315,5 +1487,6 @@ function frame() {
   }
   updateEffects(dt);
   updateCamera(dt, !ready);
+  if (ready) updateWallFade(dt);
   renderer.render(scene, camera);
 }
