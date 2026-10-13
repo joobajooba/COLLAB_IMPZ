@@ -13,10 +13,12 @@ Opening `index.html` directly from disk won't work — ES modules need to be ser
 
 Controls: WASD to walk, Space to jump, drag to look, scroll to zoom.
 Emotes: press E to open the panel, or press 1–6 (Wave, Cheer, Dance, Taunt, Bow, Shrug). Moving or jumping cancels an emote.
-Mining: walk up to a rock until the "F Mine rock" prompt shows, then press F. The character swings three times and the rock breaks. A broken vein grows back after 10 seconds. Moving or jumping stops the swing.
+Mining: there is a vein for each of the ten ores, Tin to Stellarite, with harder ores further from the start. Walk up to one until the "F Mine Tin" prompt shows, then press F. The character swings three times and the rock breaks, giving one ore and sometimes its gem. A broken vein grows back after 10 seconds. Moving or jumping stops the swing. A pickaxe mines its own ore and every ore below; if yours is too weak, the prompt says which one you need.
 Energy: every mine costs 5 of 100 energy, and nothing can be mined below 5. Energy refills to 100 every 12 hours from midnight (00:00 and 12:00 on the player's clock) and is saved in the browser between reloads.
-Inventory: press I. The 6×8 grid holds the pickaxes (click one to hold it) and mined items. The copper vein gives one copper ore; tin gives nothing yet. The top-left slots only show the held tool. Q also cycles the pickaxes.
+Inventory: press I. The 6×8 grid holds the pickaxes you own (click one to hold it) and your items. The top-left slots only show the held tool. Q cycles the pickaxes you own. The inventory resets when the page reloads.
+Furnace and blacksmith: walk up to either and press F. The furnace turns 2 ore into 1 ingot (a test recipe). The blacksmith crafts pickaxes from ingots and supplies the hilt (also a test). You start with only the Stone pickaxe.
+Test tools: Settings has buttons to refill energy, add 20 of every ore and unlock every pickaxe, for trying all the tiers quickly.
 
 ## Pickaxe model
 
-`models/pickaxe.glb` is built in Blender by `models/build_pickaxe.py` (see the comment at its top for the command). Its skins live in `models/pickaxe-skins.json`, one per sprite in `sprites/pickaxes/`, and the game reads that file directly, so a new skin needs only a sprite and a JSON entry.
+`models/pickaxe.glb` is built in Blender by `models/build_pickaxe.py` (see the comment at its top for the command). Its skins live in `models/pickaxe-skins.json`, one per sprite in `sprites/pickaxes/`, and the game reads that file directly, so a new skin needs only a sprite and a JSON entry. Which ore each pickaxe mines, and its recipe, are in `PICKAXES` in `main.js`.

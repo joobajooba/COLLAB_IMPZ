@@ -9,6 +9,7 @@ The game design for **IMPLINGZ**, an NFT web game. The design is built as a **ro
 | File | What it holds |
 |---|---|
 | `ROADMAP.md` | The passes, the status of every doc, and what the current pass is working on. **Read this first, every time.** |
+| `BUILD-ROADMAP.md` | The playable game: what is built, what is in review, and the next milestones. Only decided rules get built. Read it before any code change. |
 | `DECISIONS.md` | Every decision the user has made, with its date. These decisions are the source of truth. |
 | `docs/00-overview.md` | The game's intent, core loop and the role of the NFT. Every other doc must agree with it. |
 | `docs/01`–`05` | One doc per system: activities, resources, games, trade, skirmish. |
@@ -21,11 +22,11 @@ Before writing or changing anything about ores, gems, ingots, mining rewards or 
 
 `nugget_` is the ore rock you mine. `ingot_` is the bar picture. `gemstone_` is the gem that can come with that ore. Coal has no ingot file. `prestige_0.png` through `prestige_5.png` are in the same folder and are not mining rewards. Their use is not decided. Do not add them to a tier.
 
-The gem chance is not decided. Do not invent it.
+The gem chance is decided (D-012): 10% for Tin, falling 1% per tier to 1% for Stellarite.
 
-Pickaxes are decided (D-006): which pickaxe mines which ore, and the ingots and hilt each crafted pickaxe takes. Record those exactly. Stone has no craft row. Do not invent a Stone recipe, a drop chance, or a rule that a stronger pickaxe can mine a weaker ore.
+Pickaxes are decided (D-006): which pickaxe mines which ore, and the ingots and hilt each crafted pickaxe takes. Record those exactly. A pickaxe also mines every ore below its named ore (D-011). Stone has no craft row. Do not invent a Stone recipe.
 
-How ingots are made in the smelter is not decided. The user is still working on that. Other blacksmithing, other crafting, and selling are not decided. Do not invent them.
+How ingots are made in the smelter, and how players get hilts, are not decided. The user is still working on them. The build uses labelled test values until then (D-013: 2 ore make 1 ingot, the blacksmith supplies hilts). Do not present those test values as the design. Other blacksmithing, other crafting, and selling are not decided. Do not invent them.
 
 ## 2. Do not deviate
 

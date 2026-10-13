@@ -5,16 +5,17 @@ import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 
 // The cave: an uneven soil floor ringed by stone walls, open to the sky.
 // caveRadius() gives the distance from the centre to the foot of the wall.
-const CAVE_RADIUS = 6.3;
-const CAVE_SAMPLES = 72;
+// Sized to hold the 16 m mining floor: the farthest ore sits 7.5 m out.
+const CAVE_RADIUS = 10;
+const CAVE_SAMPLES = 120;
 const WALL_THICK = 1.4;
 const WALL_LEAN = 0.35;
 const WALL_MIN = 1.5;
 const WALL_MAX = 2.5;
 // Wall meshes that fade on their own when they block the view of the character.
-const WALL_PIECES = 24;
+const WALL_PIECES = 40;
 const WALL_FADE = 0.15;
-const CAVE_BOULDERS = 14;
+const CAVE_BOULDERS = 22;
 // Metres covered by one repeat of each texture.
 const SOIL_TILE = 10 / 6;
 const STONE_TILE = 1.6;
@@ -55,16 +56,83 @@ const SWING_TIME = 0.8;
 const STRIKE_AT = 0.6;
 const BREAK_TIME = 0.35;
 const DEBRIS_TIME = 0.9;
+// Name tags over veins and stations show within this distance.
+const LABEL_RANGE = 3.2;
 
-// Where copies of the ore vein are placed; the first is the original spot.
-const ORE_SPOTS = [
-  { x: 1.55, z: -1.05, rot: 0, scale: 1 },
-  { x: -2.6, z: -2.4, rot: 1.9, scale: 0.85 },
-  { x: -3.2, z: 1.8, rot: 4.1, scale: 1.1 },
-  { x: 3.1, z: 2.7, rot: 2.7, scale: 0.9 },
-  { x: 0.4, z: 3.4, rot: 5.3, scale: 0.75 },
+// The ten ore tiers, lowest first (D-005). Breaking a vein gives one of its ore
+// (D-007, D-010) and, with `gemChance`, its gem too (D-012). `file` is the name
+// in sprites/items/. `ingot: false` because Coal has no ingot.
+// `model`: "tin" is tin_orevein.fbx; "vein" is models/copper_vein.glb, with its
+// rock and ore crystals recoloured by `look` (TEST art until each tier has
+// its own vein). `spots` are where its veins stand: a TEST layout.
+const ORES = [
+  { id: "tin", label: "Tin", file: "tin", tier: 1, gem: "topaz", gemChance: 0.1, model: "tin",
+    spots: [
+      { x: 1.55, z: -1.05, rot: 0, scale: 1 },
+      { x: -2.6, z: -2.4, rot: 1.9, scale: 0.85 },
+      { x: -3.2, z: 1.8, rot: 4.1, scale: 1.1 },
+      { x: 3.1, z: 2.7, rot: 2.7, scale: 0.9 },
+      { x: 0.4, z: 3.4, rot: 5.3, scale: 0.75 },
+    ] },
+  { id: "copper", label: "Copper", file: "copper", tier: 2, gem: "sapphire", gemChance: 0.09, model: "vein",
+    spots: [
+      { x: 3.0, z: -2.6, rot: 0.3, scale: 0.85 },
+      { x: -4.6, z: 4.6, rot: 2.2, scale: 0.85 },
+    ] },
+  { id: "iron", label: "Iron", file: "iron", tier: 3, gem: "amethyst", gemChance: 0.08, model: "vein",
+    look: { ore: "#aab0ba", metal: 0.9, rough: 0.3, top: "#6a625a", side: "#4e5158" },
+    spots: [{ x: -5.6, z: -0.6, rot: 1.2, scale: 0.9 }] },
+  { id: "coal", label: "Coal", file: "coal", tier: 4, gem: "ruby", gemChance: 0.07, model: "vein", ingot: false,
+    look: { ore: "#1c1c21", metal: 0.1, rough: 0.55, top: "#4c4742", side: "#3a3836" },
+    spots: [{ x: -5.2, z: -5.0, rot: 4.0, scale: 0.9 }] },
+  { id: "gold", label: "Gold", file: "gold", tier: 5, gem: "emerald", gemChance: 0.06, model: "vein",
+    look: { ore: "#ffb21f", metal: 0.95, rough: 0.25, top: "#a8873f", side: "#8a7a62" },
+    spots: [{ x: -1.4, z: -6.0, rot: 0.6, scale: 0.9 }] },
+  { id: "obsidian", label: "Obsidian", file: "obsidian", tier: 6, gem: "jade", gemChance: 0.05, model: "vein",
+    look: { ore: "#251b33", metal: 0.3, rough: 0.06, top: "#3e3449", side: "#2c2830" },
+    spots: [{ x: 2.6, z: -6.0, rot: 5.2, scale: 0.9 }] },
+  { id: "mithril", label: "Mithril", file: "mithril", tier: 7, gem: "diamond", gemChance: 0.04, model: "vein",
+    look: { ore: "#d9caff", metal: 0.8, rough: 0.2, top: "#8f87a8", side: "#9c97ad", glow: "#2c2058" },
+    spots: [{ x: 6.0, z: -4.2, rot: 3.1, scale: 0.9 }] },
+  { id: "adamantite", label: "Adamantite", file: "adamantite", tier: 8, gem: "painite", gemChance: 0.03, model: "vein",
+    look: { ore: "#8c2629", metal: 0.75, rough: 0.3, top: "#6b3b31", side: "#5a3a36" },
+    spots: [{ x: 6.2, z: 0.6, rot: 1.7, scale: 0.95 }] },
+  { id: "void", label: "Void Stone", file: "void", tier: 9, gem: "arcanium", gemChance: 0.02, model: "vein",
+    look: { ore: "#4d2a91", metal: 0.3, rough: 0.3, top: "#2b2337", side: "#2a2234", glow: "#3a167a" },
+    spots: [{ x: 5.4, z: 5.2, rot: 4.6, scale: 1 }] },
+  { id: "stellarite", label: "Stellarite", file: "stellarite", tier: 10, gem: "eclipsium", gemChance: 0.01, model: "vein",
+    look: { ore: "#4a8bea", metal: 0.5, rough: 0.2, top: "#2b3b5c", side: "#27324a", glow: "#1b4bb0" },
+    spots: [{ x: 0.2, z: 6.4, rot: 0.9, scale: 1.05 }] },
 ];
-const COPPER_SPOTS = [{ x: 3.0, z: -2.6, rot: 0.3, scale: 0.85 }];
+const GEMS = {
+  topaz: "Topaz", sapphire: "Sapphire", amethyst: "Amethyst", ruby: "Ruby", emerald: "Emerald",
+  jade: "Jade", diamond: "Diamond", painite: "Painite", arcanium: "Arcanium", eclipsium: "Eclipsium",
+};
+// Pickaxes, weakest first. `mines` is the highest ore tier it can mine: its
+// named ore(s) in D-006 and every ore below (D-011). Stellarite has no named
+// ore; it mines everything the Void pickaxe does. `cost` is its D-006 recipe
+// in ingots; Stone has none and every player starts with it. The 3D look and
+// sprite of each are in models/pickaxe-skins.json under the same id.
+const PICKAXES = [
+  { id: "stone", mines: 2 },
+  { id: "bronze", mines: 3, cost: { tin_ingot: 5, copper_ingot: 5 }, hilt: "Ash Wood Hilt" },
+  { id: "iron", mines: 4, cost: { iron_ingot: 5 }, hilt: "Ash Wood Hilt" },
+  { id: "steel", mines: 5, cost: { iron_ingot: 10 }, hilt: "Ash Wood Hilt" },
+  { id: "gold", mines: 6, cost: { gold_ingot: 10 }, hilt: "Ash Wood Hilt" },
+  { id: "obsidian", mines: 7, cost: { obsidian_ingot: 10 }, hilt: "Oak Wood Hilt" },
+  { id: "mithril", mines: 8, cost: { obsidian_ingot: 10 }, hilt: "Oak Wood Hilt" },
+  { id: "adamantite", mines: 9, cost: { adamantite_ingot: 10 }, hilt: "Oak Wood Hilt" },
+  { id: "void", mines: 10, cost: { void_ingot: 10 }, hilt: "Void Hilt" },
+  { id: "stellarite", mines: 10, cost: { stellarite_ingot: 10 }, hilt: "Cosmic Hilt" },
+];
+// TEST values until the smelter and hilts are designed (D-013): the furnace
+// turns this many ore into one ingot, and the blacksmith supplies every hilt.
+const SMELT_ORE = 2;
+// The furnace and the blacksmith's anvil.
+const STATIONS = [
+  { id: "furnace", label: "Furnace", verb: "Use furnace", x: -1.7, z: 0.9, rot: 0.5 },
+  { id: "smith", label: "Blacksmith", verb: "Use anvil", x: 1.5, z: 1.2, rot: -0.4 },
+];
 // Seconds before a broken vein grows back.
 const ORE_RESPAWN = 10;
 const ENERGY_MAX = 100;
@@ -72,14 +140,16 @@ const MINE_ENERGY = 5;
 // Energy refills to full every 12 hours from midnight on the player's clock (00:00 and 12:00).
 const ENERGY_RESET_MS = 12 * 60 * 60 * 1000;
 const ENERGY_KEY = "impz.energy";
-// What breaking a vein of each ore gives. Ores without an entry give nothing yet.
-const ORE_ITEMS = {
-  copper: "copper_nugget",
-};
 const INVENTORY_SLOTS = 6 * 8;
-const ITEMS = {
-  copper_nugget: { label: "Copper", icon: "./sprites/items/nugget_copper.png" },
-};
+// Item id -> { label, icon }: each ore, its ingot and its gem.
+const ITEMS = {};
+for (const ore of ORES) {
+  ITEMS[ore.id + "_ore"] = { label: `${ore.label} ore`, icon: `./sprites/items/nugget_${ore.file}.png` };
+  if (ore.ingot !== false) {
+    ITEMS[ore.id + "_ingot"] = { label: `${ore.label} ingot`, icon: `./sprites/items/ingot_${ore.file}.png` };
+  }
+  ITEMS[ore.gem] = { label: GEMS[ore.gem], icon: `./sprites/items/gemstone_${ore.gem}.png` };
+}
 
 const BONES = [
   "thigh_l",
@@ -169,17 +239,21 @@ let landTimer = 0;
 let emote = null;
 const emoteButtons = new Map();
 
-// Pickaxe: the loaded model, its skins from models/pickaxe-skins.json, and
-// which skin is on. It's attached to hand_r once the character has loaded.
+// Pickaxe: the loaded model and its skins from models/pickaxe-skins.json
+// (id -> skin). It's attached to hand_r once the character has loaded.
+// Players start with Stone and craft the rest; `held` is the one in hand.
 let pickaxe = null;
 const restHand = { hand: new THREE.Matrix4(), grip: new THREE.Vector3() };
-let skins = [];
-let skinIndex = 0;
+let skins = {};
+const owned = new Set(["stone"]);
+let held = "stone";
 
 // Ore veins that can still be mined, and the one being mined right now:
 // { vein, x, z, t, strikes, fadeT } with fadeT >= 0 once the swing winds down.
 const veins = [];
 let mining = null;
+// Name tag sprites (see addLabel).
+const labels = [];
 // Breaking veins and flying rock chips: { update(dt) -> false when finished }.
 const effects = [];
 const caveWalls = [];
@@ -223,7 +297,7 @@ sun.position.set(4.5, 9, 3.5);
 sun.castShadow = true;
 sun.shadow.mapSize.set(2048, 2048);
 sun.shadow.camera.near = 0.5;
-sun.shadow.camera.far = 24;
+sun.shadow.camera.far = 30;
 sun.shadow.camera.left = -10;
 sun.shadow.camera.right = 10;
 sun.shadow.camera.top = 10;
@@ -260,7 +334,8 @@ let lastY = 0;
 
 loadCharacter();
 loadOre();
-loadCopper();
+loadVeins();
+buildStations();
 loadPickaxe();
 renderer.setAnimationLoop(frame);
 
@@ -583,14 +658,15 @@ function loadOre() {
     fbx.position.x -= center.x;
     fbx.position.z -= center.z;
 
-    placeVeins(fbx, ORE_SPOTS, "tin");
+    for (const ore of ORES) if (ore.model === "tin") placeVeins(fbx, ore);
   }, undefined, (error) => {
     console.error(error);
   });
 }
 
-// The copper vein's origin is already at its bottom centre.
-function loadCopper() {
+// The copper vein's origin is already at its bottom centre. Every ore with
+// model "vein" gets a copy, with its own materials coloured by `look`.
+function loadVeins() {
   new GLTFLoader().load("./models/copper_vein.glb", (gltf) => {
     gltf.scene.traverse((obj) => {
       if (obj.isMesh) {
@@ -598,12 +674,38 @@ function loadCopper() {
         obj.receiveShadow = true;
       }
     });
-    placeVeins(gltf.scene, COPPER_SPOTS, "copper");
+    for (const ore of ORES) {
+      if (ore.model !== "vein") continue;
+      placeVeins(ore.look ? recolourVein(gltf.scene, ore.look) : gltf.scene, ore);
+    }
   }, undefined, (error) => console.error("Could not load the copper vein", error));
 }
 
-function placeVeins(model, spots, ore) {
-  for (const spot of spots) {
+// The copper vein's materials are Rock_Side (the rock), Rock_Top (its lighter
+// top) and Copper (the ore crystals).
+function recolourVein(model, look) {
+  const copy = model.clone();
+  copy.traverse((obj) => {
+    if (!obj.isMesh) return;
+    obj.material = [].concat(obj.material).map((m) => {
+      const mat = m.clone();
+      if (mat.name === "Rock_Side") mat.color.set(look.side);
+      if (mat.name === "Rock_Top") mat.color.set(look.top);
+      if (mat.name === "Copper") {
+        mat.color.set(look.ore);
+        mat.metalness = look.metal;
+        mat.roughness = look.rough;
+        if (look.glow) mat.emissive.set(look.glow);
+      }
+      return mat;
+    });
+    if (obj.material.length === 1) obj.material = obj.material[0];
+  });
+  return copy;
+}
+
+function placeVeins(model, ore) {
+  for (const spot of ore.spots) {
     const vein = new THREE.Group();
     vein.userData.ore = ore;
     vein.add(model.clone());
@@ -613,7 +715,205 @@ function placeVeins(model, spots, ore) {
     scene.add(vein);
     addRockColliders(vein);
     veins.push(vein);
+    addLabel(vein, ore.label, new THREE.Box3().setFromObject(vein).max.y + 0.16);
   }
+}
+
+// The furnace and the blacksmith's anvil, built from simple shapes. Each gets
+// a round collider tagged with its id, so F opens its menu.
+function buildStations() {
+  const builders = { furnace: buildFurnace, smith: buildAnvil };
+  for (const def of STATIONS) {
+    const { group, radius } = builders[def.id]();
+    group.position.set(def.x, 0, def.z);
+    group.rotation.y = def.rot;
+    group.traverse((obj) => {
+      if (obj.isMesh) {
+        obj.castShadow = true;
+        obj.receiveShadow = true;
+      }
+    });
+    scene.add(group);
+    colliders.push({ x: def.x, z: def.z, r: radius, station: def.id });
+    addLabel(group, def.label, new THREE.Box3().setFromObject(group).max.y + 0.16);
+  }
+}
+
+function buildFurnace() {
+  const group = new THREE.Group();
+  const stone = new THREE.MeshStandardMaterial({ color: "#6f675e", roughness: 0.95 });
+  const dark = new THREE.MeshStandardMaterial({ color: "#3d3732", roughness: 0.95 });
+  const body = new THREE.Mesh(new THREE.BoxGeometry(0.86, 0.62, 0.78), stone);
+  body.position.y = 0.31;
+  const cap = new THREE.Mesh(new THREE.BoxGeometry(0.94, 0.08, 0.86), dark);
+  cap.position.y = 0.66;
+  const chimney = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.19, 0.55, 8), stone);
+  chimney.position.set(0, 0.97, -0.12);
+  const lip = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 0.06, 8), dark);
+  lip.position.set(0, 1.25, -0.12);
+  // The fire: a dark arch with a glowing bed of coals inside.
+  const mouth = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.3, 0.06), dark);
+  mouth.position.set(0, 0.27, 0.37);
+  const fire = new THREE.Mesh(
+    new THREE.PlaneGeometry(0.34, 0.22),
+    new THREE.MeshStandardMaterial({ color: "#ff8a30", emissive: "#ff5a12", emissiveIntensity: 2.2 })
+  );
+  fire.position.set(0, 0.25, 0.401);
+  const glow = new THREE.PointLight("#ff7a2a", 1.4, 2.6, 2);
+  glow.position.set(0, 0.32, 0.65);
+  effects.push({
+    update() {
+      glow.intensity = 1.2 + Math.random() * 0.5;
+      return true;
+    },
+  });
+  group.add(body, cap, chimney, lip, mouth, fire, glow);
+  return { group, radius: 0.5 };
+}
+
+function buildAnvil() {
+  const group = new THREE.Group();
+  const wood = new THREE.MeshStandardMaterial({ color: "#6b4a2c", roughness: 0.9 });
+  const iron = new THREE.MeshStandardMaterial({ color: "#3e434b", metalness: 0.85, roughness: 0.38 });
+  const stump = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.3, 0.4, 10), wood);
+  stump.position.y = 0.2;
+  const foot = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.07, 0.24), iron);
+  foot.position.y = 0.435;
+  const waist = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.12, 0.13), iron);
+  waist.position.y = 0.53;
+  const face = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.09, 0.2), iron);
+  face.position.y = 0.635;
+  const horn = new THREE.Mesh(new THREE.ConeGeometry(0.075, 0.24, 10), iron);
+  horn.rotation.z = -Math.PI / 2;
+  horn.position.set(0.35, 0.645, 0);
+  // A hammer resting on the stump.
+  const handle = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 0.3, 6), wood);
+  handle.rotation.z = Math.PI / 2;
+  handle.rotation.y = 0.5;
+  handle.position.set(-0.05, 0.42, 0.2);
+  const head = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.06, 0.12), iron);
+  head.rotation.y = 0.5;
+  head.position.set(-0.18, 0.43, 0.27);
+  group.add(stump, foot, waist, face, horn, handle, head);
+  return { group, radius: 0.32 };
+}
+
+// Fills the furnace and blacksmith menus from the inventory.
+function renderStations() {
+  renderFurnace();
+  renderSmith();
+}
+
+function iconImg(src) {
+  const img = document.createElement("img");
+  img.src = src;
+  img.alt = "";
+  return img;
+}
+
+function stationButton(text, enabled, onClick) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.textContent = text;
+  button.disabled = !enabled;
+  button.addEventListener("click", onClick);
+  return button;
+}
+
+function renderFurnace() {
+  const list = document.getElementById("furnace-list");
+  list.replaceChildren();
+  for (const ore of ORES) {
+    if (ore.ingot === false) continue;
+    const oreId = ore.id + "_ore";
+    const have = inventory.get(oreId) || 0;
+    const row = document.createElement("div");
+    row.className = "station-row";
+    const what = document.createElement("div");
+    what.className = "what";
+    what.append(
+      iconImg(ITEMS[oreId].icon),
+      `${SMELT_ORE} → 1`,
+      iconImg(ITEMS[ore.id + "_ingot"].icon),
+      Object.assign(document.createElement("span"), {
+        className: "name",
+        textContent: `${ore.label} ingot`,
+      })
+    );
+    const owns = Object.assign(document.createElement("span"), {
+      className: "have" + (have >= SMELT_ORE ? "" : " short"),
+      textContent: `${have} ore`,
+    });
+    row.append(
+      what,
+      owns,
+      stationButton("Smelt", have >= SMELT_ORE, () => smelt(ore, 1)),
+      stationButton("All", have >= SMELT_ORE, () => smelt(ore, Math.floor(have / SMELT_ORE)))
+    );
+    list.append(row);
+  }
+}
+
+function smelt(ore, ingots) {
+  if ((inventory.get(ore.id + "_ore") || 0) < ingots * SMELT_ORE || ingots < 1) return;
+  removeItem(ore.id + "_ore", ingots * SMELT_ORE);
+  addItem(ore.id + "_ingot", ingots);
+}
+
+function renderSmith() {
+  const list = document.getElementById("smith-list");
+  list.replaceChildren();
+  for (const pick of PICKAXES) {
+    if (!pick.cost || !skins[pick.id]) continue;
+    const row = document.createElement("div");
+    row.className = "station-row";
+    const what = document.createElement("div");
+    what.className = "what";
+    const reach = ORES.find((o) => o.tier === pick.mines).label;
+    what.append(
+      iconImg(`./${skins[pick.id].sprite}`),
+      Object.assign(document.createElement("span"), {
+        className: "name",
+        innerHTML: `${pickaxeLabel(pick.id)}<small>Mines up to ${reach}</small>`,
+      })
+    );
+    const cost = document.createElement("div");
+    cost.className = "cost";
+    let affordable = true;
+    for (const [id, need] of Object.entries(pick.cost)) {
+      const have = inventory.get(id) || 0;
+      if (have < need) affordable = false;
+      const part = document.createElement("span");
+      part.className = have >= need ? "" : "short";
+      part.title = ITEMS[id].label;
+      part.append(iconImg(ITEMS[id].icon), `${have}/${need}`);
+      cost.append(part);
+    }
+    cost.append(
+      Object.assign(document.createElement("span"), {
+        className: "hilt",
+        title: "TEST: the blacksmith supplies every hilt for now (D-013)",
+        textContent: `+ ${pick.hilt}`,
+      })
+    );
+    const done = owned.has(pick.id);
+    row.append(
+      what,
+      cost,
+      stationButton(done ? "Owned" : "Craft", !done && affordable, () => craft(pick))
+    );
+    list.append(row);
+  }
+}
+
+function craft(pick) {
+  if (owned.has(pick.id)) return;
+  if (Object.entries(pick.cost).some(([id, need]) => (inventory.get(id) || 0) < need)) return;
+  for (const [id, need] of Object.entries(pick.cost)) removeItem(id, need);
+  owned.add(pick.id);
+  holdPickaxe(pick.id);
+  renderStations();
+  showLoot({ label: pickaxeLabel(pick.id), icon: `./${skins[pick.id].sprite}` }, true);
 }
 
 function loadPickaxe() {
@@ -622,15 +922,14 @@ function loadPickaxe() {
     new GLTFLoader().loadAsync("./models/pickaxe.glb"),
   ])
     .then(([json, gltf]) => {
-      skins = Object.entries(json)
-        .filter(([key]) => !key.startsWith("_"))
-        .map(([id, skin]) => ({ id, ...skin }));
+      skins = json;
       pickaxe = gltf.scene;
       pickaxe.traverse((obj) => {
         if (obj.isMesh) obj.castShadow = true;
       });
-      setSkin(0);
+      holdPickaxe(held);
       attachPickaxe();
+      renderStations();
     })
     .catch((error) => console.error("Could not load the pickaxe", error));
 }
@@ -659,11 +958,13 @@ function attachPickaxe() {
   pickaxe.matrix.decompose(pickaxe.position, pickaxe.quaternion, pickaxe.scale);
 }
 
-// Colours or hides each part of the pickaxe, by its Pick_<Part> material.
-function setSkin(index) {
-  if (!pickaxe || !skins.length) return;
-  skinIndex = (index + skins.length) % skins.length;
-  const skin = skins[skinIndex];
+// Puts an owned pickaxe in the hand: colours or hides each part of the model,
+// by its Pick_<Part> material.
+function holdPickaxe(id) {
+  if (!owned.has(id)) return;
+  held = id;
+  const skin = skins[id];
+  if (!pickaxe || !skin) return;
   pickaxe.traverse((obj) => {
     if (!obj.isMesh) return;
     const part = obj.material.name.replace(/^Pick_/, "");
@@ -681,8 +982,29 @@ function setSkin(index) {
   renderInventory();
 }
 
-// The closest rock edge in reach, as { vein, x, z } (the rock's centre), or null.
-function rockInReach() {
+// Q: the next pickaxe the player owns, in tier order.
+function cycleHeld() {
+  const mine = PICKAXES.filter((p) => owned.has(p.id));
+  const i = mine.findIndex((p) => p.id === held);
+  holdPickaxe(mine[(i + 1) % mine.length].id);
+}
+
+function pickaxeDef(id) {
+  return PICKAXES.find((p) => p.id === id);
+}
+
+function pickaxeLabel(id) {
+  return `${skins[id]?.label || id} pickaxe`;
+}
+
+// The weakest pickaxe that can mine an ore of this tier (D-006, D-011).
+function pickaxeFor(tier) {
+  return PICKAXES.find((p) => p.mines >= tier);
+}
+
+// The closest rock or station edge in reach, as { vein | station, x, z } (its
+// centre), or null.
+function targetInReach() {
   const p = character.position;
   let best = null;
   let bestGap = MINE_REACH;
@@ -693,15 +1015,30 @@ function rockInReach() {
       best = c;
     }
   }
-  return best && { vein: best.vein, x: best.x, z: best.z };
+  return best && { vein: best.vein, station: best.station, x: best.x, z: best.z };
 }
 
-function startMining() {
+// Why the held pickaxe can't mine this vein right now, or null if it can.
+function mineBlocker(vein) {
+  const ore = vein.userData.ore;
+  if (pickaxeDef(held).mines < ore.tier) return `Needs a ${pickaxeLabel(pickaxeFor(ore.tier).id)}`;
+  if (energy < MINE_ENERGY) return "Not enough energy";
+  return null;
+}
+
+// F: mines the rock in reach, or opens the station in reach.
+function interact() {
   if (!ready || airborne || (mining && mining.fadeT < 0)) return;
-  const rock = rockInReach();
-  if (!rock || energy < MINE_ENERGY) return;
+  const target = targetInReach();
+  if (!target) return;
+  if (target.station) {
+    stopEmote();
+    openModal(target.station);
+    return;
+  }
+  if (mineBlocker(target.vein)) return;
   stopEmote();
-  mining = { ...rock, t: 0, strikes: 0, fadeT: -1 };
+  mining = { ...target, t: 0, strikes: 0, fadeT: -1 };
 }
 
 function stopMining() {
@@ -740,12 +1077,18 @@ function updateMining(dt) {
   return weight;
 }
 
-// Takes the energy and gives the ore's item, removes the vein's colliders straight
-// away, shrinks it into the ground, throws out a few rock chips and grows it back later.
+// Takes the energy and gives the ore, and sometimes its gem. Removes the vein's
+// colliders straight away, shrinks it into the ground, throws out a few rock
+// chips and grows it back later.
 function breakVein(vein) {
   setEnergy(energy - MINE_ENERGY);
-  const item = ORE_ITEMS[vein.userData.ore];
-  if (item) addItem(item);
+  const ore = vein.userData.ore;
+  addItem(ore.id + "_ore");
+  showLoot(ITEMS[ore.id + "_ore"]);
+  if (Math.random() < ore.gemChance) {
+    addItem(ore.gem);
+    showLoot(ITEMS[ore.gem], true);
+  }
 
   veins.splice(veins.indexOf(vein), 1);
   for (let i = colliders.length - 1; i >= 0; i--) {
@@ -875,9 +1218,30 @@ function setEnergy(value) {
   } catch {}
 }
 
-function addItem(id) {
-  inventory.set(id, (inventory.get(id) || 0) + 1);
+function addItem(id, count = 1) {
+  inventory.set(id, (inventory.get(id) || 0) + count);
   renderInventory();
+  renderStations();
+}
+
+function removeItem(id, count) {
+  const left = (inventory.get(id) || 0) - count;
+  if (left > 0) inventory.set(id, left);
+  else inventory.delete(id);
+  renderInventory();
+  renderStations();
+}
+
+// A short "+1 Iron ore" line above the prompt; gems get a highlight.
+function showLoot(item, rare = false) {
+  const line = document.createElement("div");
+  line.className = "loot" + (rare ? " rare" : "");
+  const img = document.createElement("img");
+  img.src = item.icon;
+  img.alt = "";
+  line.append(img, `+1 ${item.label}`);
+  document.getElementById("loot").append(line);
+  setTimeout(() => line.remove(), 2600);
 }
 
 function buildInventoryGrid() {
@@ -892,14 +1256,14 @@ function buildInventoryGrid() {
   }
 }
 
-// Pickaxes first (click one to hold it), then mined items in pickup order.
+// Owned pickaxes first (click one to hold it), then items in pickup order.
 function renderInventory() {
   const entries = [
-    ...skins.map((skin, i) => ({
-      icon: `./${skin.sprite}`,
-      title: skin.label,
-      active: i === skinIndex,
-      pick: () => setSkin(i),
+    ...PICKAXES.filter((p) => owned.has(p.id) && skins[p.id]).map((p) => ({
+      icon: `./${skins[p.id].sprite}`,
+      title: pickaxeLabel(p.id),
+      active: p.id === held,
+      pick: () => holdPickaxe(p.id),
     })),
     ...[...inventory].map(([id, count]) => ({
       icon: ITEMS[id].icon,
@@ -941,13 +1305,62 @@ function updateEffects(dt) {
     vein.position.x += (Math.random() - 0.5) * shake * 0.25;
     vein.position.z += (Math.random() - 0.5) * shake * 0.25;
   }
-  const rock = ready && !airborne && !mining && rockInReach();
+  updateLabels();
+  const target = ready && !airborne && !mining && targetInReach();
   const prompt = document.getElementById("prompt");
-  prompt.classList.toggle("hidden", !rock);
-  const state = rock && energy < MINE_ENERGY ? "tired" : "mine";
-  if (rock && prompt.dataset.state !== state) {
-    prompt.dataset.state = state;
-    prompt.innerHTML = state === "tired" ? "Not enough energy" : "<kbd>F</kbd>Mine rock";
+  prompt.classList.toggle("hidden", !target);
+  if (!target) return;
+  let html;
+  if (target.station) {
+    html = `<kbd>F</kbd>${STATIONS.find((s) => s.id === target.station).verb}`;
+  } else {
+    const blocker = mineBlocker(target.vein);
+    html = blocker || `<kbd>F</kbd>Mine ${target.vein.userData.ore.label}`;
+  }
+  if (prompt.innerHTML !== html) prompt.innerHTML = html;
+}
+
+// A name tag that floats over a vein or station, for finding the right one.
+function addLabel(parent, text, worldY) {
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+  const font = "600 40px system-ui, sans-serif";
+  ctx.font = font;
+  canvas.width = Math.ceil(ctx.measureText(text).width) + 40;
+  canvas.height = 64;
+  ctx.font = font;
+  ctx.fillStyle = "rgba(10, 12, 18, 0.62)";
+  ctx.beginPath();
+  ctx.roundRect(0, 0, canvas.width, canvas.height, 18);
+  ctx.fill();
+  ctx.fillStyle = "#e7edf5";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(text, canvas.width / 2, canvas.height / 2 + 2);
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  const sprite = new THREE.Sprite(
+    new THREE.SpriteMaterial({ map: texture, transparent: true, depthWrite: false, opacity: 0 })
+  );
+  const height = 0.13;
+  sprite.scale.set((height * canvas.width) / canvas.height, height, 1);
+  sprite.renderOrder = 2;
+  // The parent may be scaled; keep the tag the same size and at `worldY`.
+  const s = parent.scale.x;
+  sprite.scale.divideScalar(s);
+  sprite.position.y = worldY / s;
+  parent.add(sprite);
+  labels.push(sprite);
+}
+
+// Tags fade in as the character walks up to them.
+function updateLabels() {
+  const p = character.position;
+  for (const sprite of labels) {
+    const at = sprite.parent;
+    if (!at) continue;
+    const d = Math.hypot(p.x - at.position.x, p.z - at.position.z);
+    sprite.material.opacity = THREE.MathUtils.clamp((LABEL_RANGE - d) / 0.8, 0, 1);
   }
 }
 
@@ -1015,8 +1428,8 @@ function onKeyDown(event) {
   if (event.code === "KeyE") togglePanel("emotes");
   if (event.code === "KeyI") openModal("inventory");
   if (event.code === "Escape") closeModal();
-  if (event.code === "KeyF") startMining();
-  if (event.code === "KeyQ") setSkin(skinIndex + 1);
+  if (event.code === "KeyF") interact();
+  if (event.code === "KeyQ") cycleHeld();
   const slot = /^Digit([1-9])$/.exec(event.code);
   if (slot && EMOTES[slot[1] - 1]) playEmote(EMOTES[slot[1] - 1]);
 }
@@ -1029,7 +1442,18 @@ function isTyping() {
 function setupShell() {
   buildInventoryGrid();
   renderInventory();
+  renderStations();
   loadEnergy();
+  // TEST tools, so a reviewer can try every tier without days of mining.
+  document.getElementById("test-energy").addEventListener("click", () => setEnergy(ENERGY_MAX));
+  document.getElementById("test-ore").addEventListener("click", () => {
+    for (const ore of ORES) addItem(ore.id + "_ore", 20);
+  });
+  document.getElementById("test-picks").addEventListener("click", () => {
+    for (const p of PICKAXES) owned.add(p.id);
+    renderInventory();
+    renderStations();
+  });
   document.getElementById("settings-btn").addEventListener("click", () => openModal("settings"));
   document.getElementById("support-btn").addEventListener("click", () => toggleCard("support-card"));
   document.getElementById("slot-pick").addEventListener("click", () => openModal("inventory"));
@@ -1064,7 +1488,13 @@ function openModal(name) {
     return;
   }
   modalName = name;
-  const titles = { settings: "Settings", chat: "Chat settings", inventory: "Inventory" };
+  const titles = {
+    settings: "Settings",
+    chat: "Chat settings",
+    inventory: "Inventory",
+    furnace: "Furnace",
+    smith: "Blacksmith",
+  };
   document.getElementById("modal-title").textContent = titles[name];
   for (const pane of modal.querySelectorAll(".modal-pane")) {
     pane.classList.toggle("open", pane.dataset.pane === name);
