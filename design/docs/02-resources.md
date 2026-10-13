@@ -26,24 +26,24 @@
 
 The user set this table on 2026-10-12. It is the list of ores that can be mined, the ingot icon that belongs to each, and the one gem that can come with that ore. Ten tiers, lowest to highest. One gem per tier. No tier shares a gem.
 
-The **Chance for Gem** column was on the table and every cell was empty. No drop rate is decided. Do not invent one.
+The **Chance for Gem** column was empty on the user's table. The user set it on 2026-10-13 (**Decided, D-012**): 10% for Tin, falling 1% per tier to 1% for Stellarite. The chance is rolled each time a vein breaks, and the gem comes on top of the ore.
 
-Which pickaxe mines which ore, and what a crafted pickaxe costs, is decided in D-006 below. How an ingot is made in the smelter is **not decided**. The user is still working on that. Other blacksmithing, other crafting, and selling are **not decided**. Do not fill those in. The ingot pictures exist so they can be used later. They are not a rule that mining gives an ingot.
+Which pickaxe mines which ore, and what a crafted pickaxe costs, is decided in D-006 and D-011 below. How an ingot is made in the smelter is **not decided**. The user is still working on that. Until then the build uses a **test** recipe (D-013, see [Smelting and hilts](#smelting-and-hilts-test-values-d-013)). Other blacksmithing, other crafting, and selling are **not decided**. Do not fill those in.
 
-What mining gives for now: the ore item for that tier (the `nugget_` picture). The paired gem can come with it. Nothing else on this table is a mining reward yet.
+What mining gives: one ore item for that tier (the `nugget_` picture) every time a vein breaks (D-007, D-010), and sometimes the paired gem (D-012). Ingots come only from the furnace, never straight from mining.
 
-| Tier | Name | Ore picture | Ingot picture | Gem | Gem picture |
-|---|---|---|---|---|---|
-| 1 | Tin | `sprites/items/nugget_tin.png` | `sprites/items/ingot_tin.png` | Topaz | `sprites/items/gemstone_topaz.png` |
-| 2 | Copper | `sprites/items/nugget_copper.png` | `sprites/items/ingot_copper.png` | Sapphire | `sprites/items/gemstone_sapphire.png` |
-| 3 | Iron | `sprites/items/nugget_iron.png` | `sprites/items/ingot_iron.png` | Amethyst | `sprites/items/gemstone_amethyst.png` |
-| 4 | Coal | `sprites/items/nugget_coal.png` | none | Ruby | `sprites/items/gemstone_ruby.png` |
-| 5 | Gold | `sprites/items/nugget_gold.png` | `sprites/items/ingot_gold.png` | Emerald | `sprites/items/gemstone_emerald.png` |
-| 6 | Obsidian | `sprites/items/nugget_obsidian.png` | `sprites/items/ingot_obsidian.png` | Jade | `sprites/items/gemstone_jade.png` |
-| 7 | Mithril | `sprites/items/nugget_mithril.png` | `sprites/items/ingot_mithril.png` | Diamond | `sprites/items/gemstone_diamond.png` |
-| 8 | Adamantite | `sprites/items/nugget_adamantite.png` | `sprites/items/ingot_adamantite.png` | Painite | `sprites/items/gemstone_painite.png` |
-| 9 | Void Stone | `sprites/items/nugget_void.png` | `sprites/items/ingot_void.png` | Arcanium | `sprites/items/gemstone_arcanium.png` |
-| 10 | Stellarite | `sprites/items/nugget_stellarite.png` | `sprites/items/ingot_stellarite.png` | Eclipsium | `sprites/items/gemstone_eclipsium.png` |
+| Tier | Name | Ore picture | Ingot picture | Gem | Gem picture | Gem chance (D-012) |
+|---|---|---|---|---|---|---|
+| 1 | Tin | `sprites/items/nugget_tin.png` | `sprites/items/ingot_tin.png` | Topaz | `sprites/items/gemstone_topaz.png` | 10% |
+| 2 | Copper | `sprites/items/nugget_copper.png` | `sprites/items/ingot_copper.png` | Sapphire | `sprites/items/gemstone_sapphire.png` | 9% |
+| 3 | Iron | `sprites/items/nugget_iron.png` | `sprites/items/ingot_iron.png` | Amethyst | `sprites/items/gemstone_amethyst.png` | 8% |
+| 4 | Coal | `sprites/items/nugget_coal.png` | none | Ruby | `sprites/items/gemstone_ruby.png` | 7% |
+| 5 | Gold | `sprites/items/nugget_gold.png` | `sprites/items/ingot_gold.png` | Emerald | `sprites/items/gemstone_emerald.png` | 6% |
+| 6 | Obsidian | `sprites/items/nugget_obsidian.png` | `sprites/items/ingot_obsidian.png` | Jade | `sprites/items/gemstone_jade.png` | 5% |
+| 7 | Mithril | `sprites/items/nugget_mithril.png` | `sprites/items/ingot_mithril.png` | Diamond | `sprites/items/gemstone_diamond.png` | 4% |
+| 8 | Adamantite | `sprites/items/nugget_adamantite.png` | `sprites/items/ingot_adamantite.png` | Painite | `sprites/items/gemstone_painite.png` | 3% |
+| 9 | Void Stone | `sprites/items/nugget_void.png` | `sprites/items/ingot_void.png` | Arcanium | `sprites/items/gemstone_arcanium.png` | 2% |
+| 10 | Stellarite | `sprites/items/nugget_stellarite.png` | `sprites/items/ingot_stellarite.png` | Eclipsium | `sprites/items/gemstone_eclipsium.png` | 1% |
 
 File names that do not match the display name:
 
@@ -53,7 +53,7 @@ File names that do not match the display name:
 What the pictures actually show (open the file if you need the exact pixels):
 
 - `nugget_` files are the ore rocks. Tin is a pale grey chunk. Coal is a black jagged lump. Void Stone is a dark purple spiral, not a bar. The others follow the same rock shape, coloured for that tier.
-- `ingot_` files are bars, except Stellarite, which is a blue chest with gold trim and yellow stars, and Void Stone, which is a dark bar with a purple spiral. Tin is a plain silver bar.
+- `ingot_` files are bars. Stellarite is a blue bar with yellow stars. Void Stone is a dark bar with a purple spiral. Tin is a plain silver bar.
 - Gems are cut stones. Topaz is an orange round gem. Arcanium is a purple four-point star. Eclipsium is a black sphere with a white four-point glint. The other gems match their names: blue sapphire, purple amethyst, red ruby, green emerald, green jade, white diamond, red painite cluster.
 
 These pictures are inventory icons. They are not the 3D ore vein in the walk scene (`tin_orevein.fbx`).
@@ -62,13 +62,13 @@ These pictures are inventory icons. They are not the 3D ore vein in the walk sce
 
 The user set these two tables on 2026-10-12. The first says which pickaxe mines which ore. The second says what a crafted pickaxe takes. There is no Steel ore and no Steel ingot. The Steel pickaxe is made from iron ingots.
 
-The mine table names **one** pickaxe per ore. It does not say that a stronger pickaxe can also mine a weaker ore. Do not add that rule.
+The mine table names **one** pickaxe per ore. The user added on 2026-10-13 that a pickaxe also mines **every ore below** its named ore (**Decided, D-011**). So the Gold pickaxe mines Obsidian and everything below it, and upgrading never locks a player out of the lower ores.
 
-Stellarite is mined with the Void pickaxe. The Stellarite pickaxe is crafted, and the table does not say it mines any ore.
+Stellarite is mined with the Void pickaxe. The Stellarite pickaxe is crafted, and the table does not name an ore for it. **Proposed:** it mines everything the Void pickaxe does (all ten ores), because D-011 makes a stronger pickaxe mine what a weaker one can. That leaves it with no mining advantage over Void. **Open question:** what the Stellarite pickaxe is for.
 
 The Stone pickaxe mines Tin and Copper. It has **no row** on the craft table. Do not invent a Stone recipe.
 
-Hilts are ingredients only. The table does not say how a player gets an Ash Wood Hilt, an Oak Wood Hilt, a Void Hilt, or a Cosmic Hilt. There is no picture for a hilt in `sprites/items/`.
+Hilts are ingredients only. The table does not say how a player gets an Ash Wood Hilt, an Oak Wood Hilt, a Void Hilt, or a Cosmic Hilt (**open question**; the build supplies them for free as a test, D-013). There is no picture for a hilt in `sprites/items/`.
 
 | Ore | Gem | Mined with |
 |---|---|---|
@@ -100,7 +100,17 @@ The Mithril row is written the same as the Obsidian row: 10 Obsidian Ingot and 1
 
 Coal is not an ingredient in any pickaxe. Coal still has no ingot file.
 
-The walk scene today only has Stone, Bronze and Iron as pickaxe skins (`models/pickaxe-skins.json`). That is the prototype. It is not this table. This table is the design.
+The walk scene has all ten pickaxes as skins (`models/pickaxe-skins.json`). Stone, Bronze and Iron have drawn sprites. Steel to Stellarite are **test placeholders**: their sprites in `sprites/pickaxes/` are the iron sprite recoloured with each ingot's colours, and the handle coloured for its hilt. They should be replaced with drawn art.
+
+### Smelting and hilts (test values, D-013)
+
+The real smelter recipe and how players get hilts are **not decided**. So the build can be played end to end, it uses these **test values** until the user decides (D-013):
+
+- A **furnace** in the scene turns **2 ore into 1 ingot** of the same metal. Coal can't be smelted, because it has no ingot.
+- A **blacksmith** (an anvil in the scene) crafts the pickaxes in the table above for exactly the D-006 ingots, and **supplies the hilt for free**.
+- Smelting and crafting cost no energy. That is not decided either.
+
+These are test values, not the design. Replace them when the user decides.
 
 ### Prestige icons (not part of the mining table)
 
@@ -118,14 +128,13 @@ These six files were in the same folder. They are **not** ores, ingots or gems, 
 ## 4. Inputs & outputs
 | Takes in | Gives out | Notes |
 |---|---|---|
-| Mining one ore tier | That tier's ore item (`nugget_` icon) | **Decided** for the item. Which 3D vein is which tier is not decided, except that a tin vein already exists in the scene. |
-| Mining one ore tier | That tier's gem, sometimes | **Decided** that the gem is paired. **Open question:** the chance. The table's chance column was blank. |
-| Breaking one copper vein, and 5 energy | 1 Copper ore (`nugget_copper.png`) in the inventory menu | **Decided** (D-007, D-008), as a first test. Tin gives nothing yet. |
+| Breaking one vein of any tier, and 5 energy | 1 ore of that tier (`nugget_` icon) in the inventory menu | **Decided** (D-005, D-007, D-008, D-010). The scene has a vein for every tier. Tin uses `tin_orevein.fbx` and Copper uses `models/copper_vein.glb`. Iron to Stellarite use the copper vein recoloured per tier: **test art** until each has its own model. |
+| Breaking one vein of any tier | That tier's gem, sometimes | **Decided** (D-005, D-012). 10% for Tin down to 1% for Stellarite, rolled once per vein. |
 | Mining any vein | Costs 5 energy | **Decided** (D-008). Energy max is 100. Below 5 energy nothing can be mined. Energy resets to 100 every 12 hours from midnight (00:00 and 12:00), with no slow refill (D-009). The build uses the player's own clock and saves energy in the browser. **Open question:** whether midnight should be one shared time zone for every player. |
 | Time | A broken vein grows back after 10 seconds | **Decided** (D-007), for now. Applies to every vein. |
-| The pickaxe named for that ore | The right to mine that ore | **Decided** (D-006). One pickaxe is named per ore. Whether a stronger pickaxe also works is an **open question**. |
-| Ingots and one hilt, in the amounts in the pickaxe table | That crafted pickaxe | **Decided** (D-006). Stone has no craft cost. How the player gets a hilt is an **open question**. |
-| Smelter | Ingots | **Not decided.** The user will add how ingots are crafted. Do not invent a smelt recipe. |
+| The pickaxe named for that ore, or a stronger one | The right to mine that ore | **Decided** (D-006, D-011). Every player starts with Stone. |
+| Ingots and one hilt, in the amounts in the pickaxe table | That crafted pickaxe, from the blacksmith | **Decided** (D-006) for the ingots. Stone has no craft cost. How the player gets a hilt is an **open question**. The build supplies hilts for free as a test (D-013). |
+| Ore, at the furnace | Ingots | **Not decided.** The user will add how ingots are made. The build uses a test recipe of 2 ore to 1 ingot (D-013). |
 | Other blacksmithing, other crafting, selling | Not decided | Still unset. |
 
 ## 5. NFT touchpoints
@@ -158,3 +167,4 @@ These six files were in the same folder. They are **not** ores, ingots or gems, 
 | User addition, 2026-10-12 | Pickaxe mine list and pickaxe craft costs recorded (D-006). Smelter recipes for ingots still unset. |
 | User addition, 2026-10-12 | Copper mining reward, energy cost and 10-second respawn recorded (D-007). Built into the game as a test. |
 | User addition, 2026-10-12 | 5 energy per mine for every ore, 12-hour energy reset, 6×8 inventory menu (D-008). |
+| User addition, 2026-10-13 | Tin gives tin ore (D-010). A pickaxe mines its named ore and every ore below (D-011). Gem chance 10% down to 1% by tier (D-012). Test smelting and hilt values for the build (D-013). Stellarite ingot picture description corrected: it is a bar, not a chest. |

@@ -38,8 +38,9 @@ Every Markdown file in the repo, most important first. The order is **Proposed**
 | 10 | [../CLAUDE.md](../CLAUDE.md) | Repo rules for Claude: staging branches, draft PRs, "commit to main", backups and rollback. | Rules |
 | 11 | [CLAUDE.md](CLAUDE.md) | Design rules for Claude: don't deviate, quality first, statuses, how to run a pass, reports. | Rules |
 | 12 | [../README.md](../README.md) | How to run the game, and its controls. | Reference |
-| 13 | [reports/2026-10-11-pass-0.md](reports/2026-10-11-pass-0.md) | Report for Pass 0 (setup). | Done |
-| 14 | [reports/_TEMPLATE.md](reports/_TEMPLATE.md) | The template every report follows. | Template |
+| 13 | [reports/2026-10-13-mining-roadmap.md](reports/2026-10-13-mining-roadmap.md) | Report: the mining build roadmap completed (M3–M5) and D-010 to D-013. | Done |
+| 14 | [reports/2026-10-11-pass-0.md](reports/2026-10-11-pass-0.md) | Report for Pass 0 (setup). | Done |
+| 15 | [reports/_TEMPLATE.md](reports/_TEMPLATE.md) | The template every report follows. | Template |
 
 **Why this order:** decisions and the overview come first because every other doc must agree with them. The two roadmaps come next because they say what to work on. Then come the system docs, in the order they will be worked on. Resources is first because every other system makes or spends resources. The two `CLAUDE.md` files and the README tell people and Claude how to work in the repo, but they don't define the game. Reports are history.
 
@@ -63,16 +64,16 @@ For a main row, **Status** is the doc's status. For a sub row, it is the topic's
 | 00.5 | ↳ Target player and platform | Open question | Questions 4 and 5 | | |
 | 00.6 | ↳ Scope guardrails | Proposed | Your call | | |
 | **01** | **[Activities](docs/01-activities.md)** | **Not started** | Everything | 00, 02 | 0 |
-| 01.1 | ↳ Mining | Decided in 02 (D-005 to D-009), and built | Not written up in 01 yet | | |
-| **02** | **[Resources & economy](docs/02-resources.md)** | **Draft** | Sections 1, 2 and 5–8 are empty | 00 | 0, then user additions (D-005 to D-009) |
-| 02.1 | ↳ Ore tiers and item pictures | Decided (D-005) | Which 3D vein is which tier | | |
-| 02.2 | ↳ Pickaxes: which mines which ore, and craft costs | Decided (D-006) | Whether a stronger pickaxe can mine a weaker ore | | |
-| 02.3 | ↳ Mining rewards and vein respawn | Decided (D-007) | When tin, and the other ores, give a reward | | |
+| 01.1 | ↳ Mining | Decided in 02 (D-005 to D-013), and built | Not written up in 01 yet | | |
+| **02** | **[Resources & economy](docs/02-resources.md)** | **Draft** | Sections 1, 2 and 5–8 are empty | 00 | 0, then user additions (D-005 to D-013) |
+| 02.1 | ↳ Ore tiers and item pictures | Decided (D-005) | Drawn 3D veins for tiers 3–10 (the build recolours the copper vein) | | |
+| 02.2 | ↳ Pickaxes: which mines which ore, and craft costs | Decided (D-006, D-011) | What the Stellarite pickaxe is for (a stronger pickaxe also mines every lower ore) | | |
+| 02.3 | ↳ Mining rewards and vein respawn | Decided (D-007, D-010) | n/a | | |
 | 02.4 | ↳ Energy | Decided (D-008, D-009) | Whether the reset is one shared time zone for every player | | |
-| 02.5 | ↳ Inventory | Decided (D-008) | n/a | | |
-| 02.6 | ↳ Gems | Decided (D-005) that each ore has one gem | The gem chance | | |
-| 02.7 | ↳ Smelting: ore into ingots | Not decided | You are working on it | | |
-| 02.8 | ↳ Hilts | Open question | How players get each hilt | | |
+| 02.5 | ↳ Inventory | Decided (D-008) | Saving it between visits (build M6) | | |
+| 02.6 | ↳ Gems | Decided (D-005, D-012) | n/a | | |
+| 02.7 | ↳ Smelting: ore into ingots | Not decided. The build uses a test recipe (D-013) | You are working on it. What Coal is for. | | |
+| 02.8 | ↳ Hilts | Open question. The build supplies them free as a test (D-013) | How players get each hilt | | |
 | 02.9 | ↳ Selling, and other crafting and blacksmithing | Not decided | All of it | | |
 | 02.10 | ↳ Prestige icons | Not decided | What they are for | | |
 | 02.11 | ↳ Sources, sinks, currencies, tradeability | Open question | The six questions at the end of 02 | | |
@@ -109,11 +110,13 @@ The pass plan can change. Only the user changes it.
   - [x] Which pickaxe mines which ore, and pickaxe craft costs (D-006)
   - [x] First playable reward: copper ore for 5 energy, 10-second vein respawn (D-007)
   - [x] Energy: 5 per mine for every ore, reset every 12 hours from midnight; 6×8 inventory (D-008, D-009)
+  - [x] Tin gives tin ore (D-010)
+  - [x] Gem chance per ore: 10% down to 1% by tier (D-012)
+  - [x] A stronger pickaxe also mines every weaker ore (D-011)
   - [ ] Energy reset: one shared time zone, or each player's own clock (open question)
-  - [ ] Gem chance per ore (open question, D-005)
-  - [ ] Smelter: how ore becomes ingots (you are working on this)
-  - [ ] How players get hilts (Ash Wood, Oak Wood, Void, Cosmic)
-  - [ ] Whether a stronger pickaxe can also mine a weaker ore (open question in 02)
+  - [ ] Smelter: how ore becomes ingots (you are working on this; the build uses a test recipe, D-013)
+  - [ ] How players get hilts (Ash Wood, Oak Wood, Void, Cosmic) (the build supplies them free as a test, D-013)
+  - [ ] What the Stellarite pickaxe is for, and what Coal is for
   - [ ] Selling, and other crafting and blacksmithing
   - [ ] What the prestige icons are for
   - [ ] Sinks for every resource
@@ -142,10 +145,10 @@ The build roadmap was planned for after sign-off. You asked for it now, because 
 
 ## To reconcile (not on GitHub)
 
-One collaborator has local, uncommitted Pass 1 work that was never pushed. It was written against the old decision log, and it clashes with what is now on `main`:
+One collaborator has local Pass 1 work that was never pushed. On 2026-10-13 it was saved on a **local-only** branch, `backup/local-pass-1-wip`, so it isn't lost. It was written against the old decision log, and it clashes with what is now on `main`:
 
 - `docs/gathering/01-mining.md` (a mining design doc), `reports/2026-10-11-pass-1.md`, and edits to `00-overview.md`, `01-activities.md`, `DECISIONS.md` and this file.
-- Its decisions are numbered D-005 to D-043, but `main` already uses D-005 to D-009.
+- Its decisions are numbered D-005 to D-043, but `main` already uses D-005 to D-013.
 - Some of them contradict `main`. For example, the local D-042 and D-043 say any pickaxe can mine any ore, but D-006 names one pickaxe per ore. The local D-023 uses cooldowns, but `main` uses energy.
 
 `main` is the source of truth for now. Before any of that work is used, the two of you agree which rules win. Then the local decisions are renumbered after the last one on `main`, and any that change a decision on `main` are entered as **supersedes**.
@@ -166,3 +169,4 @@ One collaborator has local, uncommitted Pass 1 work that was never pushed. It wa
 | User additions | 2026-10-12 | Mining resources | Ore tiers (D-005), pickaxes (D-006) and the first copper reward (D-007) recorded in 02. 02 moved to `Draft`. | No report |
 | User additions | 2026-10-12 | Energy and inventory | Same energy cost for every ore, 12-hour reset from midnight, 6×8 inventory (D-008, D-009), via PR #13. | No report |
 | Roadmap update | 2026-10-12 | Bring this file up to date | Doc status and Pass 2 progress updated to match `main`. Build roadmap started. Unpushed local work listed under "To reconcile". All 14 `.md` files listed by importance. Sub categories added under each design system in Doc status. | No report |
+| User additions | 2026-10-13 | Complete the mining roadmap | Tin reward (D-010), stronger pickaxes mine weaker ores (D-011), gem chance (D-012), test smelting and hilt values (D-013). Build milestones M3–M5 built and in review (PR #16). | [report](reports/2026-10-13-mining-roadmap.md) |
