@@ -24,9 +24,9 @@ The milestone order below is **Proposed**. You can reorder it.
 | M0 | Walk scene | Done | n/a |
 | M1 | First mining loop | Done | n/a |
 | M2 | Inventory and energy | Done | n/a |
-| M3 | All ten ores in the scene | In review (PR #16) | Your review; drawn art for veins 3–10 and pickaxes 4–10 |
-| M4 | Gems | In review (PR #16) | Your review |
-| M5 | Smelting and pickaxe crafting | In review (PR #16), on test values | Real smelter recipe and hilt sources (D-013) |
+| M3 | All ten ores in the scene | Done | Drawn art for veins 3–10 and pickaxes 4–10 |
+| M4 | Gems | Done | n/a |
+| M5 | Smelting and pickaxe crafting | Done, on test values | Real smelter recipe and hilt sources (D-013) |
 | M6 | Saving and accounts | Blocked | Overview questions 1–3 |
 | M7 | Imps and the NFT | Blocked | Overview questions 1–3 |
 | Later | Skirmish, games, trade, shared chat | Later | Design docs 03–05 |
@@ -52,7 +52,7 @@ The milestone order below is **Proposed**. You can reorder it.
 - [x] Soil floor texture, square profile picture, chat width lined up with the HUD (PR #13)
 - **Open question:** the reset uses each player's own clock. Whether it should be one shared time zone for every player is not decided (02, section 4).
 
-### M3: All ten ores in the scene: In review (PR #16)
+### M3: All ten ores in the scene: Done
 Decided: the ten tiers and the ore each gives (D-005, D-010), and which pickaxe mines which ore (D-006, D-011).
 - [x] Tin gives 1 tin ore, the same as copper (D-010).
 - [x] A vein for each of tiers 3–10 (Iron to Stellarite), with a name tag that shows as you walk up. **Test art:** each is the copper vein, with its rock and crystals recoloured from the ore's picture. Drawn models for each tier can replace them later.
@@ -61,10 +61,10 @@ Decided: the ten tiers and the ore each gives (D-005, D-010), and which pickaxe 
 - [x] Skins for all ten pickaxes. Steel to Stellarite are **placeholders**: their sprites are the iron sprite recoloured with each ingot's colours.
 - [x] Every pickup shows a short "+1 Iron ore" line.
 
-### M4: Gems: In review (PR #16)
+### M4: Gems: Done
 - [x] Mining an ore sometimes also gives its gem: 10% for Tin, down to 1% for Stellarite (D-012). Gem pickups are highlighted.
 
-### M5: Smelting and pickaxe crafting: In review (PR #16), on test values
+### M5: Smelting and pickaxe crafting: Done, on test values
 Decided: what each crafted pickaxe costs in ingots (D-006). Test values until you decide the rest (D-013).
 - [x] Furnace in the scene: F opens it. **Test recipe:** 2 ore make 1 ingot. Coal can't be smelted.
 - [x] Blacksmith's anvil in the scene: F opens it. Crafts each pickaxe for the D-006 ingots exactly. Shows what you have and what you need. **Test:** the blacksmith supplies the hilt.
@@ -117,3 +117,4 @@ These are known differences. They don't need a fix until their milestone comes u
 | 2026-10-12 | Build roadmap created from `main` at `da2a51a` and open PR #13. |
 | 2026-10-12 | PR #13 merged: M2 marked Done. Energy gap rows removed. |
 | 2026-10-13 | PR #16: M3, M4 and M5 built from D-010 to D-013 and moved to In review. Mining's remaining open items listed. |
+| 2026-10-13 | PR #16 merged: M3, M4 and M5 marked Done (M5 still on the D-013 test values). |
