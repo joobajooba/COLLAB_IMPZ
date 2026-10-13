@@ -9,6 +9,15 @@
 
 **Purpose of this doc:** What players do in the world from moment to moment, and what each activity produces.
 
+## Gathering skills (D-005)
+| Phase | Skill | Doc | Status |
+|---|---|---|---|
+| 1 | Ores & mining | [gathering/01-mining.md](gathering/01-mining.md) | In review |
+| 2 | Trees & lumbering | n/a | Not started |
+| 3 | Fishing | n/a | Not started |
+| 4 | Hunting animals | n/a | Not started |
+| 5+ | Farming & foraging (order not set, D-016) | n/a | Not started |
+
 ---
 
 ## 1. Role in the core loop
