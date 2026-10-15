@@ -31,18 +31,19 @@ Every Markdown file in the repo, most important first. The order is **Proposed**
 | 3 | [ROADMAP.md](ROADMAP.md) (this file) | The design passes and the status of every design doc. | Living |
 | 4 | [BUILD-ROADMAP.md](BUILD-ROADMAP.md) | The playable game: what is built, what is in review, and the next milestones. | Living |
 | 5 | [docs/02-resources.md](docs/02-resources.md) | Resources and economy: ore tiers, pickaxes, energy, item pictures. The most filled-in design doc. | Draft |
-| 6 | [docs/01-activities.md](docs/01-activities.md) | What players do in the world, and what each activity produces. | Not started |
-| 7 | [docs/05-skirmish.md](docs/05-skirmish.md) | The Pokémon-style battle system. | Not started |
-| 8 | [docs/03-games.md](docs/03-games.md) | Minigames and their rewards. | Not started |
-| 9 | [docs/04-trade.md](docs/04-trade.md) | How value moves between players. | Not started |
-| 10 | [../CLAUDE.md](../CLAUDE.md) | Repo rules for Claude: staging branches, draft PRs, "commit to main", backups and rollback. | Rules |
-| 11 | [CLAUDE.md](CLAUDE.md) | Design rules for Claude: don't deviate, quality first, statuses, how to run a pass, reports. | Rules |
-| 12 | [../README.md](../README.md) | How to run the game, and its controls. | Reference |
-| 13 | [reports/2026-10-13-mining-roadmap.md](reports/2026-10-13-mining-roadmap.md) | Report: the mining build roadmap completed (M3–M5) and D-010 to D-013. | Done |
-| 14 | [reports/2026-10-11-pass-0.md](reports/2026-10-11-pass-0.md) | Report for Pass 0 (setup). | Done |
-| 15 | [reports/_TEMPLATE.md](reports/_TEMPLATE.md) | The template every report follows. | Template |
+| 6 | [ART-DIRECTION.md](ART-DIRECTION.md) | The art style: cartoon stylised 3D for the world, 2D pixel art for menus and inventory, the 32 reference listings, and a checklist for every 3D asset. | Draft |
+| 7 | [docs/01-activities.md](docs/01-activities.md) | What players do in the world, and what each activity produces. | Not started |
+| 8 | [docs/05-skirmish.md](docs/05-skirmish.md) | The Pokémon-style battle system. | Not started |
+| 9 | [docs/03-games.md](docs/03-games.md) | Minigames and their rewards. | Not started |
+| 10 | [docs/04-trade.md](docs/04-trade.md) | How value moves between players. | Not started |
+| 11 | [../CLAUDE.md](../CLAUDE.md) | Repo rules for Claude: staging branches, draft PRs, "commit to main", backups and rollback. | Rules |
+| 12 | [CLAUDE.md](CLAUDE.md) | Design rules for Claude: don't deviate, quality first, statuses, how to run a pass, reports. | Rules |
+| 13 | [../README.md](../README.md) | How to run the game, and its controls. | Reference |
+| 14 | [reports/2026-10-13-mining-roadmap.md](reports/2026-10-13-mining-roadmap.md) | Report: the mining build roadmap completed (M3–M5) and D-010 to D-013. | Done |
+| 15 | [reports/2026-10-11-pass-0.md](reports/2026-10-11-pass-0.md) | Report for Pass 0 (setup). | Done |
+| 16 | [reports/_TEMPLATE.md](reports/_TEMPLATE.md) | The template every report follows. | Template |
 
-**Why this order:** decisions and the overview come first because every other doc must agree with them. The two roadmaps come next because they say what to work on. Then come the system docs, in the order they will be worked on. Resources is first because every other system makes or spends resources. The two `CLAUDE.md` files and the README tell people and Claude how to work in the repo, but they don't define the game. Reports are history.
+**Why this order:** decisions and the overview come first because every other doc must agree with them. The two roadmaps come next because they say what to work on. Then come the system docs, in the order they will be worked on. The art direction sits after Resources because every 3D asset already being built (veins, furnace, anvil, cave) must follow it. Resources is first because every other system makes or spends resources. The two `CLAUDE.md` files and the README tell people and Claude how to work in the repo, but they don't define the game. Reports are history.
 
 **Local only, not on GitHub:** `docs/gathering/01-mining.md` and `reports/2026-10-11-pass-1.md`. They exist only in one collaborator's folder and aren't in this list until they are reconciled and merged (see [To reconcile](#to-reconcile-not-on-github)).
 
@@ -170,3 +171,5 @@ One collaborator has local Pass 1 work that was never pushed. On 2026-10-13 it w
 | User additions | 2026-10-12 | Energy and inventory | Same energy cost for every ore, 12-hour reset from midnight, 6×8 inventory (D-008, D-009), via PR #13. | No report |
 | Roadmap update | 2026-10-12 | Bring this file up to date | Doc status and Pass 2 progress updated to match `main`. Build roadmap started. Unpushed local work listed under "To reconcile". All 14 `.md` files listed by importance. Sub categories added under each design system in Doc status. | No report |
 | User additions | 2026-10-13 | Complete the mining roadmap | Tin reward (D-010), stronger pickaxes mine weaker ores (D-011), gem chance (D-012), test smelting and hilt values (D-013). Build milestones M3–M5 built and in review (PR #16). | [report](reports/2026-10-13-mining-roadmap.md) |
+| User additions | 2026-10-14 | Art direction | `ART-DIRECTION.md` created from your 32 reference listings, as `Draft`. Cartoon stylised 3D world (D-014). 2D pixel art for menus and inventory, 3D for anything in the world (D-015). The style rules are Proposed; six open questions at the end of the doc. | No report |
+| User additions | 2026-10-15 | Art direction answers | Implingz are already done and left out (D-016). Veins can differ in colour (D-017). References are style only; assets are made by us (D-018). Veins should look like Stylized Ore, which you own a licence for (D-019). | No report |

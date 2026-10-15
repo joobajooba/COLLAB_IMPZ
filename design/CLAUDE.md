@@ -11,6 +11,7 @@ The game design for **IMPLINGZ**, an NFT web game. The design is built as a **ro
 | `ROADMAP.md` | The passes, the status of every doc, and what the current pass is working on. **Read this first, every time.** |
 | `BUILD-ROADMAP.md` | The playable game: what is built, what is in review, and the next milestones. Only decided rules get built. Read it before any code change. |
 | `DECISIONS.md` | Every decision the user has made, with its date. These decisions are the source of truth. |
+| `ART-DIRECTION.md` | The art style (D-014, D-015): cartoon stylised 3D for the world, 2D pixel art for menus and inventory, the reference listings, and the checklist every 3D asset must pass. |
 | `docs/00-overview.md` | The game's intent, core loop and the role of the NFT. Every other doc must agree with it. |
 | `docs/01`–`05` | One doc per system: activities, resources, games, trade, skirmish. |
 | `reports/` | One report per pass, plus any report the user asks for. |
@@ -27,6 +28,10 @@ The gem chance is decided (D-012): 10% for Tin, falling 1% per tier to 1% for St
 Pickaxes are decided (D-006): which pickaxe mines which ore, and the ingots and hilt each crafted pickaxe takes. Record those exactly. A pickaxe also mines every ore below its named ore (D-011). Stone has no craft row. Do not invent a Stone recipe.
 
 How ingots are made in the smelter, and how players get hilts, are not decided. The user is still working on them. The build uses labelled test values until then (D-013: 2 ore make 1 ingot, the blacksmith supplies hilts). Do not present those test values as the design. Other blacksmithing, other crafting, and selling are not decided. Do not invent them.
+
+## 3D art
+
+Before making, buying, editing or reviewing any 3D model, material, light or scene layout, read `ART-DIRECTION.md`. Anything in the world is 3D and follows that doc (D-014). Menus and inventory icons are 2D pixel art (D-015). Never put pixel-art textures on a 3D model. When an item has both an icon and a model, the model takes its colours from the icon. Run the doc's review checklist on every 3D asset and note the result in the PR.
 
 ## 2. Do not deviate
 
