@@ -1,5 +1,4 @@
 import * as THREE from "three";
-import { FBXLoader } from "three/addons/loaders/FBXLoader.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 
@@ -62,46 +61,49 @@ const LABEL_RANGE = 3.2;
 // The ten ore tiers, lowest first (D-005). Breaking a vein gives one of its ore
 // (D-007, D-010) and, with `gemChance`, its gem too (D-012). `file` is the name
 // in sprites/items/. `ingot: false` because Coal has no ingot.
-// `model`: "tin" is tin_orevein.fbx; "vein" is models/copper_vein.glb, with its
-// rock and ore crystals recoloured by `look` (TEST art until each tier has
-// its own vein). `spots` are where its veins stand: a TEST layout.
+// Veins come from models/ore_veins.glb (D-019): a Spire or Mound of faceted
+// rock, with Nugget or Crystal ore set into the faces. `look.rock` and
+// `look.ore` colour those two parts; ore colours follow the inventory icons.
+// `spots` are where its veins stand: a TEST layout.
 const ORES = [
-  { id: "tin", label: "Tin", file: "tin", tier: 1, gem: "topaz", gemChance: 0.1, model: "tin",
+  { id: "tin", label: "Tin", file: "tin", tier: 1, gem: "topaz", gemChance: 0.1, shape: "Mound", kind: "Nugget",
+    look: { rock: "#8e96b4", ore: "#c8d0d8", metal: 0.55, rough: 0.38 },
     spots: [
-      { x: 1.55, z: -1.05, rot: 0, scale: 1 },
+      { x: 1.55, z: -1.05, rot: 0, scale: 1, shape: "Spire" },
       { x: -2.6, z: -2.4, rot: 1.9, scale: 0.85 },
-      { x: -3.2, z: 1.8, rot: 4.1, scale: 1.1 },
+      { x: -3.2, z: 1.8, rot: 4.1, scale: 1.1, shape: "Spire" },
       { x: 3.1, z: 2.7, rot: 2.7, scale: 0.9 },
       { x: 0.4, z: 3.4, rot: 5.3, scale: 0.75 },
     ] },
-  { id: "copper", label: "Copper", file: "copper", tier: 2, gem: "sapphire", gemChance: 0.09, model: "vein",
+  { id: "copper", label: "Copper", file: "copper", tier: 2, gem: "sapphire", gemChance: 0.09, shape: "Mound", kind: "Nugget",
+    look: { rock: "#8a8eaa", ore: "#c56a38", metal: 0.7, rough: 0.32 },
     spots: [
-      { x: 3.0, z: -2.6, rot: 0.3, scale: 0.85 },
+      { x: 3.0, z: -2.6, rot: 0.3, scale: 0.9, shape: "Spire" },
       { x: -4.6, z: 4.6, rot: 2.2, scale: 0.85 },
     ] },
-  { id: "iron", label: "Iron", file: "iron", tier: 3, gem: "amethyst", gemChance: 0.08, model: "vein",
-    look: { ore: "#aab0ba", metal: 0.9, rough: 0.3, top: "#6a625a", side: "#4e5158" },
-    spots: [{ x: -5.6, z: -0.6, rot: 1.2, scale: 0.9 }] },
-  { id: "coal", label: "Coal", file: "coal", tier: 4, gem: "ruby", gemChance: 0.07, model: "vein", ingot: false,
-    look: { ore: "#1c1c21", metal: 0.1, rough: 0.55, top: "#4c4742", side: "#3a3836" },
-    spots: [{ x: -5.2, z: -5.0, rot: 4.0, scale: 0.9 }] },
-  { id: "gold", label: "Gold", file: "gold", tier: 5, gem: "emerald", gemChance: 0.06, model: "vein",
-    look: { ore: "#ffb21f", metal: 0.95, rough: 0.25, top: "#a8873f", side: "#8a7a62" },
-    spots: [{ x: -1.4, z: -6.0, rot: 0.6, scale: 0.9 }] },
-  { id: "obsidian", label: "Obsidian", file: "obsidian", tier: 6, gem: "jade", gemChance: 0.05, model: "vein",
-    look: { ore: "#251b33", metal: 0.3, rough: 0.06, top: "#3e3449", side: "#2c2830" },
-    spots: [{ x: 2.6, z: -6.0, rot: 5.2, scale: 0.9 }] },
-  { id: "mithril", label: "Mithril", file: "mithril", tier: 7, gem: "diamond", gemChance: 0.04, model: "vein",
-    look: { ore: "#d9caff", metal: 0.8, rough: 0.2, top: "#8f87a8", side: "#9c97ad", glow: "#2c2058" },
-    spots: [{ x: 6.0, z: -4.2, rot: 3.1, scale: 0.9 }] },
-  { id: "adamantite", label: "Adamantite", file: "adamantite", tier: 8, gem: "painite", gemChance: 0.03, model: "vein",
-    look: { ore: "#8c2629", metal: 0.75, rough: 0.3, top: "#6b3b31", side: "#5a3a36" },
-    spots: [{ x: 6.2, z: 0.6, rot: 1.7, scale: 0.95 }] },
-  { id: "void", label: "Void Stone", file: "void", tier: 9, gem: "arcanium", gemChance: 0.02, model: "vein",
-    look: { ore: "#4d2a91", metal: 0.3, rough: 0.3, top: "#2b2337", side: "#2a2234", glow: "#3a167a" },
+  { id: "iron", label: "Iron", file: "iron", tier: 3, gem: "amethyst", gemChance: 0.08, shape: "Spire", kind: "Nugget",
+    look: { rock: "#7f879c", ore: "#aab0ba", metal: 0.85, rough: 0.3 },
+    spots: [{ x: -5.6, z: -0.6, rot: 1.2, scale: 0.95 }] },
+  { id: "coal", label: "Coal", file: "coal", tier: 4, gem: "ruby", gemChance: 0.07, shape: "Mound", kind: "Nugget", ingot: false,
+    look: { rock: "#6a7088", ore: "#1c1c21", metal: 0.08, rough: 0.55 },
+    spots: [{ x: -5.2, z: -5.0, rot: 4.0, scale: 0.95 }] },
+  { id: "gold", label: "Gold", file: "gold", tier: 5, gem: "emerald", gemChance: 0.06, shape: "Spire", kind: "Nugget",
+    look: { rock: "#8a8698", ore: "#ffb21f", metal: 0.95, rough: 0.25 },
+    spots: [{ x: -1.4, z: -6.0, rot: 0.6, scale: 0.95 }] },
+  { id: "obsidian", label: "Obsidian", file: "obsidian", tier: 6, gem: "jade", gemChance: 0.05, shape: "Spire", kind: "Crystal",
+    look: { rock: "#7a7396", ore: "#4a2a68", metal: 0.35, rough: 0.12, glow: "#2a1040" },
+    spots: [{ x: 2.6, z: -6.0, rot: 5.2, scale: 0.95 }] },
+  { id: "mithril", label: "Mithril", file: "mithril", tier: 7, gem: "diamond", gemChance: 0.04, shape: "Mound", kind: "Crystal",
+    look: { rock: "#8f87a8", ore: "#d9caff", metal: 0.8, rough: 0.2, glow: "#2c2058" },
+    spots: [{ x: 6.0, z: -4.2, rot: 3.1, scale: 0.95 }] },
+  { id: "adamantite", label: "Adamantite", file: "adamantite", tier: 8, gem: "painite", gemChance: 0.03, shape: "Spire", kind: "Nugget",
+    look: { rock: "#8a7a78", ore: "#8c2629", metal: 0.75, rough: 0.3 },
+    spots: [{ x: 6.2, z: 0.6, rot: 1.7, scale: 1 }] },
+  { id: "void", label: "Void Stone", file: "void", tier: 9, gem: "arcanium", gemChance: 0.02, shape: "Spire", kind: "Crystal",
+    look: { rock: "#6a5f88", ore: "#4d2a91", metal: 0.3, rough: 0.28, glow: "#3a167a" },
     spots: [{ x: 5.4, z: 5.2, rot: 4.6, scale: 1 }] },
-  { id: "stellarite", label: "Stellarite", file: "stellarite", tier: 10, gem: "eclipsium", gemChance: 0.01, model: "vein",
-    look: { ore: "#4a8bea", metal: 0.5, rough: 0.2, top: "#2b3b5c", side: "#27324a", glow: "#1b4bb0" },
+  { id: "stellarite", label: "Stellarite", file: "stellarite", tier: 10, gem: "eclipsium", gemChance: 0.01, shape: "Spire", kind: "Crystal",
+    look: { rock: "#6a7898", ore: "#4a8bea", metal: 0.5, rough: 0.2, glow: "#1b4bb0" },
     spots: [{ x: 0.2, z: 6.4, rot: 0.9, scale: 1.05 }] },
 ];
 const GEMS = {
@@ -333,7 +335,6 @@ let lastX = 0;
 let lastY = 0;
 
 loadCharacter();
-loadOre();
 loadVeins();
 buildStations();
 loadPickaxe();
@@ -395,10 +396,10 @@ function buildCave() {
   floor.receiveShadow = true;
   scene.add(floor);
 
-  const stone = caveTexture("./textures/stone.png");
+  const rock = caveTexture("./textures/rock.png");
   const stoneMat = new THREE.MeshStandardMaterial({
-    map: stone,
-    color: "#948d85",
+    map: rock,
+    color: "#d4d7e4",
     roughness: 0.95,
     metalness: 0,
     side: THREE.DoubleSide,
@@ -415,31 +416,13 @@ function buildCave() {
     caveWalls.push(wall);
   }
 
-  // Fallen boulders along the foot of the wall break up its line.
-  for (let i = 0; i < CAVE_BOULDERS; i++) {
-    const a = ((i + hash(i, 20) * 0.6) / CAVE_BOULDERS) * Math.PI * 2;
-    const size = 0.28 + hash(i, 21) * 0.38;
-    const geometry = new THREE.IcosahedronGeometry(size, 0);
-    const pos = geometry.attributes.position;
-    for (let v = 0; v < pos.count; v++) {
-      const k = 0.75 + hash(i * 31 + v, 22) * 0.5;
-      pos.setXYZ(v, pos.getX(v) * k, pos.getY(v) * k * 0.75, pos.getZ(v) * k);
-    }
-    geometry.computeVertexNormals();
-    const boulder = new THREE.Mesh(geometry, stoneMat);
-    const r = caveRadius(a) + 0.1;
-    boulder.position.set(Math.cos(a) * r, size * 0.35, Math.sin(a) * r);
-    boulder.rotation.set(hash(i, 23) * 3, hash(i, 24) * 6, hash(i, 25) * 3);
-    boulder.castShadow = true;
-    boulder.receiveShadow = true;
-    scene.add(boulder);
-    caveRocks.push({ x: boulder.position.x, z: boulder.position.z, r: size * 0.9 });
-  }
+  // Boulders along the wall foot are placed from ore_veins.glb in loadVeins.
 }
 
-// One stretch of wall from sample i0 to i1. Each sample is a cross-section from
-// the foot, up a bumpy leaning face, over the top and down the back. Flat-shaded
-// triangles give the faceted cartoon-rock look.
+// One stretch of wall from sample i0 to i1. Each sample is a closed cross-section:
+// the foot, up a bumpy leaning face, over the top, down the back and along the
+// base. Both ends are capped, so a piece stays solid when its neighbour fades.
+// Flat-shaded triangles give the faceted rock look.
 function wallGeometry(i0, i1) {
   const section = (i) => {
     const a = (i / CAVE_SAMPLES) * Math.PI * 2;
@@ -460,16 +443,25 @@ function wallGeometry(i0, i1) {
     const cos = Math.cos(a);
     const sin = Math.sin(a);
     let along = 0;
-    return profile.map(([pr, y], k) => {
+    const points = profile.map(([pr, y], k) => {
       if (k > 0) along += Math.hypot(pr - profile[k - 1][0], y - profile[k - 1][1]);
-      return { pos: [cos * pr, y, sin * pr], v: along / STONE_TILE, arc: (a / (Math.PI * 2)) * STONE_REPEATS };
+      return {
+        pos: [cos * pr, y, sin * pr],
+        uv: [(a / (Math.PI * 2)) * STONE_REPEATS, along / STONE_TILE],
+        flat: [pr, y],
+      };
     });
+    // The base closes the loop back to the foot.
+    const first = points[0];
+    along += Math.hypot(profile.at(-1)[0] - profile[0][0], profile.at(-1)[1] - profile[0][1]);
+    points.push({ ...first, uv: [first.uv[0], along / STONE_TILE] });
+    return points;
   };
   const positions = [];
   const uvs = [];
-  const push = (pt) => {
-    positions.push(...pt.pos);
-    uvs.push(pt.arc, pt.v);
+  const push = (pos, uv) => {
+    positions.push(...pos);
+    uvs.push(...uv);
   };
   for (let i = i0; i < i1; i++) {
     const s0 = section(i);
@@ -479,8 +471,15 @@ function wallGeometry(i0, i1) {
       const b = s0[k + 1];
       const c = s1[k + 1];
       const d = s1[k];
-      push(a), push(b), push(c);
-      push(a), push(c), push(d);
+      push(a.pos, a.uv), push(b.pos, b.uv), push(c.pos, c.uv);
+      push(a.pos, a.uv), push(c.pos, c.uv), push(d.pos, d.uv);
+    }
+  }
+  for (const i of [i0, i1]) {
+    const loop = section(i).slice(0, -1);
+    const contour = loop.map((p) => new THREE.Vector2(...p.flat));
+    for (const tri of THREE.ShapeUtils.triangulateShape(contour, [])) {
+      for (const t of tri) push(loop[t].pos, [loop[t].flat[0] / STONE_TILE, loop[t].flat[1] / STONE_TILE]);
     }
   }
   const geometry = new THREE.BufferGeometry();
@@ -630,85 +629,63 @@ function loadCharacter() {
   );
 }
 
-function loadOre() {
-  const loader = new FBXLoader();
-  loader.load("./tin_orevein.fbx", (fbx) => {
-    const drop = [];
-    fbx.traverse((obj) => {
-      if (obj.isLight || obj.isCamera) drop.push(obj);
-      if (obj.isMesh) {
-        obj.castShadow = true;
-        obj.receiveShadow = true;
-      }
-    });
-    for (const obj of drop) obj.removeFromParent();
-
-    fbx.updateMatrixWorld(true);
-    const size = new THREE.Box3().setFromObject(fbx).getSize(new THREE.Vector3());
-    const footprint = Math.max(size.x, size.z, 0.001);
-    const height = Math.max(size.y, 0.001);
-    const scale = height < footprint * 0.25 ? 1.5 / footprint : 0.72 / height;
-    fbx.scale.multiplyScalar(scale);
-    fbx.updateMatrixWorld(true);
-    const grounded = new THREE.Box3().setFromObject(fbx);
-    fbx.position.y = -grounded.min.y;
-    fbx.updateMatrixWorld(true);
-    const placed = new THREE.Box3().setFromObject(fbx);
-    const center = placed.getCenter(new THREE.Vector3());
-    fbx.position.x -= center.x;
-    fbx.position.z -= center.z;
-
-    for (const ore of ORES) if (ore.model === "tin") placeVeins(fbx, ore);
-  }, undefined, (error) => {
-    console.error(error);
-  });
-}
-
-// The copper vein's origin is already at its bottom centre. Every ore with
-// model "vein" gets a copy, with its own materials coloured by `look`.
+// Faceted veins and wall-foot boulders from models/ore_veins.glb (D-019).
 function loadVeins() {
-  new GLTFLoader().load("./models/copper_vein.glb", (gltf) => {
-    gltf.scene.traverse((obj) => {
-      if (obj.isMesh) {
-        obj.castShadow = true;
-        obj.receiveShadow = true;
-      }
-    });
-    for (const ore of ORES) {
-      if (ore.model !== "vein") continue;
-      placeVeins(ore.look ? recolourVein(gltf.scene, ore.look) : gltf.scene, ore);
+  new GLTFLoader().load("./models/ore_veins.glb", (gltf) => {
+    const templates = {};
+    const boulders = [];
+    for (const child of gltf.scene.children) {
+      child.traverse((obj) => {
+        if (obj.isMesh) {
+          obj.castShadow = true;
+          obj.receiveShadow = true;
+        }
+      });
+      if (child.name.startsWith("Vein_")) templates[child.name] = child;
+      if (child.name.startsWith("Boulder_")) boulders.push(child);
     }
-  }, undefined, (error) => console.error("Could not load the copper vein", error));
+    for (const ore of ORES) placeVeins(templates, ore);
+    placeBoulders(boulders);
+  }, undefined, (error) => console.error("Could not load ore veins", error));
 }
 
-// The copper vein's materials are Rock_Side (the rock), Rock_Top (its lighter
-// top) and Copper (the ore crystals).
-function recolourVein(model, look) {
+function colourVein(model, look) {
   const copy = model.clone();
   copy.traverse((obj) => {
     if (!obj.isMesh) return;
-    obj.material = [].concat(obj.material).map((m) => {
+    obj.castShadow = true;
+    obj.receiveShadow = true;
+    const mats = [].concat(obj.material).map((m) => {
       const mat = m.clone();
-      if (mat.name === "Rock_Side") mat.color.set(look.side);
-      if (mat.name === "Rock_Top") mat.color.set(look.top);
-      if (mat.name === "Copper") {
+      mat.vertexColors = true;
+      if (/^Rock/i.test(obj.name) || /^Rock/i.test(mat.name)) {
+        mat.color.set(look.rock);
+        mat.roughness = 0.92;
+        mat.metalness = 0;
+        mat.emissive.set("#000000");
+      } else {
         mat.color.set(look.ore);
         mat.metalness = look.metal;
         mat.roughness = look.rough;
-        if (look.glow) mat.emissive.set(look.glow);
+        if (look.glow) {
+          mat.emissive.set(look.glow);
+          mat.emissiveIntensity = 0.55;
+        }
       }
       return mat;
     });
-    if (obj.material.length === 1) obj.material = obj.material[0];
+    obj.material = mats.length === 1 ? mats[0] : mats;
   });
   return copy;
 }
 
-function placeVeins(model, ore) {
+function placeVeins(templates, ore) {
   for (const spot of ore.spots) {
+    const name = `Vein_${spot.shape || ore.shape}_${ore.kind}`;
+    const template = templates[name] || templates["Vein_Spire_Nugget"];
     const vein = new THREE.Group();
     vein.userData.ore = ore;
-    vein.add(model.clone());
+    vein.add(colourVein(template, ore.look));
     vein.position.set(spot.x, 0, spot.z);
     vein.rotation.y = spot.rot;
     vein.scale.setScalar(spot.scale);
@@ -716,6 +693,23 @@ function placeVeins(model, ore) {
     addRockColliders(vein);
     veins.push(vein);
     addLabel(vein, ore.label, new THREE.Box3().setFromObject(vein).max.y + 0.16);
+  }
+}
+
+function placeBoulders(boulders) {
+  if (!boulders.length) return;
+  for (let i = 0; i < CAVE_BOULDERS; i++) {
+    const a = ((i + hash(i, 20) * 0.6) / CAVE_BOULDERS) * Math.PI * 2;
+    const size = 0.28 + hash(i, 21) * 0.38;
+    const src = boulders[i % boulders.length];
+    const boulder = colourVein(src, { rock: "#8e96b4", ore: "#8e96b4", metal: 0, rough: 0.92 });
+    boulder.position.set(Math.cos(a) * (caveRadius(a) + 0.1), 0, Math.sin(a) * (caveRadius(a) + 0.1));
+    boulder.rotation.y = hash(i, 24) * Math.PI * 2;
+    boulder.scale.setScalar(size / 0.5);
+    boulder.castShadow = true;
+    boulder.receiveShadow = true;
+    scene.add(boulder);
+    caveRocks.push({ x: boulder.position.x, z: boulder.position.z, r: size * 0.9 });
   }
 }
 

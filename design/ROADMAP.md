@@ -67,7 +67,7 @@ For a main row, **Status** is the doc's status. For a sub row, it is the topic's
 | **01** | **[Activities](docs/01-activities.md)** | **Not started** | Everything | 00, 02 | 0 |
 | 01.1 | ↳ Mining | Decided in 02 (D-005 to D-013), and built | Not written up in 01 yet | | |
 | **02** | **[Resources & economy](docs/02-resources.md)** | **Draft** | Sections 1, 2 and 5–8 are empty | 00 | 0, then user additions (D-005 to D-013) |
-| 02.1 | ↳ Ore tiers and item pictures | Decided (D-005) | Drawn 3D veins for tiers 3–10 (the build recolours the copper vein) | | |
+| 02.1 | ↳ Ore tiers and item pictures | Decided (D-005, D-019) | Drawn sprites for pickaxes Steel–Stellarite | | |
 | 02.2 | ↳ Pickaxes: which mines which ore, and craft costs | Decided (D-006, D-011) | What the Stellarite pickaxe is for (a stronger pickaxe also mines every lower ore) | | |
 | 02.3 | ↳ Mining rewards and vein respawn | Decided (D-007, D-010) | n/a | | |
 | 02.4 | ↳ Energy | Decided (D-008, D-009) | Whether the reset is one shared time zone for every player | | |
