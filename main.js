@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { FBXLoader } from "three/addons/loaders/FBXLoader.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+import { mergeVertices } from "three/addons/utils/BufferGeometryUtils.js";
 
 // The cave: an uneven soil floor ringed by stone walls, open to the sky.
 // caveRadius() gives the distance from the centre to the foot of the wall.
@@ -395,10 +396,10 @@ function buildCave() {
   floor.receiveShadow = true;
   scene.add(floor);
 
-  const stone = caveTexture("./textures/stone.png");
+  const rock = caveTexture("./textures/rock.png");
   const stoneMat = new THREE.MeshStandardMaterial({
-    map: stone,
-    color: "#948d85",
+    map: rock,
+    color: "#b4ada4",
     roughness: 0.95,
     metalness: 0,
     side: THREE.DoubleSide,
@@ -419,12 +420,24 @@ function buildCave() {
   for (let i = 0; i < CAVE_BOULDERS; i++) {
     const a = ((i + hash(i, 20) * 0.6) / CAVE_BOULDERS) * Math.PI * 2;
     const size = 0.28 + hash(i, 21) * 0.38;
-    const geometry = new THREE.IcosahedronGeometry(size, 0);
-    const pos = geometry.attributes.position;
+    // Weld the corners first, so jittering a corner moves every face that shares it
+    // and the rock stays closed.
+    const ico = new THREE.IcosahedronGeometry(size, 0);
+    ico.deleteAttribute("normal");
+    ico.deleteAttribute("uv");
+    const welded = mergeVertices(ico);
+    const pos = welded.attributes.position;
     for (let v = 0; v < pos.count; v++) {
       const k = 0.75 + hash(i * 31 + v, 22) * 0.5;
       pos.setXYZ(v, pos.getX(v) * k, pos.getY(v) * k * 0.75, pos.getZ(v) * k);
     }
+    const geometry = welded.toNonIndexed();
+    const flat = geometry.attributes.position;
+    const uv = [];
+    for (let v = 0; v < flat.count; v++) {
+      uv.push((flat.getX(v) + flat.getZ(v)) / STONE_TILE, flat.getY(v) / STONE_TILE);
+    }
+    geometry.setAttribute("uv", new THREE.Float32BufferAttribute(uv, 2));
     geometry.computeVertexNormals();
     const boulder = new THREE.Mesh(geometry, stoneMat);
     const r = caveRadius(a) + 0.1;
@@ -437,9 +450,10 @@ function buildCave() {
   }
 }
 
-// One stretch of wall from sample i0 to i1. Each sample is a cross-section from
-// the foot, up a bumpy leaning face, over the top and down the back. Flat-shaded
-// triangles give the faceted cartoon-rock look.
+// One stretch of wall from sample i0 to i1. Each sample is a closed cross-section:
+// the foot, up a bumpy leaning face, over the top, down the back and along the
+// base. Both ends are capped, so a piece stays solid when its neighbour fades.
+// Flat-shaded triangles give the faceted rock look.
 function wallGeometry(i0, i1) {
   const section = (i) => {
     const a = (i / CAVE_SAMPLES) * Math.PI * 2;
@@ -460,16 +474,25 @@ function wallGeometry(i0, i1) {
     const cos = Math.cos(a);
     const sin = Math.sin(a);
     let along = 0;
-    return profile.map(([pr, y], k) => {
+    const points = profile.map(([pr, y], k) => {
       if (k > 0) along += Math.hypot(pr - profile[k - 1][0], y - profile[k - 1][1]);
-      return { pos: [cos * pr, y, sin * pr], v: along / STONE_TILE, arc: (a / (Math.PI * 2)) * STONE_REPEATS };
+      return {
+        pos: [cos * pr, y, sin * pr],
+        uv: [(a / (Math.PI * 2)) * STONE_REPEATS, along / STONE_TILE],
+        flat: [pr, y],
+      };
     });
+    // The base closes the loop back to the foot.
+    const first = points[0];
+    along += Math.hypot(profile.at(-1)[0] - profile[0][0], profile.at(-1)[1] - profile[0][1]);
+    points.push({ ...first, uv: [first.uv[0], along / STONE_TILE] });
+    return points;
   };
   const positions = [];
   const uvs = [];
-  const push = (pt) => {
-    positions.push(...pt.pos);
-    uvs.push(pt.arc, pt.v);
+  const push = (pos, uv) => {
+    positions.push(...pos);
+    uvs.push(...uv);
   };
   for (let i = i0; i < i1; i++) {
     const s0 = section(i);
@@ -479,8 +502,15 @@ function wallGeometry(i0, i1) {
       const b = s0[k + 1];
       const c = s1[k + 1];
       const d = s1[k];
-      push(a), push(b), push(c);
-      push(a), push(c), push(d);
+      push(a.pos, a.uv), push(b.pos, b.uv), push(c.pos, c.uv);
+      push(a.pos, a.uv), push(c.pos, c.uv), push(d.pos, d.uv);
+    }
+  }
+  for (const i of [i0, i1]) {
+    const loop = section(i).slice(0, -1);
+    const contour = loop.map((p) => new THREE.Vector2(...p.flat));
+    for (const tri of THREE.ShapeUtils.triangulateShape(contour, [])) {
+      for (const t of tri) push(loop[t].pos, [loop[t].flat[0] / STONE_TILE, loop[t].flat[1] / STONE_TILE]);
     }
   }
   const geometry = new THREE.BufferGeometry();
