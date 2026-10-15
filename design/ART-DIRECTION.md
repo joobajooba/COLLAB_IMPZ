@@ -199,13 +199,15 @@ Each guide lists the references for that category in section 11, what to take fr
 ### 9.1 Ores, crystals and veins
 *References: Crystals and Ores, Stylized Ore.*
 
+**Stylized Ore is the target (Decided, D-019).** The user owns a licence for it, and the game's veins should look like it: faceted grey rock spires, mounds and small piles, with chunky ore pieces set into the rock faces. Its files are Unreal Engine only, so the game's veins are our own models built to match it.
+
 - **A vein is a calm rock body with bright ore in it.** The rock is a tinted blue-grey or purple-grey (section 5) and stays the same family across tiers. The ore or crystals set into it carry the tier's colour and are the brightest thing on the vein.
 - **Ore sits in the rock, crystals grow out of it.** Nuggets and chunks sit partly sunk into the rock faces (Stylized Ore). Crystals burst out in clusters of three to seven points of different sizes (Crystals and Ores).
 - **Size shows value.** Stylized Ore sells each ore in small, medium and large. Bigger and taller veins read as richer.
 - **Every tier is recognisable from across the room.** Shape and colour together, not colour alone, so colour-blind players can tell tiers apart.
 - **Tier colours come from the icons.** See section 2 and section 5.
 - **Today's veins.** Tiers 3–10 are the copper vein recoloured in code (**test art**, per `BUILD-ROADMAP.md`). Drawn veins for each tier should follow this section.
-- **Watch for:** Stylized Ore's rock is purple-grey, and Crystals and Ores' is slate blue. Both fit. Pick one rock family for the whole game so veins don't look like two different packs.
+- **Rock colour can change per tier (Decided, D-017).** Veins don't have to share one rock colour. Stylized Ore's purple-grey and Crystals and Ores' slate blue both fit, and so do other tinted rocks. Keep every vein's rock tinted (section 5) and calmer than its ore, so the ore stays the accent.
 
 ### 9.2 Farming and crops
 *References: Stylized Garden Crop Grades, Stylized Farm Crops, Farm Crops.*
@@ -247,13 +249,15 @@ Farming is **not a decided activity** (`docs/01-activities.md` is Not started). 
 ### 9.5 Creatures
 *References: Stylized Spider, Stylized Werewolf, Animated Stylized Cat, RPG Monster Wave Bundle, Stylized Fantasy Dragons Pack.*
 
+**The Implingz are already done (Decided, D-016).** This section does not apply to them. Do no art work on Implingz. These rules are for any other creature in the world.
+
 - **Readable from the camera.** Big heads and eyes, clear silhouettes, chunky limbs. You can tell what a creature is and which way it faces at a glance.
 - **Eyes carry the character.** Big, bright eyes on friendly creatures (Animated Stylized Cat). Glowing eyes, often yellow or red, on hostile ones (RPG Monster Wave, Stylized Spider, Stylized Werewolf).
 - **Simple, bold colour blocks.** Two or three main colours per creature, one accent. RPG Monster Wave's thirty monsters each read from colour and silhouette alone.
 - **Colour variants through tint masks.** Stylized Spider ships four skins, RPG Monster Wave uses a tint-mask material, the Dragons pack has six painted skins. Plan creatures so one model can wear several colourways.
 - **Animation sells the cartoon.** The references animate idle, walk, run, attack, hit and death, with squash-and-stretch on the cuter ones. Exaggerated poses and timing over realistic motion.
-- **The cute-to-menacing range.** The creature references cover a wide range. At one end: round, chibi (big head, small body) monsters and a cute cat. At the other: a lanky werewolf, a spider and painted dragons with realistic proportions. Where Implingz and other creatures sit on this range is an **open question**. It ties to overview question 1 (what an Impling is in the game).
-- **Watch for:** the Dragons pack is the least cartoon of the creature references (realistic anatomy, dark palette). Its seller also asks to be contacted before its assets are used in any NFT or blockchain project (section 11).
+- **The cute-to-menacing range.** The creature references cover a wide range. At one end: round, chibi (big head, small body) monsters and a cute cat. At the other: a lanky werewolf, a spider and painted dragons with realistic proportions. Where other creatures sit on this range is an **open question**.
+- **Watch for:** the Dragons pack is the least cartoon of the creature references (realistic anatomy, dark palette).
 
 ---
 
@@ -290,7 +294,7 @@ These are starting budgets. They should be checked against the frame rate in the
 
 The user chose these 32 listings on 2026-10-14. The list is the decision. The notes on what to take and what to watch for are **Proposed**.
 
-**These are style references, not a shopping list.** Buying or using any of them is a separate decision. Before anything is bought: check that its files work outside Unreal Engine (many are Unreal-only), and read its licence for NFT and blockchain use.
+**These are style references only (Decided, D-018).** Our assets are made by us, not bought. Don't copy a listing's models or textures. Use them to judge shape, colour and finish. The format and licence notes below are kept for the record.
 
 ### Ores
 | # | Listing | By | Take from it | Watch for |
@@ -371,20 +375,21 @@ Run this on every 3D asset before its PR is marked ready. Note the result in the
 - [ ] `MeshStandardMaterial`. Metalness only on metal. Emissive only on things that glow.
 
 **Source**
-- [ ] If it came from a store, the licence allows use in an NFT web game, and the PR links the licence.
+- [ ] Made by us (D-018). Not bought, and not copied from a reference listing.
 
 ---
 
 ## Open questions
 
-1. **Where do Implingz sit on the creature range** (section 9.5): round and cute like RPG Monster Wave and the cat, menacing like the werewolf and dragons, or cute player creatures with tougher wild ones? Ties to overview question 1.
-2. **Which biomes does the game have?** The references show meadow, forest, autumn, swamp, desert, reef and an underworld cave.
-3. **Which times of day?** Bright midday, golden afternoon, or a day–night cycle?
-4. **One rock family:** slate blue (Crystals and Ores) or purple-grey (Stylized Ore) for every vein and cliff?
-5. **Will you buy any of the reference packs**, or are they only a style guide for your own models? If you buy, which formats can you use, and has each licence been checked for NFT use?
-6. **Do you agree with the budgets in section 10** as a starting point, until they are measured in the real scene?
+1. **Which biomes does the game have?** The references show meadow, forest, autumn, swamp, desert, reef and an underworld cave.
+2. **Which times of day?** Bright midday, golden afternoon, or a day–night cycle?
+3. **Do you agree with the budgets in section 10** as a starting point, until they are measured in the real scene?
+4. **Where do creatures other than Implingz sit on the cute-to-menacing range** (section 9.5)?
+
+Answered on 2026-10-15: Implingz are already done (D-016), veins can differ in colour (D-017), and the references are style only, with our own assets made by us (D-018).
 
 ## Pass history
 | Pass | Change |
 |---|---|
 | User addition, 2026-10-14 | Doc created from the user's 32 reference listings. Cartoon stylised 3D world (D-014) and the 2D-icons / 3D-world split (D-015) recorded. Everything else Proposed. Status Draft. |
+| User addition, 2026-10-15 | Implingz left out of the art work (D-016). Veins can differ in colour (D-017). References are style only; assets are made by us (D-018). Open questions 1, 4 and 5 answered and removed. The user owns a Stylized Ore licence, and veins should look like it (D-019). |
