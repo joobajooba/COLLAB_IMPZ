@@ -24,7 +24,7 @@ The milestone order below is **Proposed**. You can reorder it.
 | M0 | Walk scene | Done | n/a |
 | M1 | First mining loop | Done | n/a |
 | M2 | Inventory and energy | Done | n/a |
-| M3 | All ten ores in the scene | Done | Drawn art for veins 3–10 and pickaxes 4–10 |
+| M3 | All ten ores in the scene | Done | Drawn sprites for pickaxes 4–10 |
 | M4 | Gems | Done | n/a |
 | M5 | Smelting and pickaxe crafting | Done, on test values | Real smelter recipe and hilt sources (D-013) |
 | M6 | Saving and accounts | Blocked | Overview questions 1–3 |
@@ -55,7 +55,7 @@ The milestone order below is **Proposed**. You can reorder it.
 ### M3: All ten ores in the scene: Done
 Decided: the ten tiers and the ore each gives (D-005, D-010), and which pickaxe mines which ore (D-006, D-011).
 - [x] Tin gives 1 tin ore, the same as copper (D-010).
-- [x] A vein for each of tiers 3–10 (Iron to Stellarite), with a name tag that shows as you walk up. **Test art:** each is the copper vein, with its rock and crystals recoloured from the ore's picture. Drawn models for each tier can replace them later.
+- [x] A vein for each of tiers 3–10 (Iron to Stellarite), with a name tag that shows as you walk up. All ten ores use the faceted Stylized Ore look in `models/ore_veins.glb`, coloured from each icon (D-019).
 - [x] The floor is now 16 m across (was 10 m) to fit them. Low tiers sit near the start, high tiers around the edge. Copper has a second vein. **Test layout.**
 - [x] A pickaxe mines its named ore and every ore below (D-011). The prompt says which pickaxe you need, for example "Needs a Bronze pickaxe".
 - [x] Skins for all ten pickaxes. Steel to Stellarite are **placeholders**: their sprites are the iron sprite recoloured with each ingot's colours.
@@ -75,7 +75,7 @@ Decided: what each crafted pickaxe costs in ingots (D-006). Test values until yo
 ### Mining: what's left after M5
 Everything that is decided for mining is now built. These are the open items:
 - The real smelter recipe and how players get hilts (D-013).
-- Drawn 3D veins for tiers 3–10, and drawn sprites for the Steel to Stellarite pickaxes.
+- Drawn sprites for the Steel to Stellarite pickaxes.
 - What the Stellarite pickaxe is for (02, Pickaxes).
 - What Coal is for: it has no ingot and is in no recipe.
 - Whether the energy reset uses one shared time zone (02, section 4).
@@ -118,3 +118,4 @@ These are known differences. They don't need a fix until their milestone comes u
 | 2026-10-12 | PR #13 merged: M2 marked Done. Energy gap rows removed. |
 | 2026-10-13 | PR #16: M3, M4 and M5 built from D-010 to D-013 and moved to In review. Mining's remaining open items listed. |
 | 2026-10-13 | PR #16 merged: M3, M4 and M5 marked Done (M5 still on the D-013 test values). |
+| 2026-10-15 | Ore veins and cave boulders use `models/ore_veins.glb` in the Stylized Ore look (D-019). Cave walls use the slate-blue `textures/rock.png`. |

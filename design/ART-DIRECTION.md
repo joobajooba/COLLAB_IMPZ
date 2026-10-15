@@ -32,7 +32,7 @@
 | It is… | Art form | Examples in the game today |
 |---|---|---|
 | An icon in a menu, the inventory or the HUD | 2D pixel art, 48×48 PNG | `sprites/items/` (ores, ingots, gems, prestige), `sprites/pickaxes/` |
-| Something standing in the world | 3D model | Ore veins (`tin_orevein.fbx`, `models/copper_vein.glb`), the furnace, the anvil, the cave floor and walls |
+| Something standing in the world | 3D model | Ore veins (`models/ore_veins.glb`), the furnace, the anvil, the cave floor and walls |
 | Something the player holds or wears in the world | 3D model | The pickaxe (`models/pickaxe.glb`) |
 | The player and any creature | 3D model | The character (`0.glb`) |
 
@@ -206,7 +206,7 @@ Each guide lists the references for that category in section 11, what to take fr
 - **Size shows value.** Stylized Ore sells each ore in small, medium and large. Bigger and taller veins read as richer.
 - **Every tier is recognisable from across the room.** Shape and colour together, not colour alone, so colour-blind players can tell tiers apart.
 - **Tier colours come from the icons.** See section 2 and section 5.
-- **Today's veins.** Tiers 3–10 are the copper vein recoloured in code (**test art**, per `BUILD-ROADMAP.md`). Drawn veins for each tier should follow this section.
+- **Today's veins.** All ten ores use `models/ore_veins.glb`: faceted spires and mounds with ore set into the rock, coloured from each tier's icon (D-019).
 - **Rock colour can change per tier (Decided, D-017).** Veins don't have to share one rock colour. Stylized Ore's purple-grey and Crystals and Ores' slate blue both fit, and so do other tinted rocks. Keep every vein's rock tinted (section 5) and calmer than its ore, so the ore stays the accent.
 
 ### 9.2 Farming and crops
