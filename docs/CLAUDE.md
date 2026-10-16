@@ -1,6 +1,6 @@
 # Design folder: rules for Claude
 
-These rules apply to any work in `design/`. They sit on top of the repo's root `CLAUDE.md`, and its GitHub workflow still applies: every change goes to a `staging/` branch and a draft PR, never straight to `main`.
+These rules apply to any work in `docs/`. They sit on top of the repo's root `CLAUDE.md`, and its GitHub workflow still applies: every change goes to a `staging/` branch and a draft PR, never straight to `main`.
 
 ## 1. What this folder is
 
@@ -12,14 +12,14 @@ The game design for **IMPLINGZ**, an NFT web game. The design is built as a **ro
 | `BUILD-ROADMAP.md` | The playable game: what is built, what is in review, and the next milestones. Only decided rules get built. Read it before any code change. |
 | `DECISIONS.md` | Every decision the user has made, with its date. These decisions are the source of truth. |
 | `ART-DIRECTION.md` | The art style (D-014, D-015): cartoon stylised 3D for the world, 2D pixel art for menus and inventory, the reference listings, and the checklist every 3D asset must pass. |
-| `docs/00-overview.md` | The game's intent, core loop and the role of the NFT. Every other doc must agree with it. |
-| `docs/01`–`05` | One doc per system: activities, resources, games, trade, skirmish. |
+| `00-overview.md` | The game's intent, core loop and the role of the NFT. Every other doc must agree with it. |
+| `01`–`05` | One doc per system: activities, resources, games, trade, skirmish. |
 | `reports/` | One report per pass, plus any report the user asks for. |
-| `sprites/items/` | 48×48 inventory PNGs. Not inside `design/`, but part of the resources design. The catalog is in `docs/02-resources.md`. |
+| `../sprites/items/` | 48×48 inventory PNGs. Not inside `docs/`, but part of the resources design. The catalog is in `02-resources.md`. |
 
 ## Item pictures
 
-Before writing or changing anything about ores, gems, ingots, mining rewards or inventory icons, open every PNG in `sprites/items/` and read the catalog in `docs/02-resources.md`. Match each file to that table. The picture is the source of truth for how an item looks. Do not describe an item from its filename alone.
+Before writing or changing anything about ores, gems, ingots, mining rewards or inventory icons, open every PNG in `sprites/items/` and read the catalog in `02-resources.md`. Match each file to that table. The picture is the source of truth for how an item looks. Do not describe an item from its filename alone.
 
 `nugget_` is the ore rock you mine. `ingot_` is the bar picture. `gemstone_` is the gem that can come with that ore. Coal has no ingot file. `prestige_0.png` through `prestige_5.png` are in the same folder and are not mining rewards. Their use is not decided. Do not add them to a tier.
 

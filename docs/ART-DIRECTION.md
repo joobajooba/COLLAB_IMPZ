@@ -4,7 +4,7 @@
 |---|---|---|
 | Draft | User addition, 2026-10-14 | 00, 02 |
 
-> Claude: read `design/CLAUDE.md` before working from this file. Read this whole file before making, buying, editing or reviewing **any** 3D asset, material, light or scene layout.
+> Claude: read `docs/CLAUDE.md` before working from this file. Read this whole file before making, buying, editing or reviewing **any** 3D asset, material, light or scene layout.
 >
 > Labels: **Decided** (in `DECISIONS.md`) · **Proposed** (Claude's suggestion) · **Open question**
 
@@ -32,13 +32,13 @@
 | It is… | Art form | Examples in the game today |
 |---|---|---|
 | An icon in a menu, the inventory or the HUD | 2D pixel art, 48×48 PNG | `sprites/items/` (ores, ingots, gems, prestige), `sprites/pickaxes/` |
-| Something standing in the world | 3D model | Ore veins (`tin_orevein.fbx`, `models/copper_vein.glb`), the furnace, the anvil, the cave floor and walls |
+| Something standing in the world | 3D model | Ore veins (`models/tin_orevein.fbx`, `models/copper_vein.glb`), the furnace, the anvil, the cave floor and walls |
 | Something the player holds or wears in the world | 3D model | The pickaxe (`models/pickaxe.glb`) |
-| The player and any creature | 3D model | The character (`0.glb`) |
+| The player and any creature | 3D model | The character (`models/character.glb`) |
 
 ### Rules where the two meet (Proposed)
 
-- **One item, one colour story.** When an item exists as both a 2D icon and a 3D model (an ore, an ingot, a gem, a pickaxe), the 3D model takes its main colours from the icon. `design/CLAUDE.md` already says the picture is the source of truth for how an item looks. So: open the PNG, take its two or three main colours, and build the 3D materials from them. The pickaxe skins already do this (`models/pickaxe-skins.json` colours each part from its sprite).
+- **One item, one colour story.** When an item exists as both a 2D icon and a 3D model (an ore, an ingot, a gem, a pickaxe), the 3D model takes its main colours from the icon. `docs/CLAUDE.md` already says the picture is the source of truth for how an item looks. So: open the PNG, take its two or three main colours, and build the 3D materials from them. The pickaxe skins already do this (`models/pickaxe-skins.json` colours each part from its sprite).
 - **Same silhouette idea.** The 3D model and the icon should be recognisable as the same thing at a glance. Example: Void Stone's icon is a dark purple spiral, so its 3D vein should carry a spiral motif, not just be a purple rock.
 - **No pixel art in the 3D world.** Do not put pixel-art textures on 3D models, and never use `THREE.NearestFilter` on a world texture. Pixels belong to the 2D layer only.
 - **No 3D renders as icons.** Inventory icons stay hand-made pixel art at 48×48. Do not swap in rendered screenshots of the 3D models.
@@ -134,7 +134,7 @@ Sampled from the reference previews on 2026-10-14. They are a starting point, no
 | Creature, orange fur | `#BD753B` | Animated Stylized Cat |
 
 ### Ore tiers
-The ten ore tiers are **Decided** (D-005). Their 3D colours must come from each tier's icons in `sprites/items/` (the `nugget_` and `gemstone_` files), following section 2. Do not pick tier colours from this table or from the tier's name. See `docs/02-resources.md` for what each icon shows.
+The ten ore tiers are **Decided** (D-005). Their 3D colours must come from each tier's icons in `sprites/items/` (the `nugget_` and `gemstone_` files), following section 2. Do not pick tier colours from this table or from the tier's name. See `02-resources.md` for what each icon shows.
 
 ---
 
@@ -212,7 +212,7 @@ Each guide lists the references for that category in section 11, what to take fr
 ### 9.2 Farming and crops
 *References: Stylized Garden Crop Grades, Stylized Farm Crops, Farm Crops.*
 
-Farming is **not a decided activity** (`docs/01-activities.md` is Not started). These rules only say how crops look if farming is added.
+Farming is **not a decided activity** (`01-activities.md` is Not started). These rules only say how crops look if farming is added.
 
 - **Each growth stage has its own clear silhouette.** The references use four or five stages (seed or sprout, young plant, growing, ripe, and in one pack dead). A player should tell the stages apart from the camera without reading a label.
 - **The crop is the accent.** Leaves are a calm green. The tomato, pumpkin or carrot is the saturated colour, and slightly oversized.

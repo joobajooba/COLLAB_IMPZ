@@ -1,6 +1,6 @@
 # IMPLINGZ: design roadmap
 
-> Claude: read `design/CLAUDE.md` before working from this file.
+> Claude: read `docs/CLAUDE.md` before working from this file.
 >
 > This file tracks the **design docs**. What has been built in the game, and what to build next, is in [BUILD-ROADMAP.md](BUILD-ROADMAP.md).
 
@@ -27,15 +27,16 @@ Every Markdown file in the repo, most important first. The order is **Proposed**
 | # | Document | What it is | Status |
 |---|---|---|---|
 | 1 | [DECISIONS.md](DECISIONS.md) | Every decision you have made. The source of truth: anything else that disagrees with it is wrong. | Living log |
-| 2 | [docs/00-overview.md](docs/00-overview.md) | The game's intent, core loop and the role of the NFT. Every other doc must agree with it. | Draft |
+| 1a | [README.md](README.md) | Index of every design doc in this folder. | Living |
+| 2 | [00-overview.md](00-overview.md) | The game's intent, core loop and the role of the NFT. Every other doc must agree with it. | Draft |
 | 3 | [ROADMAP.md](ROADMAP.md) (this file) | The design passes and the status of every design doc. | Living |
 | 4 | [BUILD-ROADMAP.md](BUILD-ROADMAP.md) | The playable game: what is built, what is in review, and the next milestones. | Living |
-| 5 | [docs/02-resources.md](docs/02-resources.md) | Resources and economy: ore tiers, pickaxes, energy, item pictures. The most filled-in design doc. | Draft |
+| 5 | [02-resources.md](02-resources.md) | Resources and economy: ore tiers, pickaxes, energy, item pictures. The most filled-in design doc. | Draft |
 | 6 | [ART-DIRECTION.md](ART-DIRECTION.md) | The art style: cartoon stylised 3D for the world, 2D pixel art for menus and inventory, the 32 reference listings, and a checklist for every 3D asset. | Draft |
-| 7 | [docs/01-activities.md](docs/01-activities.md) | What players do in the world, and what each activity produces. | Not started |
-| 8 | [docs/05-skirmish.md](docs/05-skirmish.md) | The Pokémon-style battle system. | Not started |
-| 9 | [docs/03-games.md](docs/03-games.md) | Minigames and their rewards. | Not started |
-| 10 | [docs/04-trade.md](docs/04-trade.md) | How value moves between players. | Not started |
+| 7 | [01-activities.md](01-activities.md) | What players do in the world, and what each activity produces. | Not started |
+| 8 | [05-skirmish.md](05-skirmish.md) | The Pokémon-style battle system. | Not started |
+| 9 | [03-games.md](03-games.md) | Minigames and their rewards. | Not started |
+| 10 | [04-trade.md](04-trade.md) | How value moves between players. | Not started |
 | 11 | [../CLAUDE.md](../CLAUDE.md) | Repo rules for Claude: staging branches, draft PRs, "commit to main", backups and rollback. | Rules |
 | 12 | [CLAUDE.md](CLAUDE.md) | Design rules for Claude: don't deviate, quality first, statuses, how to run a pass, reports. | Rules |
 | 13 | [../README.md](../README.md) | How to run the game, and its controls. | Reference |
@@ -57,16 +58,16 @@ For a main row, **Status** is the doc's status. For a sub row, it is the topic's
 
 | # | Doc / topic | Status | Still open | Depends on | Last pass |
 |---|---|---|---|---|---|
-| **00** | **[Overview](docs/00-overview.md)** | **Draft** | Open questions 1–6 | n/a | 0 |
+| **00** | **[Overview](00-overview.md)** | **Draft** | Open questions 1–6 | n/a | 0 |
 | 00.1 | ↳ One-line pitch | Open question | A working version is Proposed | | |
 | 00.2 | ↳ Design pillars | Proposed | Your call on all four | | |
 | 00.3 | ↳ Core loop | Proposed | Question 6 | | |
 | 00.4 | ↳ Systems map | Decided (D-002) for the five systems | Each system's job is Proposed | | |
 | 00.5 | ↳ Target player and platform | Open question | Questions 4 and 5 | | |
 | 00.6 | ↳ Scope guardrails | Proposed | Your call | | |
-| **01** | **[Activities](docs/01-activities.md)** | **Not started** | Everything | 00, 02 | 0 |
+| **01** | **[Activities](01-activities.md)** | **Not started** | Everything | 00, 02 | 0 |
 | 01.1 | ↳ Mining | Decided in 02 (D-005 to D-013), and built | Not written up in 01 yet | | |
-| **02** | **[Resources & economy](docs/02-resources.md)** | **Draft** | Sections 1, 2 and 5–8 are empty | 00 | 0, then user additions (D-005 to D-013) |
+| **02** | **[Resources & economy](02-resources.md)** | **Draft** | Sections 1, 2 and 5–8 are empty | 00 | 0, then user additions (D-005 to D-013) |
 | 02.1 | ↳ Ore tiers and item pictures | Decided (D-005) | Drawn 3D veins for tiers 3–10 (the build recolours the copper vein) | | |
 | 02.2 | ↳ Pickaxes: which mines which ore, and craft costs | Decided (D-006, D-011) | What the Stellarite pickaxe is for (a stronger pickaxe also mines every lower ore) | | |
 | 02.3 | ↳ Mining rewards and vein respawn | Decided (D-007, D-010) | n/a | | |
@@ -78,9 +79,9 @@ For a main row, **Status** is the doc's status. For a sub row, it is the topic's
 | 02.9 | ↳ Selling, and other crafting and blacksmithing | Not decided | All of it | | |
 | 02.10 | ↳ Prestige icons | Not decided | What they are for | | |
 | 02.11 | ↳ Sources, sinks, currencies, tradeability | Open question | The six questions at the end of 02 | | |
-| **03** | **[Games](docs/03-games.md)** | **Not started** | Everything | 00, 02 | 0 |
-| **04** | **[Trade system](docs/04-trade.md)** | **Not started** | Everything | 00, 02 | 0 |
-| **05** | **[Skirmish system](docs/05-skirmish.md)** | **Not started** | Everything | 00, 02 | 0 |
+| **03** | **[Games](03-games.md)** | **Not started** | Everything | 00, 02 | 0 |
+| **04** | **[Trade system](04-trade.md)** | **Not started** | Everything | 00, 02 | 0 |
+| **05** | **[Skirmish system](05-skirmish.md)** | **Not started** | Everything | 00, 02 | 0 |
 
 **Why this order:** the overview decides what the NFT is and what the core loop is. Every system depends on that. Resources come next because every other system makes or spends them. If resources are designed last, the economy won't balance. Trade comes late because it depends on decisions about what is on-chain.
 
@@ -158,7 +159,7 @@ One collaborator has local Pass 1 work that was never pushed. On 2026-10-13 it w
 
 ## Current pass
 
-**Pass 1: Foundations.** Waiting on your answers to the open questions in [the overview](docs/00-overview.md#open-questions). The mining resources in 02 have moved ahead through user additions (see the pass log).
+**Pass 1: Foundations.** Waiting on your answers to the open questions in [the overview](00-overview.md#open-questions). The mining resources in 02 have moved ahead through user additions (see the pass log).
 
 ---
 
@@ -174,3 +175,4 @@ One collaborator has local Pass 1 work that was never pushed. On 2026-10-13 it w
 | User additions | 2026-10-14 | Art direction | `ART-DIRECTION.md` created from your 32 reference listings, as `Draft`. Cartoon stylised 3D world (D-014). 2D pixel art for menus and inventory, 3D for anything in the world (D-015). The style rules are Proposed; six open questions at the end of the doc. | No report |
 | User additions | 2026-10-15 | Art direction answers | Implingz are already done and left out (D-016). Veins can differ in colour (D-017). References are style only; assets are made by us (D-018). Veins should look like Stylized Ore, which you own a licence for (D-019). | No report |
 | User additions | 2026-10-16 | Ore names | Mithril renamed Titanite, Adamantite renamed Dreadstone (D-020). | No report |
+| User additions | 2026-10-16 | Repo layout | Design Markdown moved to `docs/` (D-021). Models, textures and sprites each have one folder. | No report |
