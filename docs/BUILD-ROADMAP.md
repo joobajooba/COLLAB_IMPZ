@@ -1,6 +1,6 @@
 # IMPLINGZ: build roadmap
 
-> Claude: read `design/CLAUDE.md` before working from this file. Code changes still follow the root `CLAUDE.md`: a `staging/` branch and a draft PR for every change.
+> Claude: read `docs/CLAUDE.md` before working from this file. Code changes still follow the root `CLAUDE.md`: a `staging/` branch and a draft PR for every change.
 
 This file tracks the **playable game** in this repo: what is built, what is in review, and what comes next. The design docs are tracked in [ROADMAP.md](ROADMAP.md).
 

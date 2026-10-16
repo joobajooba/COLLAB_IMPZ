@@ -62,7 +62,7 @@ const LABEL_RANGE = 3.2;
 // The ten ore tiers, lowest first (D-005). Breaking a vein gives one of its ore
 // (D-007, D-010) and, with `gemChance`, its gem too (D-012). `file` is the name
 // in sprites/items/. `ingot: false` because Coal has no ingot.
-// `model`: "tin" is tin_orevein.fbx; "vein" is models/copper_vein.glb, with its
+// `model`: "tin" is models/tin_orevein.fbx; "vein" is models/copper_vein.glb, with its
 // rock and ore crystals recoloured by `look` (TEST art until each tier has
 // its own vein). `spots` are where its veins stand: a TEST layout.
 const ORES = [
@@ -563,7 +563,7 @@ function loadCharacter() {
   const status = document.getElementById("status");
   const loader = new GLTFLoader();
   loader.load(
-    "./0.glb",
+    "./models/character.glb",
     (gltf) => {
       const model = gltf.scene;
       modelHolder.add(model);
@@ -624,7 +624,7 @@ function loadCharacter() {
     },
     undefined,
     (error) => {
-      status.textContent = "Could not load 0.glb";
+      status.textContent = "Could not load models/character.glb";
       console.error(error);
     }
   );
@@ -632,7 +632,7 @@ function loadCharacter() {
 
 function loadOre() {
   const loader = new FBXLoader();
-  loader.load("./tin_orevein.fbx", (fbx) => {
+  loader.load("./models/tin_orevein.fbx", (fbx) => {
     const drop = [];
     fbx.traverse((obj) => {
       if (obj.isLight || obj.isCamera) drop.push(obj);

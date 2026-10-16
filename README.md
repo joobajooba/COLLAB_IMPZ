@@ -2,6 +2,16 @@
 
 Three.js walking test scene.
 
+## Where things live
+
+| Folder | What is in it |
+|---|---|
+| `docs/` | All design documents. Start at [`docs/README.md`](docs/README.md). |
+| `models/` | 3D models (character, pickaxe, ore veins) and their Blender build scripts |
+| `textures/` | World textures (soil, stone) |
+| `sprites/` | 2D pixel art: `items/` for inventory icons, `pickaxes/` for tool icons |
+| `.` (this folder) | The game itself: `index.html`, `main.js`, `package.json`, plus `README.md` and `CLAUDE.md` |
+
 ## Run locally
 
 ```sh

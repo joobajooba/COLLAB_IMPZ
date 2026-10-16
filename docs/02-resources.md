@@ -58,7 +58,7 @@ What the pictures actually show (open the file if you need the exact pixels):
 - `ingot_` files are bars. Stellarite is a blue bar with yellow stars. Void Stone is a dark bar with a purple spiral. Tin is a plain silver bar.
 - Gems are cut stones. Topaz is an orange round gem. Arcanium is a purple four-point star. Eclipsium is a black sphere with a white four-point glint. The other gems match their names: blue sapphire, purple amethyst, red ruby, green emerald, green jade, white diamond, red painite cluster.
 
-These pictures are inventory icons. They are not the 3D ore vein in the walk scene (`tin_orevein.fbx`).
+These pictures are inventory icons. They are not the 3D ore vein in the walk scene (`models/tin_orevein.fbx`).
 
 ### Pickaxes (Decided, D-006)
 
@@ -130,7 +130,7 @@ These six files were in the same folder. They are **not** ores, ingots or gems, 
 ## 4. Inputs & outputs
 | Takes in | Gives out | Notes |
 |---|---|---|
-| Breaking one vein of any tier, and 5 energy | 1 ore of that tier (`nugget_` icon) in the inventory menu | **Decided** (D-005, D-007, D-008, D-010). The scene has a vein for every tier. Tin uses `tin_orevein.fbx` and Copper uses `models/copper_vein.glb`. Iron to Stellarite use the copper vein recoloured per tier: **test art** until each has its own model. |
+| Breaking one vein of any tier, and 5 energy | 1 ore of that tier (`nugget_` icon) in the inventory menu | **Decided** (D-005, D-007, D-008, D-010). The scene has a vein for every tier. Tin uses `models/tin_orevein.fbx` and Copper uses `models/copper_vein.glb`. Iron to Stellarite use the copper vein recoloured per tier: **test art** until each has its own model. |
 | Breaking one vein of any tier | That tier's gem, sometimes | **Decided** (D-005, D-012). 10% for Tin down to 1% for Stellarite, rolled once per vein. |
 | Mining any vein | Costs 5 energy | **Decided** (D-008). Energy max is 100. Below 5 energy nothing can be mined. Energy resets to 100 every 12 hours from midnight (00:00 and 12:00), with no slow refill (D-009). The build uses the player's own clock and saves energy in the browser. **Open question:** whether midnight should be one shared time zone for every player. |
 | Time | A broken vein grows back after 10 seconds | **Decided** (D-007), for now. Applies to every vein. |

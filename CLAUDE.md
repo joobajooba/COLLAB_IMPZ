@@ -37,4 +37,4 @@ Delete the merged staging branches only when the user asks, and only after confi
 
 ## Game design
 
-The game design lives in `design/` and follows its own rules in `design/CLAUDE.md`: a roadmap worked in passes, no deviating from what was asked, quality first, and a report at the end of each pass. Read that file before doing any design work.
+The game design lives in `docs/` and follows its own rules in `docs/CLAUDE.md`: a roadmap worked in passes, no deviating from what was asked, quality first, and a report at the end of each pass. Read that file before doing any design work.
