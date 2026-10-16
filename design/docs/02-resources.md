@@ -40,14 +40,16 @@ What mining gives: one ore item for that tier (the `nugget_` picture) every time
 | 4 | Coal | `sprites/items/nugget_coal.png` | none | Ruby | `sprites/items/gemstone_ruby.png` | 7% |
 | 5 | Gold | `sprites/items/nugget_gold.png` | `sprites/items/ingot_gold.png` | Emerald | `sprites/items/gemstone_emerald.png` | 6% |
 | 6 | Obsidian | `sprites/items/nugget_obsidian.png` | `sprites/items/ingot_obsidian.png` | Jade | `sprites/items/gemstone_jade.png` | 5% |
-| 7 | Mithril | `sprites/items/nugget_mithril.png` | `sprites/items/ingot_mithril.png` | Diamond | `sprites/items/gemstone_diamond.png` | 4% |
-| 8 | Adamantite | `sprites/items/nugget_adamantite.png` | `sprites/items/ingot_adamantite.png` | Painite | `sprites/items/gemstone_painite.png` | 3% |
+| 7 | Titanite | `sprites/items/nugget_mithril.png` | `sprites/items/ingot_mithril.png` | Diamond | `sprites/items/gemstone_diamond.png` | 4% |
+| 8 | Dreadstone | `sprites/items/nugget_adamantite.png` | `sprites/items/ingot_adamantite.png` | Painite | `sprites/items/gemstone_painite.png` | 3% |
 | 9 | Void Stone | `sprites/items/nugget_void.png` | `sprites/items/ingot_void.png` | Arcanium | `sprites/items/gemstone_arcanium.png` | 2% |
 | 10 | Stellarite | `sprites/items/nugget_stellarite.png` | `sprites/items/ingot_stellarite.png` | Eclipsium | `sprites/items/gemstone_eclipsium.png` | 1% |
 
 File names that do not match the display name:
 
 - Void Stone uses `void`, not `void_stone`.
+- Titanite uses `mithril` (D-020).
+- Dreadstone uses `adamantite` (D-020).
 - Coal has an ore picture only. There is no `ingot_coal.png`. The table still showed a second coal icon in the Ingot column. That file was not in the asset folder. Do not invent one.
 
 What the pictures actually show (open the file if you need the exact pixels):
@@ -78,9 +80,9 @@ Hilts are ingredients only. The table does not say how a player gets an Ash Wood
 | Coal | Ruby | Iron Pickaxe |
 | Gold | Emerald | Steel Pickaxe |
 | Obsidian | Jade | Gold Pickaxe |
-| Mithril | Diamond | Obsidian Pickaxe |
-| Adamantite | Painite | Mithril Pickaxe |
-| Void Stone | Arcanium | Adamantite Pickaxe |
+| Titanite | Diamond | Obsidian Pickaxe |
+| Dreadstone | Painite | Titanite Pickaxe |
+| Void Stone | Arcanium | Dreadstone Pickaxe |
 | Stellarite | Eclipsium | Void Pickaxe |
 
 | Pickaxe | Crafted using |
@@ -91,12 +93,12 @@ Hilts are ingredients only. The table does not say how a player gets an Ash Wood
 | Steel Pickaxe | 10 Iron Ingot, 1 Ash Wood Hilt |
 | Gold Pickaxe | 10 Gold Ingot, 1 Ash Wood Hilt |
 | Obsidian Pickaxe | 10 Obsidian Ingot, 1 Oak Wood Hilt |
-| Mithril Pickaxe | 10 Obsidian Ingot, 1 Oak Wood Hilt |
-| Adamantite Pickaxe | 10 Adamantite Ingot, 1 Oak Wood Hilt |
+| Titanite Pickaxe | 10 Obsidian Ingot, 1 Oak Wood Hilt |
+| Dreadstone Pickaxe | 10 Dreadstone Ingot, 1 Oak Wood Hilt |
 | Void Pickaxe | 10 Void Ingot, 1 Void Hilt |
 | Stellarite Pickaxe | 10 Stellarite Ingot, 1 Cosmic Hilt |
 
-The Mithril row is written the same as the Obsidian row: 10 Obsidian Ingot and 1 Oak Wood Hilt. It does not use a Mithril ingot. That is what the table says. Do not change it.
+The Titanite row is written the same as the Obsidian row: 10 Obsidian Ingot and 1 Oak Wood Hilt. It does not use a Titanite ingot. That is what the table says. Do not change it.
 
 Coal is not an ingredient in any pickaxe. Coal still has no ingot file.
 
@@ -168,3 +170,4 @@ These six files were in the same folder. They are **not** ores, ingots or gems, 
 | User addition, 2026-10-12 | Copper mining reward, energy cost and 10-second respawn recorded (D-007). Built into the game as a test. |
 | User addition, 2026-10-12 | 5 energy per mine for every ore, 12-hour energy reset, 6×8 inventory menu (D-008). |
 | User addition, 2026-10-13 | Tin gives tin ore (D-010). A pickaxe mines its named ore and every ore below (D-011). Gem chance 10% down to 1% by tier (D-012). Test smelting and hilt values for the build (D-013). Stellarite ingot picture description corrected: it is a bar, not a chest. |
+| User addition, 2026-10-16 | Mithril renamed Titanite, Adamantite renamed Dreadstone (D-020). File names still use `mithril` and `adamantite`. |

@@ -25,7 +25,7 @@ Every mining rule that is decided is now built and playable. All ten ores are in
 - **Folder structure:** `git diff --stat` covers `main.js`, `index.html`, `models/pickaxe-skins.json`, `README.md` and five files in `design/`, plus 8 new files (7 sprites, this report). The local, never-pushed Pass 1 work from 2026-10-11 was committed to a **local-only** branch, `backup/local-pass-1-wip`, before `main` was updated, so nothing was lost. It is not in this PR.
 
 ## Consistency check
-- **The Mithril ingot has no use.** The D-006 craft table has the Mithril pickaxe taking 10 *Obsidian* ingots, as recorded. No recipe uses Mithril ingots, so smelting Mithril ore leads nowhere. Built exactly as written.
+- **The Titanite ingot has no use.** The D-006 craft table has the Titanite pickaxe taking 10 *Obsidian* ingots, as recorded (names as of D-020). No recipe uses Titanite ingots, so smelting Titanite ore leads nowhere. Built exactly as written.
 - **Coal has no use.** It has no ingot and is in no recipe. Players can mine it, but it piles up.
 - **The Stellarite pickaxe has no mining advantage.** The table names no ore for it. Under D-011 it mines the same ten ores as the Void pickaxe.
 - **Gems have no sink** (nothing spends them yet). The same goes for every resource; 02 question 3 is still open.
@@ -34,16 +34,16 @@ Every mining rule that is decided is now built and playable. All ten ores are in
 - The local Pass 1 decisions (D-005 to D-043 on `backup/local-pass-1-wip`) still clash with `main`. For example, their "any pickaxe, just slower" rule differs from D-011. They are unchanged and listed under "To reconcile" in `ROADMAP.md`.
 
 ## Suggestions (not applied)
-1. **Check the Mithril row.** If the Mithril pickaxe was meant to take 10 *Mithril* ingots, that one-word fix gives Mithril ingots a use. Today it matches the Obsidian row exactly.
+1. **Check the Titanite row.** If the Titanite pickaxe was meant to take 10 *Titanite* ingots, that one-word fix gives Titanite ingots a use. Today it matches the Obsidian row exactly.
 2. **Give Coal a job.** The usual pattern is coal as furnace fuel: for example, smelting Steel, or every ingot above Iron, takes 1 coal. That would also give the Steel pickaxe its own material. It's your call, and it ties into the smelter recipe you're working on.
 3. **Give the Stellarite pickaxe a purpose**, for example faster mining or a better gem chance. Or treat it as a prestige item and say so.
 4. **Save the inventory in the browser as a test**, like energy, until accounts exist (M6). Today a reload wipes your ore and pickaxes, which makes real playtesting of the progression hard.
 5. **Replace the placeholder art.** Drawn 3D veins for tiers 3–10, and drawn sprites for the Steel to Stellarite pickaxes.
 
 ## What's next
-Review and test PR #16. Say **"commit to main"** when you're happy. Then the remaining mining work is design, not build: the smelter recipe, hilt sources, and what Coal, Mithril ingots and the Stellarite pickaxe are for.
+Review and test PR #16. Say **"commit to main"** when you're happy. Then the remaining mining work is design, not build: the smelter recipe, hilt sources, and what Coal, Titanite ingots and the Stellarite pickaxe are for.
 
 ## What I need from you
 1. Review PR #16, and say "commit to main" if it's good.
-2. Is the Mithril pickaxe recipe right (10 Obsidian ingots), or should it be 10 Mithril ingots?
+2. Is the Titanite pickaxe recipe right (10 Obsidian ingots), or should it be 10 Titanite ingots?
 3. When it's ready: the smelter recipe and how players get hilts, to replace the test values.
