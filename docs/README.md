@@ -16,5 +16,6 @@ All design Markdown lives in this folder (D-021). Start here if you are looking 
 | Battles (not started) | [05-skirmish.md](05-skirmish.md) |
 | How to write design docs | [CLAUDE.md](CLAUDE.md) |
 | Pass reports | [reports/](reports/) |
+| What Claude did each day | [worklog/](worklog/) |
 
 How to run the game, and the GitHub workflow, stay at the repo root: [README.md](../README.md) and [CLAUDE.md](../CLAUDE.md).
