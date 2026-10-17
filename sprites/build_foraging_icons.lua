@@ -1,4 +1,4 @@
--- Draws the foraging inventory icons: a plant_<name>.png and a bundle_<name>.png per tier,
+-- Draws the foraging inventory icons: a plant_, bundle_ and seed_<name>.png per tier,
 -- 48x48 pixel art in the style of the mining icons (dark outline, lit from the top left).
 -- Run from the repo root:
 --   aseprite -b --script-param out=sprites/items --script sprites/build_foraging_icons.lua
@@ -56,6 +56,10 @@ local R = {
   moss      = ramp { "#0a1030", "#14224e", "#1e3674", "#2c4e9a", "#4a72c4" },
   twine     = ramp { "#5a3a1a", "#7e5628", "#a4783c", "#c89c58", "#e8c27c" },
   dry       = ramp { "#4a3a1e", "#6e5830", "#94784a", "#b89c66", "#dcc48a" },
+  nettleSeed= ramp { "#2e3a16", "#4a5a22", "#6e7e34", "#94a24c", "#bcc672" },
+  blackSeed = ramp { "#140e0a", "#2a1e14", "#463222", "#664a32", "#8a6a4a" },
+  pod       = ramp { "#3a4a28", "#5a6e38", "#7e9450", "#a4b870", "#cad898" },
+  blueSeed  = ramp { "#0c0e1e", "#1a1e3a", "#2c3460", "#46508a", "#7080c0" },
 }
 
 -- a dried look for bundle foliage: a little greyer and warmer
@@ -126,6 +130,8 @@ local PROFILE = {
   round   = function(u) return math.sin(PI * u ^ 1.4) ^ 0.6 end,
   crystal = function(u) return u < 0.35 and u / 0.35 or (1 - u) / 0.65 end,
   thorn   = function(u) return 1 - u end,
+  oval    = function(u) return math.sqrt(math.max(0, 1 - (2 * u - 1) ^ 2)) end,
+  drop    = function(u) return math.sin(PI * u ^ 0.55) end,
 }
 local function leaf(x0, y0, x1, y1, w, r, o)
   o = o or {}
@@ -554,6 +560,129 @@ local BUNDLES = {
   end,
 }
 
+---------------------------------------------------------------- seeds
+
+-- a glossy glint at the top left of a seed
+local function glint(x, y, c)
+  set(x, y, c); set(x + 1, y, c); set(x, y + 1, mix(c, WHITE, 0.3))
+end
+
+local SEEDS = {}
+
+SEEDS.nettle = function()
+  for _, s in ipairs { { 12, 36, 20, 16, 5 }, { 33, 38, 37, 18, 5 }, { 22, 43, 27, 21, 5.5 } } do
+    leaf(s[1], s[2], s[3], s[4], s[5], R.nettleSeed, { shape = "drop", vein = false })
+  end
+  glint(15, 31, R.nettleSeed[5]); glint(34, 32, R.nettleSeed[5]); glint(23, 36, R.nettleSeed[5])
+end
+
+SEEDS.marigold = function()
+  for _, s in ipairs { { 18, 43, 9, 11 }, { 30, 43, 39, 12 }, { 24, 44, 24, 6 } } do
+    leaf(s[1], s[2], s[3], s[4], 2.6, R.blackSeed, { shape = "oval", vein = false, contrast = 0.25 })
+    local tx, ty = s[1] + (s[3] - s[1]) * 0.78, s[2] + (s[4] - s[2]) * 0.78
+    leaf(tx, ty, s[3], s[4], 2.2, R.bone, { shape = "oval", vein = false })
+  end
+end
+
+SEEDS.bluebell = function()
+  stroke({ 24, 12 }, { 24, 8 }, { 26, 4 }, 1, 0.7, R.stem)
+  ellipse(24, 26, 11, 14, R.pod)
+  ellipse(24, 27, 6, 10, R.blueSeed, { lift = -0.3 })
+  for _, s in ipairs { { 24, 20 }, { 22, 25 }, { 26, 29 }, { 23, 33 } } do
+    ellipse(s[1], s[2], 2.6, 2.6, R.blueSeed, { lift = 0.15 })
+    set(s[1] - 1, s[2] - 1, R.blueSeed[5])
+  end
+  for _, s in ipairs { { 37, 42 }, { 43, 35 } } do
+    ellipse(s[1], s[2], 2.6, 2.6, R.blueSeed, { lift = 0.15 })
+    set(s[1] - 1, s[2] - 1, R.blueSeed[5])
+  end
+end
+
+SEEDS.thornroot = function()
+  local cx, cy = 24, 25
+  for i = 0, 13 do
+    local a = i / 14 * 2 * PI + 0.2
+    leaf(cx + math.cos(a) * 8, cy + math.sin(a) * 8, cx + math.cos(a) * 18, cy + math.sin(a) * 18, 2, R.bone,
+      { shape = "thorn", vein = false })
+  end
+  ellipse(cx, cy, 11, 11, R.root)
+  seed = 3
+  for _ = 1, 14 do
+    local a, d = rnd() * 2 * PI, rnd() * 8
+    set(cx + math.cos(a) * d, cy + math.sin(a) * d, R.root[1])
+  end
+  glint(cx - 5, cy - 6, R.root[5])
+end
+
+SEEDS.sunpetal = function()
+  local x0, y0, x1, y1 = 15, 41, 31, 7
+  leaf(x0, y0, x1, y1, 9, R.sun, { shape = "drop", vein = false })
+  local dx, dy = x1 - x0, y1 - y0
+  local l = math.sqrt(dx * dx + dy * dy)
+  local nx, ny = -dy / l, dx / l
+  for _, o in ipairs { -4.5, 0, 4.5 } do
+    stroke({ x0 + nx * o * 0.5 + dx * 0.12, y0 + ny * o * 0.5 + dy * 0.12 },
+           { x0 + nx * o + dx * 0.4, y0 + ny * o + dy * 0.4 },
+           { x0 + nx * o * 0.4 + dx * 0.85, y0 + ny * o * 0.4 + dy * 0.85 }, 0.6, 0.5, R.sun, { lift = -0.35, edge = false })
+  end
+  glint(17, 28, WHITE)
+  sparkle(40, 10, 2, R.sun[5], WHITE)
+  sparkle(8, 12, 1, R.sun[5], WHITE)
+  sparkle(39, 37, 1, R.sun[5], WHITE)
+end
+
+SEEDS.nightshade = function()
+  leaf(14, 38, 24, 12, 7.5, R.berry, { shape = "oval", vein = false, contrast = 0.25 })
+  leaf(25, 42, 37, 18, 7, R.berry, { shape = "oval", vein = false, contrast = 0.25 })
+  glint(16, 20, mix(R.berry[5], WHITE, 0.3)); glint(28, 26, mix(R.berry[5], WHITE, 0.3))
+end
+
+SEEDS.frostbloom = function()
+  leaf(24, 4, 24, 44, 11, R.frost, { shape = "crystal", contrast = 0.3 })
+  leaf(24, 13, 24, 36, 4.5, R.ice, { shape = "crystal", contrast = 0.3, edge = false })
+  sparkle(8, 10, 2, R.frost[4], WHITE)
+  sparkle(40, 32, 2, R.frost[4], WHITE)
+  set(39, 9, WHITE); set(9, 38, WHITE)
+end
+
+SEEDS.bloodcap = function()
+  for _, s in ipairs { { 24, 17, 6 }, { 15, 31, 7.5 }, { 32, 33, 8 } } do
+    ellipse(s[1], s[2], s[3], s[3], R.cap)
+    glint(s[1] - math.floor(s[3] / 2), s[2] - math.floor(s[3] / 2), R.cap[5])
+  end
+  for _, d in ipairs { { 26, 15 }, { 22, 19 }, { 13, 33 }, { 18, 29 }, { 30, 36 }, { 35, 30 }, { 34, 38 } } do
+    set(d[1], d[2], R.stalk[4])
+  end
+  for _, d in ipairs { { 8, 12 }, { 38, 14 }, { 41, 22 }, { 10, 21 }, { 6, 42 } } do set(d[1], d[2], R.cap[4]) end
+end
+
+SEEDS.voidlily = function()
+  leaf(16, 41, 32, 7, 10, R.void, { shape = "oval", vein = false })
+  spiral(24, 24, 7, 2.2, GLOW[2])
+  set(24, 24, GLOW[3])
+  glint(18, 18, GLOW[1])
+  wisp(6, 6, GLOW[2]); wisp(40, 8, GLOW[2]); wisp(39, 39, GLOW[1])
+end
+
+SEEDS.starmoss = function()
+  local keys = ellipse(24, 25, 14, 14, R.moss)
+  seed = 11
+  for k in pairs(keys) do
+    local c = px[k]
+    for i, rc in ipairs(R.moss) do
+      if c == rc then
+        local v = rnd()
+        if v < 0.2 then px[k] = R.moss[math.min(i + 1, 5)] elseif v < 0.3 then px[k] = R.moss[math.max(i - 1, 1)] end
+        break
+      end
+    end
+  end
+  sparkle(19, 21, 2, STAR, STAR2)
+  sparkle(30, 31, 2, STAR, STAR2)
+  for _, d in ipairs { { 28, 18 }, { 16, 30 }, { 24, 35 }, { 33, 23 }, { 21, 28 } } do set(d[1], d[2], STAR) end
+  sparkle(6, 8, 1, STAR, STAR2); sparkle(42, 42, 1, STAR, STAR2); set(42, 10, STAR)
+end
+
 ---------------------------------------------------------------- output
 
 local ORDER = { "nettle", "marigold", "bluebell", "thornroot", "sunpetal",
@@ -580,13 +709,15 @@ end
 
 local made = {}
 for _, id in ipairs(ORDER) do
-  made[#made + 1] = { render(PLANTS[id], "plant_" .. id), render(BUNDLES[id], "bundle_" .. id) }
+  made[#made + 1] = {
+    render(PLANTS[id], "plant_" .. id), render(BUNDLES[id], "bundle_" .. id), render(SEEDS[id], "seed_" .. id),
+  }
 end
 
 if PREVIEW then
   local S, PAD = 4, 8
   local cell = N * S + PAD
-  local sheet = Image(2 * cell + PAD, #made * cell + PAD, ColorMode.RGB)
+  local sheet = Image(#made[1] * cell + PAD, #made * cell + PAD, ColorMode.RGB)
   local bg = app.pixelColor.rgba(181, 181, 181, 255)
   for y = 0, sheet.height - 1 do for x = 0, sheet.width - 1 do sheet:drawPixel(x, y, bg) end end
   for row, pair in ipairs(made) do

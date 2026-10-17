@@ -114,7 +114,7 @@ The real smelter recipe and how players get hilts are **not decided**. So the bu
 
 These are test values, not the design. Replace them when the user decides.
 
-### Foraging tiers (Decided, D-022 to D-026)
+### Foraging tiers (Decided, D-022 to D-027)
 
 The user set the foraging rules on 2026-10-17 and asked Claude to make up the plant names (D-026). Ten tiers, lowest to highest, the same count as mining. The tiers are **for now** and may change.
 
@@ -122,28 +122,29 @@ What foraging gives: a picked plant for that tier (the `plant_` picture), and so
 
 Plants are picked with **sickles**, one per tier. A sickle picks its own tier's plant and every lower tier, the same rule as pickaxes (D-024).
 
-| Tier | Name | Plant picture | Bundle picture | Seed chance (D-025) |
-|---|---|---|---|---|
-| 1 | Nettle | `sprites/items/plant_nettle.png` | `sprites/items/bundle_nettle.png` | 10% |
-| 2 | Marigold | `sprites/items/plant_marigold.png` | `sprites/items/bundle_marigold.png` | 9% |
-| 3 | Bluebell | `sprites/items/plant_bluebell.png` | `sprites/items/bundle_bluebell.png` | 8% |
-| 4 | Thornroot | `sprites/items/plant_thornroot.png` | `sprites/items/bundle_thornroot.png` | 7% |
-| 5 | Sunpetal | `sprites/items/plant_sunpetal.png` | `sprites/items/bundle_sunpetal.png` | 6% |
-| 6 | Nightshade | `sprites/items/plant_nightshade.png` | `sprites/items/bundle_nightshade.png` | 5% |
-| 7 | Frostbloom | `sprites/items/plant_frostbloom.png` | `sprites/items/bundle_frostbloom.png` | 4% |
-| 8 | Bloodcap | `sprites/items/plant_bloodcap.png` | `sprites/items/bundle_bloodcap.png` | 3% |
-| 9 | Voidlily | `sprites/items/plant_voidlily.png` | `sprites/items/bundle_voidlily.png` | 2% |
-| 10 | Starmoss | `sprites/items/plant_starmoss.png` | `sprites/items/bundle_starmoss.png` | 1% |
+| Tier | Name | Plant picture | Bundle picture | Seed picture | Seed chance (D-025) |
+|---|---|---|---|---|---|
+| 1 | Nettle | `sprites/items/plant_nettle.png` | `sprites/items/bundle_nettle.png` | `sprites/items/seed_nettle.png` | 10% |
+| 2 | Marigold | `sprites/items/plant_marigold.png` | `sprites/items/bundle_marigold.png` | `sprites/items/seed_marigold.png` | 9% |
+| 3 | Bluebell | `sprites/items/plant_bluebell.png` | `sprites/items/bundle_bluebell.png` | `sprites/items/seed_bluebell.png` | 8% |
+| 4 | Thornroot | `sprites/items/plant_thornroot.png` | `sprites/items/bundle_thornroot.png` | `sprites/items/seed_thornroot.png` | 7% |
+| 5 | Sunpetal | `sprites/items/plant_sunpetal.png` | `sprites/items/bundle_sunpetal.png` | `sprites/items/seed_sunpetal.png` | 6% |
+| 6 | Nightshade | `sprites/items/plant_nightshade.png` | `sprites/items/bundle_nightshade.png` | `sprites/items/seed_nightshade.png` | 5% |
+| 7 | Frostbloom | `sprites/items/plant_frostbloom.png` | `sprites/items/bundle_frostbloom.png` | `sprites/items/seed_frostbloom.png` | 4% |
+| 8 | Bloodcap | `sprites/items/plant_bloodcap.png` | `sprites/items/bundle_bloodcap.png` | `sprites/items/seed_bloodcap.png` | 3% |
+| 9 | Voidlily | `sprites/items/plant_voidlily.png` | `sprites/items/bundle_voidlily.png` | `sprites/items/seed_voidlily.png` | 2% |
+| 10 | Starmoss | `sprites/items/plant_starmoss.png` | `sprites/items/bundle_starmoss.png` | `sprites/items/seed_starmoss.png` | 1% |
 
 What the pictures show:
 
 - `plant_` files are the plants as picked. Nettle is a green sprig with jagged leaf pairs. Marigold is an orange many-petalled flower with a brown centre. Bluebell is an arching stem with three hanging blue bells. Thornroot is a forked brown root with pale thorns and a small sprout. Sunpetal is a pointed gold flower with sparkles. Nightshade is a bunch of dark purple berries with one purple flower. Frostbloom is a pale icy six-point crystal flower with frost sparkles. Bloodcap is a red mushroom with cream spots and a small one beside it. Voidlily is a near-black lily with a glowing purple spiral centre and wisps. Starmoss is a dark blue moss clump with yellow star specks.
 - `bundle_` files are one shape for every tier: dried stems tied with twine, the leafy end in that tier's colour. Like the ingots, the higher tiers carry their plant's mark: sparkles (Sunpetal), berries (Nightshade), frost (Frostbloom), spots (Bloodcap), a spiral (Voidlily), stars (Starmoss).
+- `seed_` files are the seeds, one different shape per plant, like the gems. Nettle: three olive teardrop seeds. Marigold: three long dark seeds with pale tips. Bluebell: a green pod split open on blue-black seeds, two loose beside it. Thornroot: a brown burr with pale spikes. Sunpetal: a big striped gold seed with sparkles. Nightshade: two glossy purple seeds. Frostbloom: a pale ice crystal with a blue core. Bloodcap: three red spore balls with cream specks (a mushroom has spores, not seeds). Voidlily: a dark oval seed with a glowing purple spiral. Starmoss: a dark blue spore ball with yellow stars.
 - Tiers 5 to 10 reuse the colours of the same mining tiers (gold, dark purple, pale lilac, red, void purple, starry blue), so a colour means the same rarity in both activities.
 
 The icons are drawn by `sprites/build_foraging_icons.lua` in Aseprite (`aseprite -b --script-param out=sprites/items --script sprites/build_foraging_icons.lua`). They can be hand-edited in Aseprite afterwards.
 
-**Not decided:** how many plants make a bundle, sickle names, materials and craft costs, what each potion and food does and which bundles they take, what seeds are for, and seed icons.
+**Not decided:** how many plants make a bundle, sickle names, materials and craft costs, what each potion and food does and which bundles they take, and what seeds are for.
 
 ### Prestige icons (not part of the mining table)
 
@@ -203,3 +204,4 @@ These six files were in the same folder. They are **not** ores, ingots or gems, 
 | User addition, 2026-10-13 | Tin gives tin ore (D-010). A pickaxe mines its named ore and every ore below (D-011). Gem chance 10% down to 1% by tier (D-012). Test smelting and hilt values for the build (D-013). Stellarite ingot picture description corrected: it is a bar, not a chest. |
 | User addition, 2026-10-16 | Mithril renamed Titanite, Adamantite renamed Dreadstone (D-020). File names still use `mithril` and `adamantite`. |
 | User addition, 2026-10-17 | Foraging tier table and rules recorded (D-022 to D-026), with plant and bundle icons. |
+| User addition, 2026-10-17 | Seed icons added to the foraging table (D-027). |
