@@ -142,9 +142,48 @@ What the pictures show:
 - `seed_` files are the seeds, one different shape per plant, like the gems. Nettle: three olive teardrop seeds. Marigold: three long dark seeds with pale tips. Bluebell: a green pod split open on blue-black seeds, two loose beside it. Thornroot: a brown burr with pale spikes. Sunpetal: a big striped gold seed with sparkles. Nightshade: two glossy purple seeds. Frostbloom: a pale ice crystal with a blue core. Bloodcap: three red spore balls with cream specks (a mushroom has spores, not seeds). Voidlily: a dark oval seed with a glowing purple spiral. Starmoss: a dark blue spore ball with yellow stars.
 - Tiers 5 to 10 reuse the colours of the same mining tiers (gold, dark purple, pale lilac, red, void purple, starry blue), so a colour means the same rarity in both activities.
 
-The icons are drawn by `sprites/build_foraging_icons.lua` in Aseprite (`aseprite -b --script-param out=sprites/items --script sprites/build_foraging_icons.lua`). They can be hand-edited in Aseprite afterwards.
+The icons are drawn by `sprites/build_foraging_icons.lua` in Aseprite (`aseprite -b --script-param out=sprites/items --script sprites/build_foraging_icons.lua`), using the shared helpers in `sprites/pixel_icons.lua`. They can be hand-edited in Aseprite afterwards.
 
 **Not decided:** how many plants make a bundle, sickle names, materials and craft costs, what each potion and food does and which bundles they take, and what seeds are for.
+
+### Hunting tiers (Decided, D-028 to D-032)
+
+The user set the hunting rules on 2026-10-17 and asked Claude to name the animals and trophies (D-032). **Sixteen tiers**, lowest to highest. That is more than mining and foraging, which have ten each.
+
+What hunting gives: a defeated animal goes **"poof"** in a cartoon way, drops its **hide** (the `hide_` picture) and respawns (D-028, D-029). Sometimes it also drops its **trophy** (D-031). A **tanning rack** turns hides into **leather** of the same tier (the `leather_` picture), the way the furnace turns ore into ingots (D-029). Animals can also be **tamed** (D-028).
+
+Animals are hunted with **bows**, one per tier (D-030).
+
+The **Trophy chance** column is **Proposed**, not decided. The gem and seed ladder (10% falling 1% per tier) would go below zero before tier 16. So the proposal starts at 10% and falls 0.6% per tier, reaching 1% at tier 16.
+
+| Tier | Animal | Hide picture | Leather picture | Trophy | Trophy picture | Trophy chance (Proposed) |
+|---|---|---|---|---|---|---|
+| 1 | Hare | `sprites/items/hide_hare.png` | `sprites/items/leather_hare.png` | Lucky Foot | `sprites/items/trophy_lucky_foot.png` | 10.0% |
+| 2 | Fox | `sprites/items/hide_fox.png` | `sprites/items/leather_fox.png` | Brush Tail | `sprites/items/trophy_brush_tail.png` | 9.4% |
+| 3 | Boar | `sprites/items/hide_boar.png` | `sprites/items/leather_boar.png` | Boar Tusk | `sprites/items/trophy_boar_tusk.png` | 8.8% |
+| 4 | Wolf | `sprites/items/hide_wolf.png` | `sprites/items/leather_wolf.png` | Wolf Fang | `sprites/items/trophy_wolf_fang.png` | 8.2% |
+| 5 | Goldhorn Stag | `sprites/items/hide_goldhorn_stag.png` | `sprites/items/leather_goldhorn_stag.png` | Golden Antler | `sprites/items/trophy_golden_antler.png` | 7.6% |
+| 6 | Shadowcat | `sprites/items/hide_shadowcat.png` | `sprites/items/leather_shadowcat.png` | Shadow Claw | `sprites/items/trophy_shadow_claw.png` | 7.0% |
+| 7 | Frostmane Yeti | `sprites/items/hide_frostmane_yeti.png` | `sprites/items/leather_frostmane_yeti.png` | Frozen Heart | `sprites/items/trophy_frozen_heart.png` | 6.4% |
+| 8 | Cinder Salamander | `sprites/items/hide_cinder_salamander.png` | `sprites/items/leather_cinder_salamander.png` | Ember Scale | `sprites/items/trophy_ember_scale.png` | 5.8% |
+| 9 | Voidstalker | `sprites/items/hide_voidstalker.png` | `sprites/items/leather_voidstalker.png` | Void Eye | `sprites/items/trophy_void_eye.png` | 5.2% |
+| 10 | Starwyrm | `sprites/items/hide_starwyrm.png` | `sprites/items/leather_starwyrm.png` | Star Horn | `sprites/items/trophy_star_horn.png` | 4.6% |
+| 11 | Stormhorn Ram | `sprites/items/hide_stormhorn_ram.png` | `sprites/items/leather_stormhorn_ram.png` | Thunder Curl | `sprites/items/trophy_thunder_curl.png` | 4.0% |
+| 12 | Tidecrest Serpent | `sprites/items/hide_tidecrest_serpent.png` | `sprites/items/leather_tidecrest_serpent.png` | Abyss Pearl | `sprites/items/trophy_abyss_pearl.png` | 3.4% |
+| 13 | Mossmane Behemoth | `sprites/items/hide_mossmane_behemoth.png` | `sprites/items/leather_mossmane_behemoth.png` | Verdant Mane | `sprites/items/trophy_verdant_mane.png` | 2.8% |
+| 14 | Crystalback Basilisk | `sprites/items/hide_crystalback_basilisk.png` | `sprites/items/leather_crystalback_basilisk.png` | Prism Shard | `sprites/items/trophy_prism_shard.png` | 2.2% |
+| 15 | Sunfeather Griffin | `sprites/items/hide_sunfeather_griffin.png` | `sprites/items/leather_sunfeather_griffin.png` | Sun Feather | `sprites/items/trophy_sun_feather.png` | 1.6% |
+| 16 | Eclipse Dragon | `sprites/items/hide_eclipse_dragon.png` | `sprites/items/leather_eclipse_dragon.png` | Eclipse Crown | `sprites/items/trophy_eclipse_crown.png` | 1.0% |
+
+What the pictures show:
+
+- `hide_` files are one stretched-pelt shape for every tier: four pointed legs, a head with ears and a tail, in the animal's colours. Fur hides have a ragged edge. Scaled animals (Cinder Salamander, Starwyrm, Tidecrest Serpent, Crystalback Basilisk, Eclipse Dragon) have rows of scales instead. Each carries its animal's mark: a pale belly (Hare, Fox, Wolf), a dark spine stripe (Boar), pale spots (Goldhorn Stag), glowing rosettes (Shadowcat), frost (Frostmane Yeti), glowing cracks (Cinder Salamander), a void spiral (Voidstalker), stars (Starwyrm), a lightning bolt (Stormhorn Ram), a pearly belly (Tidecrest Serpent), moss sprigs (Mossmane Behemoth), crystal spines (Crystalback Basilisk), a feather pattern (Sunfeather Griffin), an eclipse ring (Eclipse Dragon).
+- `leather_` files are one rolled leather shape with a strap and gold buckle, recoloured per tier, like the ingots. Higher tiers carry the same marks as their hides.
+- `trophy_` files are each their own shape, like the gems. Lucky Foot: a furry foot on a gold keyring. Brush Tail: a bushy orange tail with a white tip. Boar Tusk: a curved ivory tusk. Wolf Fang: a fang on a cord. Golden Antler: a branching gold antler. Shadow Claw: three dark claws with glowing edges. Frozen Heart: an ice-crystal heart. Ember Scale: a red scale with glowing cracks. Void Eye: a dark eye with a glowing purple iris and slit pupil. Star Horn: a ridged blue horn with stars. Thunder Curl: a curled grey ram's horn with a lightning bolt. Abyss Pearl: a pearl in an open teal shell. Verdant Mane: green mane strands in a gold clasp. Prism Shard: a cluster of pink crystals. Sun Feather: a pale gold feather. Eclipse Crown: a black and gold crown with a dark orb ringed in light.
+
+The icons are drawn by `sprites/build_hunting_icons.lua` in Aseprite (`aseprite -b --script-param out=sprites/items --script sprites/build_hunting_icons.lua`). It shares its drawing helpers with the foraging script through `sprites/pixel_icons.lua`.
+
+**Not decided:** how taming works and what a tamed animal does, how many hides make a leather, what leather is for, bow names, materials and costs, whether a bow hunts lower tiers, whether arrows are used up, and the trophy chance.
 
 ### Prestige icons (not part of the mining table)
 
@@ -205,3 +244,4 @@ These six files were in the same folder. They are **not** ores, ingots or gems, 
 | User addition, 2026-10-16 | Mithril renamed Titanite, Adamantite renamed Dreadstone (D-020). File names still use `mithril` and `adamantite`. |
 | User addition, 2026-10-17 | Foraging tier table and rules recorded (D-022 to D-026), with plant and bundle icons. |
 | User addition, 2026-10-17 | Seed icons added to the foraging table (D-027). |
+| User addition, 2026-10-17 | Hunting tier table and rules recorded (D-028 to D-032), 16 tiers, with hide, leather and trophy icons. |
